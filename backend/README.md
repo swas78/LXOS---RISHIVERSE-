@@ -4,7 +4,8 @@ Private **contributor kit** for building modules that integrate into RishiVerse 
 
 This is **not** the full RishiVerse monorepo. It contains:
 
-- Architecture rules (layered API pattern)
+- Architecture, design, and hard rules (`ARCHITECTURE.md`, `DESIGN.md`, `RULES.md`)
+- Cursor rules + **project skills** (scaffold, review, handoff)
 - Folder hierarchy matching production
 - One runnable **demo** module (`demo/item`) to copy
 - Stub Express app so you can develop locally
@@ -41,12 +42,17 @@ You never get write access to RishiVerse `Master` or production secrets from thi
 
 | Doc | Purpose |
 |-----|---------|
+| [ARCHITECTURE.md](./ARCHITECTURE.md) | Layers, request flow, directory map |
+| [DESIGN.md](./DESIGN.md) | API/data design principles |
+| [RULES.md](./RULES.md) | Hard do/don't rules |
 | [CONTRIBUTING.md](./CONTRIBUTING.md) | Day-to-day workflow |
 | [ACCEPTANCE_CHECKLIST.md](./ACCEPTANCE_CHECKLIST.md) | Required before handoff |
 | [docs/CONTRACTS.md](./docs/CONTRACTS.md) | Shared entities you may reference |
 | [docs/HANDOFF.md](./docs/HANDOFF.md) | How code enters RishiVerse |
+| [docs/SKILLS.md](./docs/SKILLS.md) | Cursor project skills index |
 | [templates/NEW_MODULE.md](./templates/NEW_MODULE.md) | File checklist for a new module |
-| `.cursor/rules/` | Cursor rules (same spirit as core repo) |
+| `.cursor/rules/` | Always-on Cursor rules |
+| `.cursor/skills/` | Agent skills (new module / review / handoff) |
 
 ## Golden example
 
