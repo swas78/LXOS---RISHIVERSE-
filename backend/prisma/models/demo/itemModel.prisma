@@ -1,0 +1,23 @@
+// Mirror of DemoItem for documentation / handoff layout.
+// Source of truth in the kit is prisma/schema.prisma.
+// When integrating into RishiVerse, place the production model file here:
+//   prisma/models/{module}/{entity}Model.prisma
+
+model DemoItem {
+  id          String         @id @default(cuid())
+  title       String
+  description String?
+  status      DemoItemStatus @default(DRAFT)
+  deletedAt   DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([deletedAt])
+  @@map("demo_items")
+}
+
+enum DemoItemStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}

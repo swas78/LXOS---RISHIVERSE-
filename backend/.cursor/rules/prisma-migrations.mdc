@@ -1,0 +1,21 @@
+---
+description: Prisma workflow - propose schema only; core team owns production migrations
+alwaysApply: true
+---
+
+# Prisma: schema in kit, migrations in RishiVerse
+
+## In this kit (local)
+
+- Edit `.prisma` models under `prisma/models/` and `prisma/schema.prisma`.
+- Read-only: `npx prisma validate`, `npx prisma format`, `npx prisma generate`.
+- For **local** throwaway DB only, `npx prisma db push` is allowed so the demo runs.
+
+## In RishiVerse (production / shared)
+
+Maintainers run:
+
+- `prisma migrate dev` / `migrate deploy`
+- seeds and DB resets
+
+Do **not** expect your kit `db push` history to ship to production. Hand off schema files; maintainers create migrations.

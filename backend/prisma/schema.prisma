@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// DEMO MODULE — copy this pattern for your module under prisma/models/{module}/
+// In RishiVerse, models are often split across prisma/models/** and composed
+// into the root schema. In this kit we keep a single schema for simplicity.
+// ---------------------------------------------------------------------------
+
+model DemoItem {
+  id          String    @id @default(cuid())
+  title       String
+  description String?
+  status      DemoItemStatus @default(DRAFT)
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([deletedAt])
+  @@map("demo_items")
+}
+
+enum DemoItemStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}

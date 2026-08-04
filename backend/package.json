@@ -1,0 +1,26 @@
+{
+  "name": "rishiverse-module-scaffold",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Contributor kit for building RishiVerse Backend modules",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:validate": "prisma validate",
+    "prisma:push": "prisma db push"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "prisma": "^6.19.0"
+  }
+}

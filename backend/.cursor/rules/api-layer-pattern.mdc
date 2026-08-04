@@ -1,0 +1,57 @@
+---
+description: Layered API pattern (demo/item is the canonical kit example)
+alwaysApply: true
+---
+
+# API Layer Pattern
+
+Follow the **demo/item** module in this kit (mirrors RishiVerse Configuration / Academic Year).
+
+## Request flow
+
+```
+app.js → /api/v1 → routes/{module}Routes.js → routes/{module}/{entity}Routes.js
+  → controller → Zod schema.parse() → service → DAL → Prisma
+```
+
+Never skip layers. Validators are **not** Express middleware — call `schema.parse(req.body)` or `schema.parse(req.query)` inside the controller.
+
+## Layer responsibilities
+
+| Layer | Path | Do | Don't |
+|-------|------|----|-------|
+| Routes (aggregator) | `routes/{module}Routes.js` | `router.use('/kebab-entity', entityRoutes)` | Business logic |
+| Routes (entity) | `routes/{module}/{entity}Routes.js` | HTTP verbs, route logging, wire controllers | Validation, DB access |
+| Controller | `controllers/{module}/{entity}Controller.js` | Validate, business-rule checks, shape HTTP response | Prisma, raw DB queries |
+| Validator | `validators/{module}/{entity}Schema.js` | Input shape/type validation | Business rules, DB access |
+| Service | `services/{module}/{entity}Service.js` | Orchestration, return result objects | `res.json`, Prisma directly |
+| DAL | `dals/{module}/{entity}Dal.js` | Prisma only; return records or `null` | HTTP, business orchestration |
+| Helper | `helper/{module}Helper.js` | Reusable domain logic | HTTP, Prisma |
+| Constants | `constants/{module}Constant.js` | Enums, editable fields, select shapes | Runtime logic |
+| Shared utils | `utils/responseUtils.js` | `handleControllerErrorResponse` | Domain-specific code |
+
+## Naming
+
+**Files:** `{entity}Routes.js`, `{entity}Controller.js`, `{entity}Service.js`, `{entity}Dal.js`, `{entity}Schema.js`
+
+**Exports:** `{action}{Entity}Controller`, `{action}{Entity}Service`, …
+
+**URLs:** `/api/v1/{module}/{kebab-entity}/new` (POST), `/all` (GET), `/:entityId` (GET/PATCH/DELETE)
+
+## Service result object
+
+```javascript
+{ success: boolean, message: string, statusCode: number, data?: any, pagination?: object }
+```
+
+## HTTP response contract
+
+Success: `{ success: true, message, data, pagination? }`  
+Failure: `{ success: false, message, errors? }`  
+Catch: `handleControllerErrorResponse(error, 'createFooController', req, res)`
+
+## DAL
+
+- Filter soft-deleted: `deletedAt: null`
+- Soft delete: set `deletedAt`
+- Log with `createContextLogger('{entity}Dal')`
