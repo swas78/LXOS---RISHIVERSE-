@@ -14,7 +14,7 @@ This repository is the **shared scaffold for all external teams**. Keep one kit;
 ## Recommended operating model
 
 ```text
-                    rishiverse-module-scaffold (private)
+                    rishiverse-backend-module-scaffold (private)
                     ┌─────────────────────────────────┐
    Team A ─────────►│  standards + demo/item           │
    Team B ─────────►│  each team owns only their       │

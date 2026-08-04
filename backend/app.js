@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json());
 
 app.get('/health', (_req, res) => {
-  res.json({ success: true, message: 'rishiverse-module-scaffold ok' });
+  res.json({ success: true, message: 'rishiverse-backend-module-scaffold ok' });
 });
 
 // In RishiVerse this sits under authRouter at /api/v1

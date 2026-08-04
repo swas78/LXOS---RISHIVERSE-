@@ -8,7 +8,7 @@ RishiVerse Backend is a Node/Express + Prisma monolith. External teams build **m
 
 ```text
 ┌─────────────────────────────┐
-│  rishiverse-module-scaffold │  ← you are here (kit)
+│  rishiverse-backend-module-scaffold │  ← you are here (kit)
 │  demo/ + your module        │
 └──────────────┬──────────────┘
                │ handoff (copy paths)

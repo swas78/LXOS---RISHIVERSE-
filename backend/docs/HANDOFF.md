@@ -3,7 +3,7 @@
 Same path for **every** outsourcing team using this shared kit. See [MULTI_TEAM.md](./MULTI_TEAM.md).
 
 ```text
-Team builds in rishiverse-module-scaffold (shared)
+Team builds in rishiverse-backend-module-scaffold (shared)
         ↓
 PRs / merges stay in this kit repo (their module only)
         ↓

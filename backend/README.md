@@ -1,4 +1,4 @@
-# RishiVerse Module Scaffold
+# RishiVerse Backend Module Scaffold
 
 Private **shared contributor kit** for **all outsourcing / external teams** building modules that integrate into RishiVerse Backend.
 
