@@ -1,12 +1,16 @@
 # Contributing (kit repo)
 
+This kit is **shared across all outsourcing teams**. Read [docs/MULTI_TEAM.md](./docs/MULTI_TEAM.md).
+
 ## Rules of engagement
 
-1. **Only this repo** — develop and PR here.
-2. **One module per feature branch** — `feature/<module>-<short-desc>`.
-3. **Do not commit secrets** — use `.env.example` only.
-4. **Schema ≠ migration ownership** — propose Prisma models; core team applies migrations in RishiVerse.
-5. **Copy `demo/item`** — do not invent a parallel architecture.
+1. **Only this repo** — develop and PR here (not full RishiVerse-Backend).
+2. **Reserve a unique `{module}`** with maintainers before you start.
+3. **One module per feature branch** — `feature/<vendor>-<module>-<short-desc>`.
+4. **Do not touch other vendors’ modules** or rewrite kit standards/`demo/` without maintainer approval.
+5. **Do not commit secrets** — use `.env.example` only.
+6. **Schema ≠ migration ownership** — propose Prisma models; core team applies migrations in RishiVerse.
+7. **Copy `demo/item`** — do not invent a parallel architecture.
 
 ## Layer flow (mandatory)
 

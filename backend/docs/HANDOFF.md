@@ -1,13 +1,15 @@
 # How code enters RishiVerse
 
+Same path for **every** outsourcing team using this shared kit. See [MULTI_TEAM.md](./MULTI_TEAM.md).
+
 ```text
-You build in rishiverse-module-scaffold
+Team builds in rishiverse-module-scaffold (shared)
         ↓
-PRs / merges stay in this kit repo
+PRs / merges stay in this kit repo (their module only)
         ↓
-You tag a release (e.g. foo-v1.0.0)
+Team tags a release (e.g. foo-v1.0.0)
         ↓
-RishiVerse maintainers copy module paths into RishiVerse-Backend
+RishiVerse maintainers copy that module’s paths into RishiVerse-Backend
         ↓
 Internal PR → review (layer checklist) → merge to test
         ↓
@@ -33,6 +35,7 @@ docs/{module}Docs.js              # optional
 
 - This kit’s stub `server.js` / demo-only auth gaps
 - Your local `.env`
+- Other vendors’ modules
 - Ad-hoc scripts that don’t belong in production
 
 Merging inside **this** repo does **not** install anything into RishiVerse automatically.

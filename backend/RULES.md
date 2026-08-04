@@ -52,8 +52,9 @@ Hard rules for this kit. Breaking them blocks handoff into RishiVerse.
 
 26. Tag a release and complete [ACCEPTANCE_CHECKLIST.md](./ACCEPTANCE_CHECKLIST.md) before asking for integration.
 27. Merging in **this** repo does **not** install code into RishiVerse — maintainers copy folders.
+28. This kit is shared by multiple vendors — do not edit another team’s `{module}` folders.
 
 ## Cursor / agents
 
-28. Follow `.cursor/rules/` and project skills under `.cursor/skills/`.
-29. Agents may edit schema files; they must not invent production migration history for RishiVerse.
+29. Follow `.cursor/rules/` and project skills under `.cursor/skills/`.
+30. Agents may edit schema files; they must not invent production migration history for RishiVerse.
