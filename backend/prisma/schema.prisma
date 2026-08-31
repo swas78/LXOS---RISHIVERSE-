@@ -8,9 +8,7 @@ datasource db {
 }
 
 // ---------------------------------------------------------------------------
-// DEMO MODULE — copy this pattern for your module under prisma/models/{module}/
-// In RishiVerse, models are often split across prisma/models/** and composed
-// into the root schema. In this kit we keep a single schema for simplicity.
+// DEMO MODULE — canonical scaffold sample. Copy this pattern for real modules.
 // ---------------------------------------------------------------------------
 
 model DemoItem {
@@ -30,4 +28,481 @@ enum DemoItemStatus {
   DRAFT
   ACTIVE
   ARCHIVED
+}
+
+// ===========================================================================
+// LX MODULE (Learner Experience OS)
+//
+// Ported from the original LXOS (Next.js + MongoDB). Composed here in the kit's
+// single schema; at handoff these live under prisma/models/lx/*.prisma.
+//
+// AUTH / USERS: This kit ships no auth. `LxUser` is a LOCAL DEV STAND-IN for the
+// RishiVerse core `User` (which we must NOT redefine). At integration, the
+// dev-actor shim + this table are dropped and `*CreatedById` / actor references
+// map onto core `User.userId`. Creator/approver names are DENORMALIZED onto rows
+// (snapshotted at write time) so reads need no join to the user table.
+// ===========================================================================
+
+enum LxRole {
+  ADMIN
+  LX_TEAM
+  CLUB_HEAD
+  CLAN_HEAD
+  FINANCE
+  GUEST
+}
+
+// LOCAL DEV STAND-IN — not part of handoff. Powers the role/user switcher.
+model LxUser {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  role      LxRole   @default(GUEST)
+  clubId    String?
+  clanId    String?
+  avatar    String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([role])
+  @@map("lx_users")
+}
+
+// --------------------------- Rooms -----------------------------------------
+
+model LxRoom {
+  id         String     @id @default(cuid())
+  name       String
+  building   String?
+  floor      String?
+  capacity   Int        @default(0)
+  type       LxRoomType @default(CLASSROOM)
+  amenities  String[]   @default([])
+  isActive   Boolean    @default(true)
+  deletedAt  DateTime?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@index([deletedAt])
+  @@index([type])
+  @@map("lx_rooms")
+}
+
+enum LxRoomType {
+  CLASSROOM
+  SEMINAR
+  LAB
+  AUDITORIUM
+  MEETING
+  STUDIO
+  OUTDOOR
+  OTHER
+}
+
+// --------------------------- Clubs -----------------------------------------
+
+model LxClub {
+  id              String          @id @default(cuid())
+  name            String          @unique
+  description     String
+  logo            String?
+  category        LxClubCategory  @default(OTHER)
+  budgetAllocated Float           @default(0)
+  budgetSpent     Float           @default(0)
+  semester        String          @default("Spring 2026")
+  budgetHistory   Json            @default("[]")
+  headName        String?
+  headEmail       String?
+  isActive        Boolean         @default(true)
+  deletedAt       DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([deletedAt])
+  @@index([category])
+  @@map("lx_clubs")
+}
+
+enum LxClubCategory {
+  TECHNICAL
+  CULTURAL
+  SPORTS
+  SOCIAL
+  ACADEMIC
+  OTHER
+}
+
+// --------------------------- Clans -----------------------------------------
+
+model LxClan {
+  id              String    @id @default(cuid())
+  name            String    @unique
+  color           String
+  points          Int       @default(0)
+  budgetAllocated Float     @default(0)
+  budgetSpent     Float     @default(0)
+  semester        String    @default("Spring 2026")
+  budgetHistory   Json      @default("[]")
+  description     String    @default("")
+  deletedAt       DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  pointHistory LxClanPointHistory[]
+
+  @@index([deletedAt])
+  @@map("lx_clans")
+}
+
+model LxClanPointHistory {
+  id             String   @id @default(cuid())
+  clanId         String
+  points         Int
+  previousPoints Int
+  reason         String
+  eventId        String?
+  updatedById    String?
+  updatedByName  String?
+  date           DateTime @default(now())
+  createdAt      DateTime @default(now())
+
+  clan LxClan @relation(fields: [clanId], references: [id], onDelete: Cascade)
+
+  @@index([clanId])
+  @@map("lx_clan_point_history")
+}
+
+// --------------------------- Events ----------------------------------------
+
+model LxEvent {
+  id              String        @id @default(cuid())
+  title           String
+  description     String
+  type            LxEventType
+  clubId          String?
+  clubName        String?
+  clanId          String?
+  clanName        String?
+  startDate       DateTime
+  endDate         DateTime
+  roomIds         String[]      @default([])
+  roomNames       String[]      @default([])
+  location        String        @default("")
+  requirements    Json          @default("[]")
+  budgetAllocated Float         @default(0)
+  budgetSpent     Float         @default(0)
+  status          LxEventStatus @default(PENDING)
+  createdById     String
+  createdByName   String
+  createdByRole   String?
+  approvedById    String?
+  approvedByName  String?
+  approvedAt      DateTime?
+  rejectionReason String?
+  attendees       Int           @default(0)
+  poster          String?
+  clanScores      Json          @default("{}")
+  isCompleted     Boolean       @default(false)
+  completedAt     DateTime?
+  completedById   String?
+  deletedAt       DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([deletedAt])
+  @@index([startDate, endDate])
+  @@index([type, status])
+  @@map("lx_events")
+}
+
+enum LxEventType {
+  CLUB
+  CLAN
+  LX
+  FEST
+}
+
+enum LxEventStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}
+
+// --------------------------- Achievements ----------------------------------
+
+model LxAchievement {
+  id              String                 @id @default(cuid())
+  title           String
+  description     String
+  eventId         String?
+  clubId          String?
+  clubName        String?
+  clanId          String?
+  clanName        String?
+  points          Int                    @default(0)
+  achievedDate    DateTime               @default(now())
+  semester        String                 @default("Spring 2026")
+  category        LxAchievementCategory  @default(OTHER)
+  kind            LxAchievementKind      @default(ACHIEVEMENT)
+  participants    String[]               @default([])
+  images          String[]               @default([])
+  createdById     String
+  createdByName   String
+  status          LxAchievementStatus    @default(PENDING)
+  approvedById    String?
+  approvedByName  String?
+  approvedAt      DateTime?
+  rejectionReason String?
+  deletedAt       DateTime?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  @@index([deletedAt])
+  @@index([status, achievedDate])
+  @@index([semester, category])
+  @@map("lx_achievements")
+}
+
+enum LxAchievementCategory {
+  ACADEMIC
+  SPORTS
+  CULTURAL
+  TECHNICAL
+  SOCIAL
+  OTHER
+}
+
+enum LxAchievementKind {
+  ACHIEVEMENT
+  UPDATE
+}
+
+enum LxAchievementStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// --------------------------- Expenses (event spend) ------------------------
+
+model LxExpense {
+  id              String           @id @default(cuid())
+  eventId         String
+  eventTitle      String?
+  title           String
+  description     String           @default("")
+  amount          Float
+  category        LxExpenseCategory @default(OTHER)
+  bills           Json             @default("[]")
+  submittedById   String
+  submittedByName String
+  status          LxExpenseStatus  @default(PENDING)
+  verifiedById    String?
+  verifiedByName  String?
+  verifiedAt      DateTime?
+  rejectionReason String?
+  paidDate        DateTime?
+  budgetApplied   Boolean          @default(false)
+  deletedAt       DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([deletedAt])
+  @@index([eventId, status])
+  @@index([category])
+  @@map("lx_expenses")
+}
+
+enum LxExpenseCategory {
+  VENUE
+  FOOD
+  EQUIPMENT
+  DECORATION
+  PRIZES
+  MARKETING
+  OTHER
+}
+
+enum LxExpenseStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// --------------------------- Reimbursements --------------------------------
+
+model LxReimbursement {
+  id              String                  @id @default(cuid())
+  title           String
+  description     String                  @default("")
+  amount          Float
+  expenseDate     DateTime
+  category        LxReimbursementCategory @default(OTHER)
+  eventId         String?
+  eventTitle      String?
+  purpose         String                  @default("")
+  clubId          String?
+  clubName        String?
+  clanId          String?
+  clanName        String?
+  budgetDeducted  Boolean                 @default(false)
+  bankDetails     Json                    @default("{}")
+  bills           Json                    @default("[]")
+  submittedById   String
+  submittedByName String
+  status          LxReimbursementStatus   @default(PENDING)
+  reviewedById    String?
+  reviewedByName  String?
+  reviewedAt      DateTime?
+  processedById   String?
+  processedByName String?
+  processedAt     DateTime?
+  rejectionReason String?
+  notes           String?
+  deletedAt       DateTime?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  @@index([deletedAt])
+  @@index([submittedById, status])
+  @@index([status, createdAt])
+  @@map("lx_reimbursements")
+}
+
+enum LxReimbursementCategory {
+  FOOD
+  TRAVEL
+  MATERIALS
+  EQUIPMENT
+  PRINTING
+  ACCOMMODATION
+  OTHER
+}
+
+enum LxReimbursementStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PROCESSED
+}
+
+// --------------------------- Initiatives (clan projects) -------------------
+
+model LxInitiative {
+  id            String             @id @default(cuid())
+  title         String
+  description   String             @default("")
+  clanId        String
+  clanName      String?
+  semester      String             @default("")
+  status        LxInitiativeStatus @default(ACTIVE)
+  progress      Int                @default(0)
+  priority      String             @default("MEDIUM")
+  team          String[]           @default([])
+  date          DateTime           @default(now())
+  createdById   String?
+  createdByName String?
+  deletedAt     DateTime?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([deletedAt])
+  @@index([clanId, semester])
+  @@map("lx_initiatives")
+}
+
+enum LxInitiativeStatus {
+  PLANNING
+  ACTIVE
+  COMPLETED
+}
+
+// --------------------------- Files -----------------------------------------
+
+model LxFile {
+  id             String     @id @default(cuid())
+  filename       String
+  originalName   String
+  path           String
+  mimeType       String
+  size           Int
+  type           LxFileType @default(OTHER)
+  eventId        String?
+  clubId         String?
+  semester       String     @default("Spring 2026")
+  tags           String[]   @default([])
+  description    String?
+  uploadedById   String
+  uploadedByName String
+  deletedAt      DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@index([deletedAt])
+  @@index([type, semester])
+  @@map("lx_files")
+}
+
+enum LxFileType {
+  BILL
+  REPORT
+  POSTER
+  DOCUMENT
+  OTHER
+}
+
+// --------------------------- Learner Products ------------------------------
+// Products / websites built by learners. Only APPROVED products are shown
+// publicly in the showcase; PENDING ones await Admin review.
+
+model LxProduct {
+  id              String            @id @default(cuid())
+  title           String
+  tagline         String            @default("")
+  description     String
+  url             String?
+  repoUrl         String?
+  imageUrl        String?
+  category        LxProductCategory @default(WEBSITE)
+  techStack       String[]          @default([])
+  tags            String[]          @default([])
+  clubId          String?
+  clubName        String?
+  featured        Boolean           @default(false)
+  createdById     String
+  createdByName   String
+  teamMembers     String[]          @default([])
+  status          LxProductStatus   @default(PENDING)
+  approvedById    String?
+  approvedByName  String?
+  approvedAt      DateTime?
+  rejectionReason String?
+  deletedAt       DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([deletedAt])
+  @@index([status, createdAt])
+  @@index([category])
+  @@map("lx_products")
+}
+
+enum LxProductCategory {
+  WEBSITE
+  WEB_APP
+  MOBILE_APP
+  HARDWARE
+  DESIGN
+  RESEARCH
+  GAME
+  OTHER
+}
+
+enum LxProductStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
