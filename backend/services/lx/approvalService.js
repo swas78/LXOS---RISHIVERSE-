@@ -1,6 +1,7 @@
 import createContextLogger from '../../logger/contextLogger.js';
 import {
   actOnAchievementDal,
+  actOnBookingDal,
   actOnEventDal,
   actOnExpenseDal,
   actOnProductDal,
@@ -48,6 +49,17 @@ const mapReimbursement = (r) => ({
   stage: r.status === 'APPROVED' ? 'FINANCE' : 'LX',
   raw: r,
 });
+const mapBooking = (b) => ({
+  id: b.id,
+  type: 'BOOKING',
+  title: b.title,
+  subtitle: `${b.roomName || 'Room'} · ${new Date(b.startTime).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}`,
+  requestedBy: b.requestedByName,
+  date: b.createdAt,
+  amount: null,
+  status: b.status,
+  raw: b,
+});
 const mapProduct = (p) => ({
   id: p.id,
   type: 'PRODUCT',
@@ -73,7 +85,7 @@ const mapExpense = (x) => ({
 
 export const getApprovalsService = async (query = {}) => {
   try {
-    const { events, achievements, reimbursements, expenses, products } =
+    const { events, achievements, reimbursements, expenses, products, bookings } =
       await getPendingApprovalsDal();
     let items = [
       ...events.map(mapEvent),
@@ -81,6 +93,7 @@ export const getApprovalsService = async (query = {}) => {
       ...reimbursements.map(mapReimbursement),
       ...expenses.map(mapExpense),
       ...products.map(mapProduct),
+      ...bookings.map(mapBooking),
     ];
     if (query.type) items = items.filter((i) => i.type === query.type);
     items.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -97,6 +110,7 @@ export const getApprovalsService = async (query = {}) => {
           REIMBURSEMENT: reimbursements.length,
           EXPENSE: expenses.length,
           PRODUCT: products.length,
+          BOOKING: bookings.length,
           total: items.length,
         },
       },
@@ -127,6 +141,9 @@ export const actOnApprovalService = async ({ type, id, action, rejectionReason, 
         break;
       case 'PRODUCT':
         result = await actOnProductDal(id, action, actor, rejectionReason);
+        break;
+      case 'BOOKING':
+        result = await actOnBookingDal(id, action, actor, rejectionReason);
         break;
       default:
         return { success: false, message: `Unknown approval type: ${type}`, statusCode: 400 };

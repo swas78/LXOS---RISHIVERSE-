@@ -355,9 +355,12 @@ model LxReimbursement {
   clanId          String?
   clanName        String?
   budgetDeducted  Boolean                 @default(false)
-  // Payout is settled through an external system; we store only a reference to
-  // that payout record (e.g. a finance/UPI/bank-transfer id), never raw bank
-  // account details. The reference is captured by Finance at processing time.
+  // Where to send the payout — the submitter provides these at submission time
+  // (accountHolderName, accountNumber, ifsc). NOTE: in production this is
+  // sensitive data; RishiVerse should encrypt at rest / apply its data policy.
+  bankDetails     Json                    @default("{}")
+  // The finance/UPI/bank-transfer reference captured by Finance when the
+  // (already-approved) claim is actually paid out.
   payoutRef       String?
   bills           Json                    @default("[]")
   submittedById   String

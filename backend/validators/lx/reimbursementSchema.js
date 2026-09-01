@@ -14,6 +14,15 @@ const billItemSchema = z.object({
 
 const billsField = z.array(billItemSchema).optional();
 
+// Where the payout should be sent — collected at submission time.
+const bankDetailsSchema = z
+  .object({
+    accountHolderName: z.string().trim().max(200).optional().default(''),
+    accountNumber: z.string().trim().max(60).optional().default(''),
+    ifsc: z.string().trim().max(20).optional().default(''),
+  })
+  .optional();
+
 const categoryField = z.enum(LX_REIMBURSEMENT_CATEGORIES, {
   errorMap: () => ({
     message: `category must be one of: ${LX_REIMBURSEMENT_CATEGORIES.join(', ')}`,
@@ -33,6 +42,7 @@ export const createReimbursementSchema = z.object({
   clubName: z.string().trim().max(200).optional().nullable(),
   clanId: z.string().trim().optional().nullable(),
   clanName: z.string().trim().max(200).optional().nullable(),
+  bankDetails: bankDetailsSchema,
   bills: billsField,
   notes: z.string().trim().max(2000).optional().nullable(),
 });

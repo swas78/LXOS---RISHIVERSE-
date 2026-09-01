@@ -12,6 +12,8 @@ const permissionFor = (type, action) => {
       return PERMISSIONS.APPROVE_ACHIEVEMENT;
     case 'PRODUCT':
       return PERMISSIONS.APPROVE_PRODUCT;
+    case 'BOOKING':
+      return PERMISSIONS.APPROVE_BOOKING;
     case 'EXPENSE':
       return PERMISSIONS.APPROVE_EXPENSE;
     case 'REIMBURSEMENT':

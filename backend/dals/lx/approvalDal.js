@@ -6,7 +6,7 @@ const logger = createContextLogger('approvalDal');
 // Fetch everything currently awaiting a decision across the platform.
 export const getPendingApprovalsDal = async () => {
   try {
-    const [events, achievements, reimbursements, expenses, products] = await Promise.all([
+    const [events, achievements, reimbursements, expenses, products, bookings] = await Promise.all([
       prisma.lxEvent.findMany({
         where: { deletedAt: null, status: 'PENDING' },
         orderBy: { createdAt: 'desc' },
@@ -28,8 +28,12 @@ export const getPendingApprovalsDal = async () => {
         where: { deletedAt: null, status: 'PENDING' },
         orderBy: { createdAt: 'desc' },
       }),
+      prisma.lxRoomBooking.findMany({
+        where: { deletedAt: null, status: 'PENDING' },
+        orderBy: { createdAt: 'desc' },
+      }),
     ]);
-    return { events, achievements, reimbursements, expenses, products };
+    return { events, achievements, reimbursements, expenses, products, bookings };
   } catch (error) {
     logger.error('Error in getPendingApprovalsDal', {
       error: { message: error.message, stack: error.stack },
@@ -98,6 +102,30 @@ export const actOnReimbursementDal = async (id, action, actor, rejectionReason) 
     await prisma.lxReimbursement.update({ where: { id }, data: { budgetDeducted: true } });
   }
   return updated;
+};
+
+export const actOnBookingDal = async (id, action, actor, rejectionReason) => {
+  const existing = await prisma.lxRoomBooking.findFirst({ where: { id, deletedAt: null } });
+  if (!existing) return null;
+  if (action === 'approve') {
+    // Reject if another APPROVED booking already overlaps this room+time.
+    const clash = await prisma.lxRoomBooking.findFirst({
+      where: {
+        deletedAt: null,
+        roomId: existing.roomId,
+        status: 'APPROVED',
+        id: { not: existing.id },
+        startTime: { lt: existing.endTime },
+        endTime: { gt: existing.startTime },
+      },
+    });
+    if (clash) return { error: 'The room is already booked for this time' };
+  }
+  const data =
+    action === 'approve'
+      ? { status: 'APPROVED', approvedById: actor.id, approvedByName: actor.name, approvedAt: new Date(), rejectionReason: null }
+      : { status: 'REJECTED', rejectionReason: rejectionReason || 'Rejected' };
+  return prisma.lxRoomBooking.update({ where: { id }, data });
 };
 
 export const actOnProductDal = async (id, action, actor, rejectionReason) => {

@@ -19,6 +19,7 @@ import budgetRoutes from './lx/budgetRoutes.js';
 import dashboardRoutes from './lx/dashboardRoutes.js';
 import analyticsRoutes from './lx/analyticsRoutes.js';
 import calendarRoutes from './lx/calendarRoutes.js';
+import reportRoutes from './lx/reportRoutes.js';
 
 const router = express.Router();
 
@@ -46,5 +47,6 @@ router.use('/budget', budgetRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/calendar', calendarRoutes);
+router.use('/report', reportRoutes); // LX report + semester rollover
 
 export default router;
