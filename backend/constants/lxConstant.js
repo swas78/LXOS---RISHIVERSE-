@@ -42,12 +42,14 @@ export const LX_PERMISSION_MATRIX = {
   FILE_REPOSITORY: ['ADMIN', 'LX_TEAM', 'CLUB_HEAD', 'CLAN_HEAD', 'FINANCE', 'GUEST'],
 };
 
-// The four clans (fixed) and their colours (from the manual).
+// The four clans (fixed) and their colours — matching the real LXOS seed
+// (Maratha bg-orange-500, Vijaya bg-green-500, Chola bg-purple-500,
+// Rajputana bg-red-500).
 export const LX_CLANS = [
-  { name: 'Maratha', color: '#dc2626' },
-  { name: 'Vijaya', color: '#eab308' },
-  { name: 'Chola', color: '#2563eb' },
-  { name: 'Rajputana', color: '#16a34a' },
+  { name: 'Maratha', color: '#f97316' },
+  { name: 'Vijaya', color: '#22c55e' },
+  { name: 'Chola', color: '#a855f7' },
+  { name: 'Rajputana', color: '#ef4444' },
 ];
 
 export const LX_SEMESTER_DEFAULT = 'Spring 2026';
