@@ -1,0 +1,33 @@
+// LX module — Room entity.
+// Source of truth in the kit is prisma/schema.prisma (single-file compose).
+// At handoff, this file documents the model for placement under
+// prisma/models/lx/ in RishiVerse-Backend.
+
+model LxRoom {
+  id         String    @id @default(cuid())
+  name       String
+  building   String?
+  floor      String?
+  capacity   Int       @default(0)
+  type       LxRoomType @default(CLASSROOM)
+  amenities  String[]  @default([])
+  isActive   Boolean   @default(true)
+  deletedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([deletedAt])
+  @@index([type])
+  @@map("lx_rooms")
+}
+
+enum LxRoomType {
+  CLASSROOM
+  SEMINAR
+  LAB
+  AUDITORIUM
+  MEETING
+  STUDIO
+  OUTDOOR
+  OTHER
+}
