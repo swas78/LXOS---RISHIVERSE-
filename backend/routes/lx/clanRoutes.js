@@ -8,6 +8,8 @@ import {
   manageClanPointsController,
   updateClanController,
 } from '../../controllers/lx/clanController.js';
+import { requirePermission } from '../../middleware/lxRequirePermission.js';
+import { PERMISSIONS } from '../../helper/lxPermissions.js';
 
 const router = express.Router();
 const logger = createContextLogger('clanRoutes');
@@ -17,11 +19,11 @@ router.use((req, res, next) => {
   next();
 });
 
-router.post('/new', createClanController);
+router.post('/new', requirePermission(PERMISSIONS.MANAGE_CLANS), createClanController);
 router.get('/all', getAllClansController);
 router.get('/:clanId', getClanByIdController);
-router.patch('/:clanId', updateClanController);
-router.delete('/:clanId', deleteClanController);
-router.post('/:clanId/points', manageClanPointsController);
+router.patch('/:clanId', requirePermission(PERMISSIONS.MANAGE_CLANS), updateClanController);
+router.delete('/:clanId', requirePermission(PERMISSIONS.MANAGE_CLANS), deleteClanController);
+router.post('/:clanId/points', requirePermission(PERMISSIONS.ALLOCATE_CLAN_POINTS), manageClanPointsController);
 
 export default router;

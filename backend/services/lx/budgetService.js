@@ -1,5 +1,6 @@
 import createContextLogger from '../../logger/contextLogger.js';
 import { getBudgetDataDal } from '../../dals/lx/budgetDal.js';
+import { budgetScope } from '../../helper/lxPermissions.js';
 
 const logger = createContextLogger('budgetService');
 
@@ -12,9 +13,10 @@ const withDerived = (entity) => {
   return { ...entity, budgetRemaining: remaining, utilization };
 };
 
-export const getBudgetSummaryService = async () => {
+export const getBudgetSummaryService = async (actor) => {
   try {
-    const { clubs, clans, approvedExpenseAgg, processedReimbAgg } = await getBudgetDataDal();
+    const scope = budgetScope(actor);
+    const { clubs, clans, approvedExpenseAgg, processedReimbAgg } = await getBudgetDataDal(scope);
 
     const clubRows = clubs.map(withDerived);
     const clanRows = clans.map(withDerived);
@@ -44,6 +46,8 @@ export const getBudgetSummaryService = async () => {
         },
         clubs: clubRows,
         clans: clanRows,
+        scoped: !scope.all,
+        scopeRole: actor?.role ?? null,
       },
     };
   } catch (error) {

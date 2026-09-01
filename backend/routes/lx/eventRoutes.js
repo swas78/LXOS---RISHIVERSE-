@@ -10,6 +10,8 @@ import {
   getEventByIdController,
   updateEventController,
 } from '../../controllers/lx/eventController.js';
+import { requirePermission } from '../../middleware/lxRequirePermission.js';
+import { PERMISSIONS } from '../../helper/lxPermissions.js';
 
 const router = express.Router();
 const logger = createContextLogger('eventRoutes');
@@ -20,15 +22,15 @@ router.use((req, res, next) => {
 });
 
 // Static routes before parameterised ones.
-router.post('/new', createEventController);
+router.post('/new', requirePermission(PERMISSIONS.CREATE_EVENT), createEventController);
 router.get('/all', getAllEventsController);
 router.post('/availability', checkAvailabilityController);
 
-router.post('/:eventId/approve', approveEventController);
-router.post('/:eventId/complete', completeEventController);
+router.post('/:eventId/approve', requirePermission(PERMISSIONS.APPROVE_EVENT), approveEventController);
+router.post('/:eventId/complete', requirePermission(PERMISSIONS.APPROVE_EVENT), completeEventController);
 
 router.get('/:eventId', getEventByIdController);
 router.patch('/:eventId', updateEventController);
-router.delete('/:eventId', deleteEventController);
+router.delete('/:eventId', requirePermission(PERMISSIONS.DELETE_EVENT), deleteEventController);
 
 export default router;

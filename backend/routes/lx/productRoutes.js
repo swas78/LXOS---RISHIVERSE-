@@ -8,6 +8,8 @@ import {
   reviewProductController,
   updateProductController,
 } from '../../controllers/lx/productController.js';
+import { requirePermission } from '../../middleware/lxRequirePermission.js';
+import { PERMISSIONS } from '../../helper/lxPermissions.js';
 
 const router = express.Router();
 const logger = createContextLogger('productRoutes');
@@ -22,6 +24,6 @@ router.get('/all', getAllProductsController);
 router.get('/:productId', getProductByIdController);
 router.patch('/:productId', updateProductController);
 router.delete('/:productId', deleteProductController);
-router.post('/:productId/review', reviewProductController);
+router.post('/:productId/review', requirePermission(PERMISSIONS.APPROVE_PRODUCT), reviewProductController);
 
 export default router;

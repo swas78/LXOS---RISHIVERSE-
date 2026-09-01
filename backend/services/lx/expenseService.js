@@ -1,4 +1,5 @@
 import createContextLogger from '../../logger/contextLogger.js';
+import { expenseScope } from '../../helper/lxPermissions.js';
 import {
   createExpenseDal,
   deleteExpenseDal,
@@ -45,9 +46,10 @@ export const getExpenseByIdService = async (expenseId) => {
   }
 };
 
-export const getAllExpensesService = async (query) => {
+export const getAllExpensesService = async (query, actor) => {
   try {
-    const result = await getAllExpensesDal(query);
+    const scope = expenseScope(actor);
+    const result = await getAllExpensesDal({ ...query, ...scope });
     if (!result) {
       return { success: false, message: 'Unable to list expenses', statusCode: 400 };
     }

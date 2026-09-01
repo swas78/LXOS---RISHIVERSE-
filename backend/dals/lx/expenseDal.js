@@ -56,6 +56,7 @@ export const getAllExpensesDal = async ({
   eventId,
   status,
   category,
+  submittedById,
   page,
   limit,
   sortBy,
@@ -65,6 +66,7 @@ export const getAllExpensesDal = async ({
     const where = {
       deletedAt: null,
       ...(eventId ? { eventId } : {}),
+      ...(submittedById ? { submittedById } : {}),
       ...(Array.isArray(status) && status.length > 0 ? { status: { in: status } } : {}),
       ...(Array.isArray(category) && category.length > 0 ? { category: { in: category } } : {}),
     };
