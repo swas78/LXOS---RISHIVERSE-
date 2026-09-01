@@ -190,7 +190,7 @@ export const reviewReimbursementService = async (reimbursementId, { action, reje
 };
 
 // Process workflow (Finance): mark an APPROVED claim as PROCESSED (paid out).
-export const processReimbursementService = async (reimbursementId, actor) => {
+export const processReimbursementService = async (reimbursementId, actor, payoutRef) => {
   try {
     const existing = await getReimbursementByIdDal(reimbursementId);
     if (!existing) {
@@ -209,6 +209,7 @@ export const processReimbursementService = async (reimbursementId, actor) => {
       processedById: actor?.id ?? 'unknown',
       processedByName: actor?.name ?? 'Unknown',
       processedAt: new Date(),
+      ...(payoutRef ? { payoutRef } : {}),
     });
 
     return {

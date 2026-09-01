@@ -84,6 +84,8 @@ model LxRoom {
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
 
+  bookings LxRoomBooking[]
+
   @@index([deletedAt])
   @@index([type])
   @@map("lx_rooms")
@@ -149,28 +151,32 @@ model LxClan {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
-  pointHistory LxClanPointHistory[]
+  pointTxns LxClanPointTxn[]
 
   @@index([deletedAt])
   @@map("lx_clans")
 }
 
-model LxClanPointHistory {
+// Append-only ledger of clan point transactions (per PRD: LxClanPointTxn).
+// Each row records a delta and the resulting balance; rows are never updated
+// or deleted — corrections are made by posting a compensating transaction.
+model LxClanPointTxn {
   id             String   @id @default(cuid())
   clanId         String
+  delta          Int
   points         Int
   previousPoints Int
   reason         String
   eventId        String?
-  updatedById    String?
-  updatedByName  String?
+  createdById    String?
+  createdByName  String?
   date           DateTime @default(now())
   createdAt      DateTime @default(now())
 
   clan LxClan @relation(fields: [clanId], references: [id], onDelete: Cascade)
 
   @@index([clanId])
-  @@map("lx_clan_point_history")
+  @@map("lx_clan_point_txns")
 }
 
 // --------------------------- Events ----------------------------------------
@@ -349,7 +355,10 @@ model LxReimbursement {
   clanId          String?
   clanName        String?
   budgetDeducted  Boolean                 @default(false)
-  bankDetails     Json                    @default("{}")
+  // Payout is settled through an external system; we store only a reference to
+  // that payout record (e.g. a finance/UPI/bank-transfer id), never raw bank
+  // account details. The reference is captured by Finance at processing time.
+  payoutRef       String?
   bills           Json                    @default("[]")
   submittedById   String
   submittedByName String
@@ -505,4 +514,47 @@ enum LxProductStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+// --------------------------- Room Bookings ---------------------------------
+// A time-bounded reservation of a single room. Bookings are the source of
+// truth for room availability / double-booking prevention. An event may spawn
+// one booking per room it occupies (eventId links them); ad-hoc bookings have
+// no event. Conflict detection: no two non-cancelled/non-rejected bookings for
+// the same room may overlap in time.
+
+model LxRoomBooking {
+  id              String              @id @default(cuid())
+  roomId          String
+  roomName        String?
+  eventId         String?
+  eventTitle      String?
+  title           String
+  purpose         String              @default("")
+  startTime       DateTime
+  endTime         DateTime
+  status          LxRoomBookingStatus @default(PENDING)
+  requestedById   String
+  requestedByName String
+  approvedById    String?
+  approvedByName  String?
+  approvedAt      DateTime?
+  rejectionReason String?
+  deletedAt       DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  room LxRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([deletedAt])
+  @@index([roomId, startTime, endTime])
+  @@index([status])
+  @@map("lx_room_bookings")
+}
+
+enum LxRoomBookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
 }

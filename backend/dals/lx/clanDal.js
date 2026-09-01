@@ -37,7 +37,7 @@ export const getClanByIdDal = async (clanId) => {
     return await prisma.lxClan.findFirst({
       where: { id: clanId, deletedAt: null },
       include: {
-        pointHistory: {
+        pointTxns: {
           orderBy: { date: 'desc' },
         },
       },
@@ -118,15 +118,15 @@ export const deleteClanDal = async (clanId) => {
   }
 };
 
-// Atomically set the clan's new point total and append a point-history entry,
-// then return the updated clan with its (date-desc) history.
+// Atomically set the clan's new point total and append a point transaction to
+// the (append-only) ledger, then return the updated clan with its ledger.
 export const applyClanPointsDal = async ({
   clanId,
   newPoints,
   previousPoints,
   reason,
-  updatedById,
-  updatedByName,
+  createdById,
+  createdByName,
 }) => {
   try {
     await prisma.$transaction([
@@ -134,14 +134,15 @@ export const applyClanPointsDal = async ({
         where: { id: clanId },
         data: { points: newPoints },
       }),
-      prisma.lxClanPointHistory.create({
+      prisma.lxClanPointTxn.create({
         data: {
           clanId,
+          delta: newPoints - previousPoints,
           points: newPoints,
           previousPoints,
           reason,
-          ...(updatedById !== undefined ? { updatedById } : {}),
-          ...(updatedByName !== undefined ? { updatedByName } : {}),
+          ...(createdById !== undefined ? { createdById } : {}),
+          ...(createdByName !== undefined ? { createdByName } : {}),
         },
       }),
     ]);

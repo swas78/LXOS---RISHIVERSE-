@@ -3,6 +3,7 @@ import {
   getAllReimbursementsSchema,
   updateReimbursementSchema,
   reviewReimbursementSchema,
+  processReimbursementSchema,
 } from '../../validators/lx/reimbursementSchema.js';
 import { LX_REIMBURSEMENT_EDITABLE_FIELDS } from '../../constants/lxReimbursementConstant.js';
 import {
@@ -185,7 +186,8 @@ export const processReimbursementController = async (req, res) => {
         errors: [{ path: ['reimbursementId'], message: 'reimbursementId is required in the path' }],
       });
     }
-    const result = await processReimbursementService(reimbursementId, req.actor);
+    const { payoutRef } = processReimbursementSchema.parse(req.body ?? {});
+    const result = await processReimbursementService(reimbursementId, req.actor, payoutRef);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
     }

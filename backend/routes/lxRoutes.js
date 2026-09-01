@@ -2,6 +2,7 @@ import express from 'express';
 import resolveActor from '../middleware/lxActor.js';
 import userRoutes from './lx/userRoutes.js';
 import roomRoutes from './lx/roomRoutes.js';
+import roomBookingRoutes from './lx/roomBookingRoutes.js';
 import clubRoutes from './lx/clubRoutes.js';
 import clanRoutes from './lx/clanRoutes.js';
 import eventRoutes from './lx/eventRoutes.js';
@@ -27,6 +28,7 @@ router.use(resolveActor);
 // Each entity mounts here → /api/v1/lx/{entity}/...
 router.use('/user', userRoutes); // dev switcher + /me
 router.use('/room', roomRoutes);
+router.use('/room-booking', roomBookingRoutes);
 router.use('/club', clubRoutes);
 router.use('/clan', clanRoutes);
 router.use('/event', eventRoutes);

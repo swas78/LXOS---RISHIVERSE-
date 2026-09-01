@@ -137,8 +137,8 @@ export const manageClanPointsService = async (clanId, { delta, reason }, actor) 
       newPoints,
       previousPoints,
       reason,
-      updatedById: actor?.id ?? null,
-      updatedByName: actor?.name ?? null,
+      createdById: actor?.id ?? null,
+      createdByName: actor?.name ?? null,
     });
 
     return {

@@ -114,7 +114,8 @@ const CLUBS = [
 
 async function clearAll() {
   // Order respects FK (point history → clan). Others are FK-free.
-  await prisma.lxClanPointHistory.deleteMany();
+  await prisma.lxClanPointTxn.deleteMany();
+  await prisma.lxRoomBooking.deleteMany();
   await Promise.all([
     prisma.lxEvent.deleteMany(),
     prisma.lxAchievement.deleteMany(),
@@ -278,15 +279,15 @@ async function main() {
   // ---- Clan points to match approved achievements ----
   const marathaAch = 20;
   await prisma.lxClan.update({ where: { id: clanByName['Maratha'].id }, data: { points: marathaAch, budgetSpent: 4200 } });
-  await prisma.lxClanPointHistory.create({
+  await prisma.lxClanPointTxn.create({
     data: {
-      clanId: clanByName['Maratha'].id, points: marathaAch, previousPoints: 0,
-      reason: 'State Athletics Gold — achievement approved', updatedById: admin.id, updatedByName: admin.name,
+      clanId: clanByName['Maratha'].id, delta: marathaAch, points: marathaAch, previousPoints: 0,
+      reason: 'State Athletics Gold — achievement approved', createdById: admin.id, createdByName: admin.name,
     },
   });
   await prisma.lxClan.update({ where: { id: clanByName['Vijaya'].id }, data: { points: 10 } });
-  await prisma.lxClanPointHistory.create({
-    data: { clanId: clanByName['Vijaya'].id, points: 10, previousPoints: 0, reason: 'Cultural night participation', updatedById: admin.id, updatedByName: admin.name },
+  await prisma.lxClanPointTxn.create({
+    data: { clanId: clanByName['Vijaya'].id, delta: 10, points: 10, previousPoints: 0, reason: 'Cultural night participation', createdById: admin.id, createdByName: admin.name },
   });
 
   // ---- Initiatives ----
@@ -309,9 +310,9 @@ async function main() {
   // ---- Reimbursements (workflow states) ----
   await prisma.lxReimbursement.createMany({
     data: [
-      { title: 'Auto fare for vendor pickup', amount: 450, expenseDate: daysFromNow(-4), category: 'TRAVEL', purpose: 'Finance Summit logistics', eventId: summit.id, eventTitle: summit.title, clubId: arthakram.id, clubName: arthakram.name, status: 'PENDING', submittedById: clubHead.id, submittedByName: clubHead.name, bankDetails: { accountHolderName: 'Kabir', accountNumber: 'XXXX1234', ifsc: 'HDFC0001234' } },
-      { title: 'Printing handouts', amount: 800, expenseDate: daysFromNow(-6), category: 'PRINTING', purpose: 'Orientation', clubId: arthakram.id, clubName: arthakram.name, status: 'APPROVED', submittedById: clubHead.id, submittedByName: clubHead.name, reviewedById: admin.id, reviewedByName: admin.name, reviewedAt: daysFromNow(-2), bankDetails: { accountHolderName: 'Kabir', accountNumber: 'XXXX1234', ifsc: 'HDFC0001234' } },
-      { title: 'Props for play', amount: 2200, expenseDate: daysFromNow(-8), category: 'MATERIALS', purpose: 'Annual Play', clubId: rangmanch.id, clubName: rangmanch.name, status: 'PROCESSED', submittedById: clubHead.id, submittedByName: clubHead.name, reviewedById: admin.id, reviewedByName: admin.name, reviewedAt: daysFromNow(-5), processedById: seededUsers.find((u) => u.role === 'FINANCE').id, processedByName: 'Farah (Finance)', processedAt: daysFromNow(-3), budgetDeducted: true },
+      { title: 'Auto fare for vendor pickup', amount: 450, expenseDate: daysFromNow(-4), category: 'TRAVEL', purpose: 'Finance Summit logistics', eventId: summit.id, eventTitle: summit.title, clubId: arthakram.id, clubName: arthakram.name, status: 'PENDING', submittedById: clubHead.id, submittedByName: clubHead.name },
+      { title: 'Printing handouts', amount: 800, expenseDate: daysFromNow(-6), category: 'PRINTING', purpose: 'Orientation', clubId: arthakram.id, clubName: arthakram.name, status: 'APPROVED', submittedById: clubHead.id, submittedByName: clubHead.name, reviewedById: admin.id, reviewedByName: admin.name, reviewedAt: daysFromNow(-2) },
+      { title: 'Props for play', amount: 2200, expenseDate: daysFromNow(-8), category: 'MATERIALS', purpose: 'Annual Play', clubId: rangmanch.id, clubName: rangmanch.name, status: 'PROCESSED', submittedById: clubHead.id, submittedByName: clubHead.name, reviewedById: admin.id, reviewedByName: admin.name, reviewedAt: daysFromNow(-5), processedById: seededUsers.find((u) => u.role === 'FINANCE').id, processedByName: 'Farah (Finance)', processedAt: daysFromNow(-3), budgetDeducted: true, payoutRef: 'PAYOUT-2026-0001' },
     ],
   });
 
