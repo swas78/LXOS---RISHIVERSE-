@@ -29,7 +29,10 @@ const mapAchievement = (a) => ({
   id: a.id,
   type: 'ACHIEVEMENT',
   title: a.title,
-  subtitle: (a.clubName || a.clanName || 'Personal') + ` · ${a.category}`,
+  subtitle:
+    (a.kind === 'UPDATE' ? 'Blog post' : 'Achievement') +
+    ' · ' +
+    (a.clubName || a.clanName || 'Personal'),
   requestedBy: a.createdByName,
   date: a.createdAt,
   amount: null,

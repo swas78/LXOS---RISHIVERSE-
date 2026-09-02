@@ -256,6 +256,17 @@ async function main() {
         createdById: gdgHead.id, createdByName: gdgHead.name, approvedById: admin.id, approvedByName: admin.name,
         approvedAt: daysFromNow(0), achievedDate: daysFromNow(0),
       },
+      {
+        title: 'Maratha: Weekly huddle recap', description: 'Great turnout at this week’s Maratha huddle — planning the green-campus drive.',
+        clanId: clanByName['Maratha'].id, clanName: 'Maratha', category: 'SOCIAL', kind: 'UPDATE', status: 'APPROVED',
+        createdById: clanHeadOf('Maratha').id, createdByName: clanHeadOf('Maratha').name,
+        approvedById: admin.id, approvedByName: admin.name, approvedAt: daysFromNow(-1), achievedDate: daysFromNow(-1),
+      },
+      {
+        title: 'SAST: New robotics workshop series', description: 'We are announcing a 4-week robotics workshop — details soon!',
+        clubId: sast.id, clubName: sast.name, category: 'SOCIAL', kind: 'UPDATE', status: 'PENDING',
+        createdById: headOf('SAST').id, createdByName: headOf('SAST').name, achievedDate: daysFromNow(0),
+      },
     ],
   });
 
