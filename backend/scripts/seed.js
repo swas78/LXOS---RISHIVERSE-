@@ -43,18 +43,21 @@ function buildRooms() {
 
 // ---- Real clubs (from LXOS seed) -----------------------------------------
 // name, category(enum), email, and a demo budgetSpent (real seed spends 0).
+// Every club/clan gets a 10,000 semester budget. budgetSpent below is demo data.
+const CLUB_BUDGET = 10000;
+const CLAN_BUDGET = 10000;
 const CLUBS = [
-  { name: 'SAST', category: 'TECHNICAL', email: 'sast@rishihood.edu.in', budgetSpent: 32000 },
-  { name: 'Content Team', category: 'OTHER', email: 'content@rishihood.edu.in', budgetSpent: 8000 },
-  { name: 'Fine Arts Club', category: 'CULTURAL', email: 'finearts.club@rishihood.edu.in', budgetSpent: 15000 },
-  { name: 'GDG', category: 'TECHNICAL', email: 'gdg@rishihood.edu.in', budgetSpent: 26000 },
-  { name: 'Robotics Club', category: 'TECHNICAL', email: 'robotics.club@rishihood.edu.in', budgetSpent: 41000 },
-  { name: 'Dance Club', category: 'CULTURAL', email: 'dance.club@rishihood.edu.in', budgetSpent: 19000 },
-  { name: 'Theatre Club', category: 'CULTURAL', email: 'theatre.club@rishihood.edu.in', budgetSpent: 23000 },
-  { name: 'Finanza', category: 'ACADEMIC', email: 'finanza@rishihood.edu.in', budgetSpent: 12000 },
-  { name: 'GD Club', category: 'OTHER', email: 'gdclub@nst.rishihood.edu.in', budgetSpent: 4000 },
-  { name: 'AI Club', category: 'TECHNICAL', email: 'aiclub@nst.rishihood.edu.in', budgetSpent: 21000 },
-  { name: 'SAGE', category: 'SOCIAL', email: 'sage.club@rishihood.edu.in', budgetSpent: 9000 },
+  { name: 'SAST', category: 'TECHNICAL', email: 'sast@rishihood.edu.in', budgetSpent: 4200 },
+  { name: 'Content Team', category: 'OTHER', email: 'content@rishihood.edu.in', budgetSpent: 800 },
+  { name: 'Fine Arts Club', category: 'CULTURAL', email: 'finearts.club@rishihood.edu.in', budgetSpent: 1500 },
+  { name: 'GDG', category: 'TECHNICAL', email: 'gdg@rishihood.edu.in', budgetSpent: 3600 },
+  { name: 'Robotics Club', category: 'TECHNICAL', email: 'robotics.club@rishihood.edu.in', budgetSpent: 5200 },
+  { name: 'Dance Club', category: 'CULTURAL', email: 'dance.club@rishihood.edu.in', budgetSpent: 1900 },
+  { name: 'Theatre Club', category: 'CULTURAL', email: 'theatre.club@rishihood.edu.in', budgetSpent: 2300 },
+  { name: 'Finanza', category: 'ACADEMIC', email: 'finanza@rishihood.edu.in', budgetSpent: 1200 },
+  { name: 'GD Club', category: 'OTHER', email: 'gdclub@nst.rishihood.edu.in', budgetSpent: 400 },
+  { name: 'AI Club', category: 'TECHNICAL', email: 'aiclub@nst.rishihood.edu.in', budgetSpent: 2100 },
+  { name: 'SAGE', category: 'SOCIAL', email: 'sage.club@rishihood.edu.in', budgetSpent: 900 },
 ];
 
 // ---- Real admins (from LXOS seed) ----------------------------------------
@@ -100,7 +103,7 @@ async function main() {
   for (const c of LX_CLANS) {
     await prisma.lxClan.create({
       data: {
-        name: c.name, color: c.color, points: 0, budgetAllocated: 50000, budgetSpent: 0,
+        name: c.name, color: c.color, points: 0, budgetAllocated: CLAN_BUDGET, budgetSpent: 0,
         semester: SEM, description: `${c.name} clan — inter-clan competition at Rishihood.`,
       },
     });
@@ -115,7 +118,7 @@ async function main() {
         name: club.name,
         description: `Official ${club.name} of Rishihood University`,
         category: club.category,
-        budgetAllocated: 100000,
+        budgetAllocated: CLUB_BUDGET,
         budgetSpent: club.budgetSpent,
         semester: SEM,
         headName: `${club.name} Head`,

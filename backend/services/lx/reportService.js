@@ -155,6 +155,62 @@ export const getReportService = async (requestedSemester) => {
   }
 };
 
+// Build a sectioned CSV of a report (mirrors the original /api/lx-report).
+const csvCell = (v) => {
+  const s = String(v ?? '');
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+};
+const csvRow = (arr) => arr.map(csvCell).join(',');
+
+export const buildReportCsv = (data) => {
+  const lines = [];
+  const push = (...rs) => rs.forEach((r) => lines.push(r));
+  const section = (title) => {
+    lines.push('');
+    lines.push(`== ${title} ==`);
+  };
+  const statusOf = (rem) => (rem < 0 ? 'OVER BUDGET' : 'Within budget');
+
+  push('LX SEMESTER REPORT');
+  push(csvRow(['Semester', data.semester]));
+  push(csvRow(['Generated', new Date(data.generatedAt).toLocaleString('en-IN')]));
+  push(csvRow(['Note', 'Budget figures are for the selected semester. Events, achievements & reimbursements list all records.']));
+
+  section('SUMMARY');
+  push(csvRow(['Metric', 'Value']));
+  data.summary.forEach((s) => push(csvRow([s.metric, s.value])));
+
+  section(`CLUB BUDGETS (${data.semester})`);
+  push(csvRow(['Club', 'Allocated', 'Used', 'Remaining', 'Status']));
+  data.clubBudgets.forEach((b) => push(csvRow([b.name, b.allocated, b.used, b.remaining, statusOf(b.remaining)])));
+
+  section(`CLAN BUDGETS & POINTS (${data.semester})`);
+  push(csvRow(['Clan', 'Points', 'Allocated', 'Used', 'Remaining', 'Status']));
+  data.clanBudgets.forEach((b) => push(csvRow([b.name, b.points, b.allocated, b.used, b.remaining, statusOf(b.remaining)])));
+
+  section('EVENTS');
+  push(csvRow(['Title', 'Type', 'Organisation', 'Start', 'End', 'Status', 'Venue', 'Budget Allocated', 'Budget Spent', 'Completed']));
+  data.events.forEach((e) => push(csvRow([e.title, e.type, e.org, e.start, e.end, e.status, e.venue, e.allocated, e.spent, e.completed])));
+
+  section('ACHIEVEMENTS');
+  push(csvRow(['Title', 'Category', 'Club/Clan', 'Points', 'Status', 'Date', 'Participants', 'Added By']));
+  data.achievements.forEach((a) => push(csvRow([a.title, a.category, a.org, a.points, a.status, a.date, a.participants, a.addedBy])));
+
+  section('REIMBURSEMENTS');
+  push(csvRow(['Title', 'Submitted By', 'Amount', 'Category', 'Charged To', 'Event/Purpose', 'Status', 'Expense Date']));
+  data.reimbursements.forEach((r) => push(csvRow([r.title, r.by, r.amount, r.category, r.chargedTo, r.purpose, r.status, r.date])));
+
+  section('INITIATIVES');
+  push(csvRow(['Title', 'Clan', 'Semester', 'Status', 'Date', 'Description']));
+  data.initiatives.forEach((it) => push(csvRow([it.title, it.clan, it.semester, it.status, it.date, it.description])));
+
+  section('CLAN POINT HISTORY');
+  push(csvRow(['Clan', 'Points Change', 'Total', 'Reason', 'Date']));
+  data.pointHistory.forEach((h) => push(csvRow([h.clan, (h.delta >= 0 ? '+' : '') + h.delta, h.points, h.reason, h.date])));
+
+  return lines.join('\n');
+};
+
 export const rolloverSemesterService = async ({ newSemester, resetAllocation }) => {
   try {
     const result = await rolloverSemesterDal({ newSemester, resetAllocation });
