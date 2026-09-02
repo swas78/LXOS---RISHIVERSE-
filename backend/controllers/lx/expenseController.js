@@ -41,7 +41,7 @@ export const createExpenseController = async (req, res) => {
 export const getAllExpensesController = async (req, res) => {
   try {
     const validatedData = getAllExpensesSchema.parse(req.query);
-    const result = await getAllExpensesService(validatedData);
+    const result = await getAllExpensesService(validatedData, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
     }

@@ -43,7 +43,7 @@ export const createReimbursementController = async (req, res) => {
 export const getAllReimbursementsController = async (req, res) => {
   try {
     const validatedData = getAllReimbursementsSchema.parse(req.query);
-    const result = await getAllReimbursementsService(validatedData);
+    const result = await getAllReimbursementsService(validatedData, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
     }

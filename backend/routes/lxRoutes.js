@@ -1,6 +1,7 @@
 import express from 'express';
 import resolveActor from '../middleware/lxActor.js';
 import userRoutes from './lx/userRoutes.js';
+import accessRoutes from './lx/accessRoutes.js';
 import roomRoutes from './lx/roomRoutes.js';
 import roomBookingRoutes from './lx/roomBookingRoutes.js';
 import clubRoutes from './lx/clubRoutes.js';
@@ -18,6 +19,7 @@ import budgetRoutes from './lx/budgetRoutes.js';
 import dashboardRoutes from './lx/dashboardRoutes.js';
 import analyticsRoutes from './lx/analyticsRoutes.js';
 import calendarRoutes from './lx/calendarRoutes.js';
+import reportRoutes from './lx/reportRoutes.js';
 
 const router = express.Router();
 
@@ -27,6 +29,7 @@ router.use(resolveActor);
 // LX (Learner Experience OS) module aggregator.
 // Each entity mounts here → /api/v1/lx/{entity}/...
 router.use('/user', userRoutes); // dev switcher + /me
+router.use('/access', accessRoutes); // role assignment (admin only)
 router.use('/room', roomRoutes);
 router.use('/room-booking', roomBookingRoutes);
 router.use('/club', clubRoutes);
@@ -44,5 +47,6 @@ router.use('/budget', budgetRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/calendar', calendarRoutes);
+router.use('/report', reportRoutes); // LX report + semester rollover
 
 export default router;

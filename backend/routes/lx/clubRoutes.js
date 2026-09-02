@@ -7,6 +7,8 @@ import {
   getClubByIdController,
   updateClubController,
 } from '../../controllers/lx/clubController.js';
+import { requirePermission } from '../../middleware/lxRequirePermission.js';
+import { PERMISSIONS } from '../../helper/lxPermissions.js';
 
 const router = express.Router();
 const logger = createContextLogger('clubRoutes');
@@ -16,10 +18,10 @@ router.use((req, res, next) => {
   next();
 });
 
-router.post('/new', createClubController);
+router.post('/new', requirePermission(PERMISSIONS.MANAGE_CLUBS), createClubController);
 router.get('/all', getAllClubsController);
 router.get('/:clubId', getClubByIdController);
-router.patch('/:clubId', updateClubController);
-router.delete('/:clubId', deleteClubController);
+router.patch('/:clubId', requirePermission(PERMISSIONS.MANAGE_CLUBS), updateClubController);
+router.delete('/:clubId', requirePermission(PERMISSIONS.MANAGE_CLUBS), deleteClubController);
 
 export default router;

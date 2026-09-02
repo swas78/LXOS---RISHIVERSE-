@@ -1,4 +1,5 @@
 import createContextLogger from '../../logger/contextLogger.js';
+import { reimbursementScope } from '../../helper/lxPermissions.js';
 import {
   createReimbursementDal,
   deleteReimbursementDal,
@@ -51,9 +52,11 @@ export const getReimbursementByIdService = async (reimbursementId) => {
   }
 };
 
-export const getAllReimbursementsService = async (query) => {
+export const getAllReimbursementsService = async (query, actor) => {
   try {
-    const result = await getAllReimbursementsDal(query);
+    // Reviewers (ADMIN/LX/FINANCE) see all; everyone else sees only their own.
+    const scope = reimbursementScope(actor);
+    const result = await getAllReimbursementsDal({ ...query, ...scope });
     if (!result) {
       return { success: false, message: 'Unable to list reimbursements', statusCode: 400 };
     }

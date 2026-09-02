@@ -3,29 +3,43 @@ import prisma from '../../services/prismaClient.js';
 
 const logger = createContextLogger('budgetDal');
 
-export const getBudgetDataDal = async () => {
+// scope = { all: boolean, clubIds: string[]|null, clanIds: string[]|null }
+export const getBudgetDataDal = async (scope = { all: true }) => {
   try {
+    const clubWhere = { deletedAt: null };
+    const clanWhere = { deletedAt: null };
+    if (!scope.all) {
+      clubWhere.id = { in: scope.clubIds ?? [] };
+      clanWhere.id = { in: scope.clanIds ?? [] };
+    }
+
     const [clubs, clans, approvedExpenseAgg, processedReimbAgg] = await Promise.all([
       prisma.lxClub.findMany({
-        where: { deletedAt: null },
+        where: clubWhere,
         select: { id: true, name: true, category: true, budgetAllocated: true, budgetSpent: true },
         orderBy: { name: 'asc' },
       }),
       prisma.lxClan.findMany({
-        where: { deletedAt: null },
+        where: clanWhere,
         select: { id: true, name: true, color: true, budgetAllocated: true, budgetSpent: true, points: true },
         orderBy: { points: 'desc' },
       }),
-      prisma.lxExpense.aggregate({
-        where: { deletedAt: null, status: 'APPROVED' },
-        _sum: { amount: true },
-        _count: true,
-      }),
-      prisma.lxReimbursement.aggregate({
-        where: { deletedAt: null, status: 'PROCESSED' },
-        _sum: { amount: true },
-        _count: true,
-      }),
+      // Institution-wide expense/reimbursement totals only make sense for
+      // finance viewers; scoped users get zeros.
+      scope.all
+        ? prisma.lxExpense.aggregate({
+            where: { deletedAt: null, status: 'APPROVED' },
+            _sum: { amount: true },
+            _count: true,
+          })
+        : Promise.resolve({ _sum: { amount: 0 }, _count: 0 }),
+      scope.all
+        ? prisma.lxReimbursement.aggregate({
+            where: { deletedAt: null, status: 'PROCESSED' },
+            _sum: { amount: true },
+            _count: true,
+          })
+        : Promise.resolve({ _sum: { amount: 0 }, _count: 0 }),
     ]);
     return { clubs, clans, approvedExpenseAgg, processedReimbAgg };
   } catch (error) {

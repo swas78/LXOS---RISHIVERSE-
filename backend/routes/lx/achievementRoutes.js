@@ -8,6 +8,8 @@ import {
   reviewAchievementController,
   updateAchievementController,
 } from '../../controllers/lx/achievementController.js';
+import { requirePermission } from '../../middleware/lxRequirePermission.js';
+import { PERMISSIONS } from '../../helper/lxPermissions.js';
 
 const router = express.Router();
 const logger = createContextLogger('achievementRoutes');
@@ -17,11 +19,11 @@ router.use((req, res, next) => {
   next();
 });
 
-router.post('/new', createAchievementController);
+router.post('/new', requirePermission(PERMISSIONS.CREATE_ACHIEVEMENT), createAchievementController);
 router.get('/all', getAllAchievementsController);
 router.get('/:achievementId', getAchievementByIdController);
 router.patch('/:achievementId', updateAchievementController);
 router.delete('/:achievementId', deleteAchievementController);
-router.post('/:achievementId/review', reviewAchievementController);
+router.post('/:achievementId/review', requirePermission(PERMISSIONS.APPROVE_ACHIEVEMENT), reviewAchievementController);
 
 export default router;
