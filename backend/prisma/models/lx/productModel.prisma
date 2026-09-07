@@ -1,0 +1,81 @@
+// ===========================================================================
+// LX MODULE — Learner Products
+//
+// Products, websites and hardware built by learners. A submission is PENDING
+// until an admin approves it; only APPROVED rows appear in the public showcase.
+// No core equivalent; no collision.
+// ===========================================================================
+
+model LxProduct {
+  id          String            @id @default(cuid())
+  title       String
+  tagline     String            @default("")
+  description String
+  category    LxProductCategory @default(WEBSITE)
+
+  /// Live deployment, if any.
+  url     String?
+  /// Source repository, if public.
+  repoUrl String?
+
+  /// Screenshots and design mockups, in display order — `images[0]` is the
+  /// cover shown on the showcase card. Each entry is a core S3 pointer, e.g.
+  /// "s3:<bucket>:img/<uuid>-dashboard.png", uploaded via the presign flow.
+  /// Store the pointer only; core's s3UrlMiddleware signs a GET URL at read
+  /// time. See lxos-core-pack/upload.md.
+  images String[] @default([])
+
+  techStack String[] @default([])
+  tags      String[] @default([])
+
+  clubId   String?
+  /// CACHE — may drift. Denormalised from LxClub.name.
+  clubName String?
+
+  /// Admin-curated flag that pins a product to the top of the showcase.
+  featured Boolean @default(false)
+
+  /// Core `User.referenceId` of the submitter.
+  createdByRef  String
+  /// CACHE — may drift. Resolve from core User/Student/Employee at read.
+  createdByName String?
+
+  /// Core `User.referenceId` values of collaborators.
+  teamMembers String[] @default([])
+
+  status LxProductStatus @default(PENDING)
+
+  /// Core `User.referenceId` of the reviewing admin.
+  approvedByRef   String?
+  /// CACHE — may drift. See `createdByName`.
+  approvedByName  String?
+  approvedAt      DateTime?
+  rejectionReason String?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([deletedAt])
+  @@index([status, createdAt])
+  @@index([category])
+  @@index([createdByRef])
+  @@map("lx_products")
+}
+
+enum LxProductCategory {
+  WEBSITE
+  WEB_APP
+  MOBILE_APP
+  HARDWARE
+  DESIGN
+  RESEARCH
+  GAME
+  OTHER
+}
+
+enum LxProductStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}

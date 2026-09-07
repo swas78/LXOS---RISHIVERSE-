@@ -1,0 +1,77 @@
+// ===========================================================================
+// LX MODULE — Membership / roles
+//
+// IDENTITY CONTRACT (lxos-core-pack/identity.md)
+// ----------------------------------------------
+// LXOS does NOT own identity. Core `User` / `Student` / `Employee` own login,
+// JWT and profiles. This module stores ONLY the LX-specific overlay: which
+// role a person holds and which club/clan they lead.
+//
+// The join key everywhere in this module is `referenceId` — core's
+// `User.referenceId`, which is:
+//   * a Student's `enrollmentNo`  (e.g. "RU2023BTC042")
+//   * an Employee's `employeeId`  (e.g. "EMP0417")
+//   * for `userType = CLUB`, the numeric `Club.id` as a string (a club
+//     account, NOT a person — do not treat it as an LX member)
+//
+// Every other LX table references a person by `*ByRef` (a referenceId string),
+// never by a local user id.
+//
+// AT INTEGRATION, maintainers may promote the soft reference to a real FK:
+//
+//   model LxMember {
+//     referenceId String @unique
+//     user        User   @relation(fields: [referenceId], references: [referenceId])
+//   }
+//
+// ...which also needs the back-relation `lxMember LxMember?` on core `User`.
+// That is a CORE schema edit — request it in handoff; do not ship it here.
+// ===========================================================================
+
+/// LX-module role. Deliberately NOT core's `Role` enum: a campus ADMIN is not
+/// automatically an LX ADMIN. Verb gating happens in middleware; row scoping
+/// (e.g. "club head sees only their club") stays in the LX DALs.
+enum LxMemberRole {
+  ADMIN
+  LX_TEAM
+  CLUB_HEAD
+  CLAN_HEAD
+  FINANCE
+  GUEST
+}
+
+model LxMember {
+  id String @id @default(cuid())
+
+  /// Core `User.referenceId` — enrollmentNo for students, employeeId for
+  /// employees. This is the actor key for the whole LX module.
+  referenceId String @unique
+
+  role LxMemberRole @default(GUEST)
+
+  /// Primary affiliation, used by DAL scoping predicates. Core `ClubMember` is
+  /// many-to-many; if LXOS later defers to core clubs (decision D1), scoping
+  /// should union approved `ClubMember` rows instead of reading this column.
+  clubId String?
+  clanId String?
+
+  isActive Boolean @default(true)
+
+  /// DEV-SHIM ONLY — deleted at handoff.
+  /// Lets the local kit render a name without a core database. In production
+  /// these come from `Student.fullName` / `Employee.firstName+lastName` via
+  /// the batched resolver in `services/lx/identityService.js`.
+  displayName String?
+  /// DEV-SHIM ONLY — deleted at handoff. See `displayName`.
+  email       String? @unique
+  /// DEV-SHIM ONLY — deleted at handoff. Core serves `userProfileImg`.
+  avatar      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([role])
+  @@index([clubId])
+  @@index([clanId])
+  @@map("lx_members")
+}

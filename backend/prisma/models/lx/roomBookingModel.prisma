@@ -1,0 +1,74 @@
+// ===========================================================================
+// LX MODULE — Room bookings
+//
+// A time-bounded reservation of a single LX room. Bookings are the source of
+// truth for availability. An event may spawn one booking per room it occupies
+// (linked by `eventId`); ad-hoc bookings have no event.
+//
+// OVERLAP PREVENTION — READ BEFORE CHANGING
+// -----------------------------------------
+// Conflict detection today is an APPLICATION check inside a Serializable
+// transaction (see `dals/lx/roomBookingDal.js`). Core's own Book Venue product
+// has the same limitation and no exclusion constraint.
+//
+// Database-level prevention requires raw SQL that this module CANNOT ship
+// (lxos-core-pack/prisma-integration.md §"Migrations you cannot ship"):
+//
+//   CREATE EXTENSION IF NOT EXISTS btree_gist;
+//   ALTER TABLE lx_room_bookings ADD CONSTRAINT lx_room_bookings_no_overlap
+//     EXCLUDE USING gist (
+//       room_id WITH =,
+//       tstzrange(start_time, end_time) WITH &&
+//     ) WHERE (deleted_at IS NULL AND status IN ('PENDING','APPROVED'));
+//
+// Request that from maintainers. Until it exists, do NOT claim the database
+// prevents double-booking — only the application does.
+// ===========================================================================
+
+model LxRoomBooking {
+  id         String    @id @default(cuid())
+  roomId     String
+  /// CACHE — may drift. Denormalised from LxRoom.name for list rendering.
+  roomName   String?
+  eventId    String?
+  /// CACHE — may drift. Denormalised from LxEvent.title.
+  eventTitle String?
+
+  title     String
+  purpose   String              @default("")
+  startTime DateTime
+  endTime   DateTime
+  status    LxRoomBookingStatus @default(PENDING)
+
+  /// Core `User.referenceId` of the requester.
+  requestedByRef  String
+  /// CACHE — may drift. Resolve from core User/Student/Employee at read.
+  /// Not a source of truth; see identityService.
+  requestedByName String?
+
+  /// Core `User.referenceId` of the approving admin.
+  approvedByRef   String?
+  /// CACHE — may drift. See `requestedByName`.
+  approvedByName  String?
+  approvedAt      DateTime?
+  rejectionReason String?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  room LxRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@index([deletedAt])
+  @@index([roomId, startTime, endTime])
+  @@index([status])
+  @@index([requestedByRef])
+  @@map("lx_room_bookings")
+}
+
+enum LxRoomBookingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}

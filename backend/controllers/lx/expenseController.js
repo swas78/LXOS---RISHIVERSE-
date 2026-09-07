@@ -21,8 +21,10 @@ export const createExpenseController = async (req, res) => {
     // Snapshot the submitter from the acting user.
     const payload = {
       ...validatedData,
-      submittedById: req.actor?.id ?? 'unknown',
-      submittedByName: req.actor?.name ?? 'Unknown',
+      submittedByRef: req.actor?.referenceId ?? 'unknown',
+      submittedByName: req.actor?.displayName ?? null,
+      // Money endpoint — honour the optional replay guard (api-envelope.md).
+      idempotencyKey: req.get('Idempotency-Key') || null,
     };
     const result = await createExpenseService(payload);
     if (!result.success) {

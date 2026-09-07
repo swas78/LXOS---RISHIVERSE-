@@ -1,0 +1,56 @@
+// ===========================================================================
+// LX MODULE — File metadata
+//
+// Core's upload endpoints put bytes in S3 but do NOT write a row here. After
+// the client's PUT succeeds it calls `POST /api/v1/lx/file/confirm`, which
+// creates this record. Treat that confirm call as UNTRUSTED — verify the
+// object exists, or at minimum that `fileKey` matches the presign prefix
+// issued to this actor, before persisting. See lxos-core-pack/upload.md.
+//
+// Bytes never pass through Express.
+// ===========================================================================
+
+model LxFile {
+  id String @id @default(cuid())
+
+  /// Core S3 pointer, e.g. "s3:<bucket>:document/<uuid>-report.pdf".
+  /// Never a public bucket URL — core's s3UrlMiddleware signs a short-lived
+  /// GET URL at read time.
+  fileKey      String
+  /// Filename as the uploader supplied it, for display and download.
+  originalName String
+  mimeType     String
+  /// Bytes.
+  size         Int
+  type         LxFileType @default(OTHER)
+
+  eventId  String?
+  clubId   String?
+  semester String   @default("Spring 2026")
+  tags     String[] @default([])
+
+  description String?
+
+  /// Core `User.referenceId` of the uploader.
+  uploadedByRef  String
+  /// CACHE — may drift. Resolve from core User/Student/Employee at read.
+  uploadedByName String?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([deletedAt])
+  @@index([type, semester])
+  @@index([uploadedByRef])
+  @@map("lx_files")
+}
+
+enum LxFileType {
+  BILL
+  REPORT
+  POSTER
+  DOCUMENT
+  IMAGE
+  OTHER
+}

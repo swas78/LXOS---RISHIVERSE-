@@ -1,0 +1,94 @@
+// ===========================================================================
+// LX MODULE — Events
+//
+// COLLISION NOTE (lxos-core-pack/collisions.md)
+// ---------------------------------------------
+// Core has `ClubEvent` (club directory listings, `eventVenue` is free text).
+// `LxEvent` is a different entity: it carries budget, approval workflow, clan
+// scoring and real room reservations via LxRoomBooking. Do not merge them and
+// do not write to `ClubEvent`.
+// ===========================================================================
+
+model LxEvent {
+  id          String      @id @default(cuid())
+  title       String
+  description String
+  type        LxEventType
+
+  clubId   String?
+  /// CACHE — may drift. Denormalised from LxClub.name.
+  clubName String?
+  clanId   String?
+  /// CACHE — may drift. Denormalised from LxClan.name.
+  clanName String?
+
+  startDate DateTime
+  endDate   DateTime
+
+  /// LxRoom ids reserved for this event. The authoritative reservations live in
+  /// LxRoomBooking (one row per room); this array is the read-side convenience.
+  roomIds   String[] @default([])
+  /// CACHE — may drift. Denormalised from LxRoom.name.
+  roomNames String[] @default([])
+  /// Free-text venue for events that do not occupy a bookable LX room.
+  location  String   @default("")
+
+  /// Array of { item, quantity, estimatedCost }.
+  requirements Json @default("[]")
+
+  budgetAllocated Float @default(0)
+  budgetSpent     Float @default(0)
+
+  status LxEventStatus @default(PENDING)
+
+  /// Core `User.referenceId` of the organiser.
+  createdByRef  String
+  /// CACHE — may drift. Resolve from core User/Student/Employee at read.
+  createdByName String?
+  /// LxMemberRole held at creation time, kept for audit (roles change).
+  createdByRole String?
+
+  /// Core `User.referenceId` of the approving admin.
+  approvedByRef   String?
+  /// CACHE — may drift. See `createdByName`.
+  approvedByName  String?
+  approvedAt      DateTime?
+  rejectionReason String?
+
+  attendees Int     @default(0)
+  /// s3Path of the event poster, e.g. "s3:<bucket>:img/<uuid>-poster.png".
+  poster    String?
+
+  /// Map of clanId → points awarded for this event.
+  clanScores Json @default("{}")
+
+  isCompleted   Boolean   @default(false)
+  completedAt   DateTime?
+  /// Core `User.referenceId` of whoever marked it complete.
+  completedByRef String?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([deletedAt])
+  @@index([startDate, endDate])
+  @@index([type, status])
+  @@index([createdByRef])
+  @@map("lx_events")
+}
+
+enum LxEventType {
+  CLUB
+  CLAN
+  LX
+  FEST
+}
+
+enum LxEventStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+  CANCELLED
+}

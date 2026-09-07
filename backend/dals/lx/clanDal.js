@@ -75,7 +75,8 @@ export const getAllClansDal = async ({ search, page, limit, sortBy, sortOrder })
     return {
       page,
       limit,
-      totalRecords: total,
+      totalCount: total,
+      totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
       data: clans,
       hasNextPage: page * limit < total,
       hasPreviousPage: page > 1,
@@ -125,7 +126,7 @@ export const applyClanPointsDal = async ({
   newPoints,
   previousPoints,
   reason,
-  createdById,
+  createdByRef,
   createdByName,
 }) => {
   try {
@@ -141,7 +142,7 @@ export const applyClanPointsDal = async ({
           points: newPoints,
           previousPoints,
           reason,
-          ...(createdById !== undefined ? { createdById } : {}),
+          ...(createdByRef !== undefined ? { createdByRef } : {}),
           ...(createdByName !== undefined ? { createdByName } : {}),
         },
       }),

@@ -15,14 +15,14 @@ export const createProductDal = async (payload) => {
         description: payload.description,
         url: clean(payload.url) ?? null,
         repoUrl: clean(payload.repoUrl) ?? null,
-        imageUrl: clean(payload.imageUrl) ?? null,
+        images: payload.images ?? [],
         ...(payload.category ? { category: payload.category } : {}),
         ...(payload.techStack ? { techStack: payload.techStack } : {}),
         ...(payload.tags ? { tags: payload.tags } : {}),
         ...(payload.teamMembers ? { teamMembers: payload.teamMembers } : {}),
         clubId: payload.clubId ?? null,
         clubName: payload.clubName ?? null,
-        createdById: payload.createdById,
+        createdByRef: payload.createdByRef,
         createdByName: payload.createdByName,
         // Always starts PENDING — shown publicly only once an admin approves.
         status: 'PENDING',
@@ -52,7 +52,7 @@ export const getAllProductsDal = async ({
   search,
   status,
   category,
-  createdById,
+  createdByRef,
   page,
   limit,
   sortBy,
@@ -63,7 +63,7 @@ export const getAllProductsDal = async ({
       deletedAt: null,
       ...(Array.isArray(status) && status.length > 0 ? { status: { in: status } } : {}),
       ...(Array.isArray(category) && category.length > 0 ? { category: { in: category } } : {}),
-      ...(createdById ? { createdById } : {}),
+      ...(createdByRef ? { createdByRef } : {}),
       ...(search
         ? {
             OR: [

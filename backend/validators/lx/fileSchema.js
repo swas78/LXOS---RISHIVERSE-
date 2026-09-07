@@ -4,11 +4,17 @@ import { LX_FILE_TYPES, LX_FILE_SORT_BY } from '../../constants/lxFileConstant.j
 const tagsField = z.array(z.string().trim().min(1).max(60)).optional();
 
 export const createFileSchema = z.object({
-  filename: z.string().trim().min(1, 'filename is required').max(255),
+  // Core S3 pointer returned by the presign step. Never a public bucket URL.
+  fileKey: z
+    .string()
+    .trim()
+    .min(1, 'fileKey is required')
+    .max(500)
+    .regex(/^s3:[^:]+:.+$/, 'fileKey must look like s3:<bucket>:<key>'),
   originalName: z.string().trim().min(1, 'originalName is required').max(255),
-  path: z.string().trim().min(1, 'path is required').max(2000),
-  mimeType: z.string().trim().max(255).optional().nullable(),
-  size: z.number().int().min(0).max(1000000000000).optional(),
+  // Required: both columns are non-null and both come back from the upload step.
+  mimeType: z.string().trim().min(1, 'mimeType is required').max(255),
+  size: z.number().int().min(0).max(1000000000000),
   type: z
     .enum(LX_FILE_TYPES, {
       errorMap: () => ({ message: `type must be one of: ${LX_FILE_TYPES.join(', ')}` }),

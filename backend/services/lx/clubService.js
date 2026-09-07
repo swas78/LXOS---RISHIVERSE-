@@ -58,7 +58,8 @@ export const getAllClubsService = async (query) => {
       pagination: {
         page: result.page,
         limit: result.limit,
-        totalRecords: result.totalRecords,
+        totalCount: result.totalCount,
+        totalPages: result.totalPages,
         hasNextPage: result.hasNextPage,
         hasPreviousPage: result.hasPreviousPage,
       },

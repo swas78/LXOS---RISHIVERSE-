@@ -1,0 +1,64 @@
+// ===========================================================================
+// LX MODULE — Clans + the clan point ledger
+//
+// Clans are the inter-house competition structure (Maratha, Vijaya, Chola,
+// Rajputana). They have no core equivalent, so there is no collision here.
+// ===========================================================================
+
+model LxClan {
+  id          String @id @default(cuid())
+  name        String @unique
+  /// Hex brand colour, e.g. "#f97316". Rendered inline (not a design token)
+  /// because it is per-clan data, not part of the theme.
+  color       String
+  description String @default("")
+
+  /// Denormalised running balance. The append-only ledger in LxClanPointTxn is
+  /// the source of truth; this column is a materialised total kept in step
+  /// inside the same transaction that writes the txn.
+  points Int @default(0)
+
+  budgetAllocated Float  @default(0)
+  budgetSpent     Float  @default(0)
+  semester        String @default("Spring 2026")
+  /// Array of { semester, budgetAllocated, budgetSpent, points, closedAt }.
+  budgetHistory   Json   @default("[]")
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  pointTxns LxClanPointTxn[]
+
+  @@index([deletedAt])
+  @@map("lx_clans")
+}
+
+/// Append-only ledger of clan point movements. Rows are NEVER updated or
+/// deleted — a mistake is corrected by posting a compensating transaction, so
+/// the history stays auditable. There is deliberately no `deletedAt` here.
+model LxClanPointTxn {
+  id             String @id @default(cuid())
+  clanId         String
+  /// Signed movement. Negative deducts.
+  delta          Int
+  /// Balance AFTER this txn was applied.
+  points         Int
+  /// Balance BEFORE this txn was applied.
+  previousPoints Int
+  reason         String
+  eventId        String?
+
+  /// Core `User.referenceId` of the admin who posted the adjustment.
+  createdByRef  String?
+  /// CACHE — may drift. Resolve from core User/Student/Employee at read.
+  createdByName String?
+
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  clan LxClan @relation(fields: [clanId], references: [id], onDelete: Cascade)
+
+  @@index([clanId])
+  @@map("lx_clan_point_txns")
+}

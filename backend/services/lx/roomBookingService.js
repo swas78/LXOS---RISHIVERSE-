@@ -63,8 +63,8 @@ export const createRoomBookingService = async (payload, actor) => {
       purpose: payload.purpose ?? '',
       startTime: payload.startTime,
       endTime: payload.endTime,
-      requestedById: actor?.id ?? 'unknown',
-      requestedByName: actor?.name ?? 'Unknown',
+      requestedByRef: actor?.referenceId ?? 'unknown',
+      requestedByName: actor?.displayName ?? null,
     });
 
     return {
@@ -107,7 +107,8 @@ export const getAllRoomBookingsService = async (query) => {
       pagination: {
         page: result.page,
         limit: result.limit,
-        totalRecords: result.totalRecords,
+        totalCount: result.totalCount,
+        totalPages: result.totalPages,
         hasNextPage: result.hasNextPage,
         hasPreviousPage: result.hasPreviousPage,
       },
@@ -147,8 +148,8 @@ export const reviewRoomBookingService = async (bookingId, { action, rejectionRea
       action === 'approve'
         ? {
             status: 'APPROVED',
-            approvedById: actor?.id ?? null,
-            approvedByName: actor?.name ?? null,
+            approvedByRef: actor?.referenceId ?? null,
+            approvedByName: actor?.displayName ?? null,
             approvedAt: new Date(),
             rejectionReason: null,
           }

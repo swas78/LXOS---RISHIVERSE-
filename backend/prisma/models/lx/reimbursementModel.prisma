@@ -1,0 +1,123 @@
+// ===========================================================================
+// LX MODULE — Reimbursements (personal out-of-pocket claims)
+//
+// PAYOUT CONTRACT — DECISION D3 (lxos-core-pack/payouts.md)
+// ---------------------------------------------------------
+// Core is explicit: LXOS must NOT store account numbers or IFSC codes. A
+// student's bank details already live on `Student` (same row as `enrollmentNo`
+// = `User.referenceId`):
+//
+//   bankAccountHolderName, bankAccountNumber, bankBranch,
+//   bankDetailsAttachment, bankIfscCode, bankName
+//
+// Those columns are PII. Finance already has profile access to them. LXOS only
+// needs to record WHICH PERSON to pay — that is `payoutRef`.
+//
+// If the submitter has no bank row on their core profile, the submit path
+// returns 422 "Bank details missing on student profile".
+//
+// KNOWN GAP: `Employee` has no bank columns. If club heads are employees, D3
+// is blocked until core adds a payout record. Flagged in handoff notes.
+// ===========================================================================
+
+model LxReimbursement {
+  id          String                  @id @default(cuid())
+  title       String
+  description String                  @default("")
+  amount      Float
+  expenseDate DateTime
+  category    LxReimbursementCategory @default(OTHER)
+  purpose     String                  @default("")
+
+  eventId    String?
+  /// CACHE — may drift. Denormalised from LxEvent.title.
+  eventTitle String?
+  clubId     String?
+  /// CACHE — may drift. Denormalised from LxClub.name.
+  clubName   String?
+  clanId     String?
+  /// CACHE — may drift. Denormalised from LxClan.name.
+  clanName   String?
+
+  /// True once the claim has been debited from the owning club/clan budget.
+  budgetDeducted Boolean @default(false)
+
+  /// WHO to pay — the canonical payout destination under D3.
+  /// Format: "student-bank:<enrollmentNo>". Finance resolves the actual account
+  /// from `Student.bank*` in the core UI. This is a pointer, not credentials.
+  payoutRef String?
+
+  /// The bank/UPI transaction reference captured by Finance once an approved
+  /// claim has actually been paid out. Free text, e.g. "NEFT/2026/0042".
+  payoutTxnRef String?
+
+  /// ⚠️ D3 VIOLATION — OFF BY DEFAULT. DO NOT SHIP ENABLED.
+  ///
+  /// Raw { accountHolderName, accountNumber, ifsc } captured in the LX form.
+  /// Only ever populated when `LX_COLLECT_BANK=true`, which exists solely so
+  /// the standalone kit can be demoed without a core `Student` table to read
+  /// bank details from. The flag defaults to false and MUST stay false at
+  /// handoff — core forbids plaintext bank columns in `lx_` tables.
+  ///
+  /// When the flag is off this column stays `{}` and `payoutRef` is the only
+  /// payout information stored. Deleting the column is the intended endgame;
+  /// it survives now only to keep the local demo self-contained.
+  bankDetails Json @default("{}")
+
+  /// Array of bill/receipt attachment pointers. Same shape as LxExpense.bills:
+  /// { s3Path, fileName, contentType, size, uploadedAt }. Store the s3Path
+  /// pointer only — never a public bucket URL. See lxos-core-pack/upload.md.
+  bills Json @default("[]")
+
+  /// Core `User.referenceId` of the claimant.
+  submittedByRef  String
+  /// CACHE — may drift. Resolve from core User/Student/Employee at read.
+  submittedByName String?
+
+  status LxReimbursementStatus @default(PENDING)
+
+  /// Core `User.referenceId` of the approving admin.
+  reviewedByRef  String?
+  /// CACHE — may drift. See `submittedByName`.
+  reviewedByName String?
+  reviewedAt     DateTime?
+
+  /// Core `User.referenceId` of the finance member who released the payout.
+  processedByRef  String?
+  /// CACHE — may drift. See `submittedByName`.
+  processedByName String?
+  processedAt     DateTime?
+
+  rejectionReason String?
+  notes           String?
+
+  /// Money endpoints accept an `Idempotency-Key` header (api-envelope.md).
+  /// A retry with the same key returns the original row rather than paying twice.
+  idempotencyKey String? @unique
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([deletedAt])
+  @@index([submittedByRef, status])
+  @@index([status, createdAt])
+  @@map("lx_reimbursements")
+}
+
+enum LxReimbursementCategory {
+  FOOD
+  TRAVEL
+  MATERIALS
+  EQUIPMENT
+  PRINTING
+  ACCOMMODATION
+  OTHER
+}
+
+enum LxReimbursementStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PROCESSED
+}

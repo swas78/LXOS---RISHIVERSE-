@@ -48,7 +48,7 @@ export const createEventController = async (req, res) => {
       });
     }
 
-    // Snapshot creator (createdById / createdByName / createdByRole match schema).
+    // Snapshot creator (createdByRef / createdByName / createdByRole match schema).
     const payload = { ...validatedData, ...actorSnapshot(req.actor) };
 
     const result = await createEventService(payload);

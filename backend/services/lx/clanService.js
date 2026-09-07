@@ -59,7 +59,8 @@ export const getAllClansService = async (query) => {
       pagination: {
         page: result.page,
         limit: result.limit,
-        totalRecords: result.totalRecords,
+        totalCount: result.totalCount,
+        totalPages: result.totalPages,
         hasNextPage: result.hasNextPage,
         hasPreviousPage: result.hasPreviousPage,
       },
@@ -137,8 +138,8 @@ export const manageClanPointsService = async (clanId, { delta, reason }, actor) 
       newPoints,
       previousPoints,
       reason,
-      createdById: actor?.id ?? null,
-      createdByName: actor?.name ?? null,
+      createdByRef: actor?.referenceId ?? null,
+      createdByName: actor?.displayName ?? null,
     });
 
     return {

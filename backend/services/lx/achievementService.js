@@ -64,7 +64,8 @@ export const getAllAchievementsService = async (query) => {
       pagination: {
         page: result.page,
         limit: result.limit,
-        totalRecords: result.totalRecords,
+        totalCount: result.totalCount,
+        totalPages: result.totalPages,
         hasNextPage: result.hasNextPage,
         hasPreviousPage: result.hasPreviousPage,
       },
@@ -136,8 +137,8 @@ export const reviewAchievementService = async (achievementId, { action, rejectio
       action === 'approve'
         ? {
             status: 'APPROVED',
-            approvedById: actor?.id ?? 'unknown',
-            approvedByName: actor?.name ?? 'Unknown',
+            approvedByRef: actor?.referenceId ?? 'unknown',
+            approvedByName: actor?.displayName ?? null,
             approvedAt: new Date(),
             rejectionReason: null,
           }

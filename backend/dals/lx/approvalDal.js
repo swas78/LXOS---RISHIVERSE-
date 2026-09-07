@@ -49,7 +49,7 @@ export const actOnEventDal = async (id, action, actor, rejectionReason) => {
   if (!existing) return null;
   const data =
     action === 'approve'
-      ? { status: 'APPROVED', approvedById: actor.id, approvedByName: actor.name, approvedAt: new Date() }
+      ? { status: 'APPROVED', approvedByRef: actor.referenceId, approvedByName: actor.displayName, approvedAt: new Date() }
       : { status: 'REJECTED', rejectionReason: rejectionReason || 'Rejected' };
   return prisma.lxEvent.update({ where: { id }, data });
 };
@@ -59,7 +59,7 @@ export const actOnAchievementDal = async (id, action, actor, rejectionReason) =>
   if (!existing) return null;
   const data =
     action === 'approve'
-      ? { status: 'APPROVED', approvedById: actor.id, approvedByName: actor.name, approvedAt: new Date() }
+      ? { status: 'APPROVED', approvedByRef: actor.referenceId, approvedByName: actor.displayName, approvedAt: new Date() }
       : { status: 'REJECTED', rejectionReason: rejectionReason || 'Rejected' };
   return prisma.lxAchievement.update({ where: { id }, data });
 };
@@ -78,13 +78,13 @@ export const actOnReimbursementDal = async (id, action, actor, rejectionReason) 
     if (existing.status !== 'APPROVED') return { error: 'Only APPROVED claims can be processed' };
     return prisma.lxReimbursement.update({
       where: { id },
-      data: { status: 'PROCESSED', processedById: actor.id, processedByName: actor.name, processedAt: new Date() },
+      data: { status: 'PROCESSED', processedByRef: actor.referenceId, processedByName: actor.displayName, processedAt: new Date() },
     });
   }
   // approve
   const updated = await prisma.lxReimbursement.update({
     where: { id },
-    data: { status: 'APPROVED', reviewedById: actor.id, reviewedByName: actor.name, reviewedAt: new Date() },
+    data: { status: 'APPROVED', reviewedByRef: actor.referenceId, reviewedByName: actor.displayName, reviewedAt: new Date() },
   });
   // Deduct from club/clan budget once.
   if (!existing.budgetDeducted) {
@@ -123,7 +123,7 @@ export const actOnBookingDal = async (id, action, actor, rejectionReason) => {
   }
   const data =
     action === 'approve'
-      ? { status: 'APPROVED', approvedById: actor.id, approvedByName: actor.name, approvedAt: new Date(), rejectionReason: null }
+      ? { status: 'APPROVED', approvedByRef: actor.referenceId, approvedByName: actor.displayName, approvedAt: new Date(), rejectionReason: null }
       : { status: 'REJECTED', rejectionReason: rejectionReason || 'Rejected' };
   return prisma.lxRoomBooking.update({ where: { id }, data });
 };
@@ -133,7 +133,7 @@ export const actOnProductDal = async (id, action, actor, rejectionReason) => {
   if (!existing) return null;
   const data =
     action === 'approve'
-      ? { status: 'APPROVED', approvedById: actor.id, approvedByName: actor.name, approvedAt: new Date(), rejectionReason: null }
+      ? { status: 'APPROVED', approvedByRef: actor.referenceId, approvedByName: actor.displayName, approvedAt: new Date(), rejectionReason: null }
       : { status: 'REJECTED', rejectionReason: rejectionReason || 'Rejected' };
   return prisma.lxProduct.update({ where: { id }, data });
 };
@@ -149,7 +149,7 @@ export const actOnExpenseDal = async (id, action, actor, rejectionReason) => {
   }
   const updated = await prisma.lxExpense.update({
     where: { id },
-    data: { status: 'APPROVED', verifiedById: actor.id, verifiedByName: actor.name, verifiedAt: new Date() },
+    data: { status: 'APPROVED', verifiedByRef: actor.referenceId, verifiedByName: actor.displayName, verifiedAt: new Date() },
   });
   if (!existing.budgetApplied && existing.eventId) {
     await prisma.lxEvent.update({

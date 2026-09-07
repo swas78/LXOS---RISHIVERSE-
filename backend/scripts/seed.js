@@ -61,13 +61,24 @@ const CLUBS = [
 ];
 
 // ---- Real admins (from LXOS seed) ----------------------------------------
-const ADMIN_EMAILS = [
-  'yashika.b@rishihood.edu.in',
-  'mehak.m@rishihood.edu.in',
-  'sandeep.s@rishihood.edu.in',
-  'neelanshu.2024@nst.rishihood.edu.in',
-  'soumya.a@rishihood.edu.in',
+//
+// `referenceId` is core `User.referenceId` — the join key for the whole module.
+// Employees get an employeeId, students an enrollmentNo. These are fabricated
+// stand-ins that match core's FORMAT so the shape of every downstream query is
+// production-correct; RishiVerse will map real people onto these rows.
+const ADMINS = [
+  { ref: 'EMP0417', displayName: 'Yashika B', email: 'yashika.b@rishihood.edu.in' },
+  { ref: 'EMP0418', displayName: 'Mehak M', email: 'mehak.m@rishihood.edu.in' },
+  { ref: 'EMP0419', displayName: 'Sandeep S', email: 'sandeep.s@rishihood.edu.in' },
+  { ref: 'EMP0420', displayName: 'Soumya A', email: 'soumya.a@rishihood.edu.in' },
+  // The one student admin in the real LXOS admin list.
+  { ref: 'RU2024BTC001', displayName: 'Neelanshu', email: 'neelanshu.2024@nst.rishihood.edu.in' },
 ];
+
+// Deterministic enrollment numbers for the seeded heads, so a reseed keeps the
+// same actor refs and any bookmarked ?actor= link still resolves.
+const clubHeadRef = (i) => `RU2024BTC${String(100 + i).padStart(3, '0')}`;
+const clanHeadRef = (i) => `RU2024BTC${String(200 + i).padStart(3, '0')}`;
 
 async function clearAll() {
   await prisma.lxClanPointTxn.deleteMany();
@@ -85,7 +96,7 @@ async function clearAll() {
     prisma.lxClub.deleteMany(),
     prisma.lxClan.deleteMany(),
     prisma.lxRoom.deleteMany(),
-    prisma.lxUser.deleteMany(),
+    prisma.lxMember.deleteMany(),
   ]);
 }
 
@@ -121,6 +132,7 @@ async function main() {
         budgetAllocated: CLUB_BUDGET,
         budgetSpent: club.budgetSpent,
         semester: SEM,
+        headRef: clubHeadRef(CLUBS.indexOf(club)),
         headName: `${club.name} Head`,
         headEmail: club.email,
         isActive: true,
@@ -130,39 +142,54 @@ async function main() {
   const clubs = await prisma.lxClub.findMany();
   const clubByName = Object.fromEntries(clubs.map((c) => [c.name, c]));
 
-  // ---- Users: real admins + club/clan heads + dev-only LX/Finance/Guest ----
-  for (const email of ADMIN_EMAILS) {
-    await prisma.lxUser.create({
-      data: { name: email.split('@')[0], email, role: 'ADMIN' },
+  // ---- Members: real admins + club/clan heads + dev-only LX/Finance/Guest ----
+  // In production these rows are the LX overlay on core identity: referenceId
+  // joins to User.referenceId and only role/clubId/clanId are ours.
+  for (const a of ADMINS) {
+    await prisma.lxMember.create({
+      data: { referenceId: a.ref, displayName: a.displayName, email: a.email, role: 'ADMIN' },
     });
   }
   // Extra roles so the dev switcher can demo every permission tier. In the real
   // LXOS these come from the RU directory (userType → role); here they are stubs.
-  await prisma.lxUser.create({ data: { name: 'LX Team', email: 'lx.team@rishihood.edu.in', role: 'LX_TEAM' } });
-  await prisma.lxUser.create({ data: { name: 'Finance', email: 'finance@rishihood.edu.in', role: 'FINANCE' } });
-  await prisma.lxUser.create({ data: { name: 'Student (General)', email: 'student@nst.rishihood.edu.in', role: 'GUEST' } });
-  for (const club of CLUBS) {
-    await prisma.lxUser.create({
-      data: { name: `${club.name} Head`, email: club.email, role: 'CLUB_HEAD', clubId: clubByName[club.name].id },
+  await prisma.lxMember.create({
+    data: { referenceId: 'EMP0421', displayName: 'LX Team', email: 'lx.team@rishihood.edu.in', role: 'LX_TEAM' },
+  });
+  await prisma.lxMember.create({
+    data: { referenceId: 'EMP0422', displayName: 'Finance', email: 'finance@rishihood.edu.in', role: 'FINANCE' },
+  });
+  await prisma.lxMember.create({
+    data: { referenceId: 'RU2024BTC900', displayName: 'Student (General)', email: 'student@nst.rishihood.edu.in', role: 'GUEST' },
+  });
+  for (const [i, club] of CLUBS.entries()) {
+    await prisma.lxMember.create({
+      data: {
+        referenceId: clubHeadRef(i),
+        displayName: `${club.name} Head`,
+        email: club.email,
+        role: 'CLUB_HEAD',
+        clubId: clubByName[club.name].id,
+      },
     });
   }
-  for (const c of LX_CLANS) {
-    await prisma.lxUser.create({
+  for (const [i, c] of LX_CLANS.entries()) {
+    await prisma.lxMember.create({
       data: {
-        name: `${c.name} Clan Head`,
+        referenceId: clanHeadRef(i),
+        displayName: `${c.name} Clan Head`,
         email: `${c.name.toLowerCase()}.clan@rishihood.edu.in`,
         role: 'CLAN_HEAD',
         clanId: clanByName[c.name].id,
       },
     });
   }
-  const users = await prisma.lxUser.findMany();
-  const admin = users.find((u) => u.email === 'yashika.b@rishihood.edu.in');
+  const users = await prisma.lxMember.findMany();
+  const admin = users.find((u) => u.referenceId === 'EMP0417');
   const finance = users.find((u) => u.role === 'FINANCE');
   const student = users.find((u) => u.role === 'GUEST');
   const headOf = (clubName) => users.find((u) => u.role === 'CLUB_HEAD' && u.clubId === clubByName[clubName].id);
   const clanHeadOf = (clanName) => users.find((u) => u.role === 'CLAN_HEAD' && u.clanId === clanByName[clanName].id);
-  console.info(`[seed] users: ${users.length}, clubs: ${clubs.length}, clans: ${clans.length}`);
+  console.info(`[seed] members: ${users.length}, clubs: ${clubs.length}, clans: ${clans.length}`);
 
   const audi = roomByName['Mini Audi'];
   const c103 = roomByName['C-103'];
@@ -184,40 +211,40 @@ async function main() {
       title: 'GDG DevFest 2026', description: 'A day of talks and workshops on modern web and AI.', type: 'CLUB',
       clubId: gdg.id, clubName: gdg.name, startDate: daysFromNow(5, 10), endDate: daysFromNow(5, 17),
       roomIds: [audi.id], roomNames: [audi.name], budgetAllocated: 20000, budgetSpent: 9000, status: 'APPROVED',
-      createdById: gdgHead.id, createdByName: gdgHead.name, createdByRole: 'CLUB_HEAD',
-      approvedById: admin.id, approvedByName: admin.name, approvedAt: daysFromNow(-2), attendees: 180,
+      createdByRef: gdgHead.referenceId, createdByName: gdgHead.displayName, createdByRole: 'CLUB_HEAD',
+      approvedByRef: admin.referenceId, approvedByName: admin.displayName, approvedAt: daysFromNow(-2), attendees: 180,
     },
     {
       title: 'Robotics Build Night', description: 'Overnight robotics build and demo session.', type: 'CLUB',
       clubId: robotics.id, clubName: robotics.name, startDate: daysFromNow(9, 18), endDate: daysFromNow(10, 6),
       roomIds: [a401.id, a402.id], roomNames: [a401.name, a402.name], budgetAllocated: 15000, budgetSpent: 0,
-      status: 'PENDING', createdById: roboHead.id, createdByName: roboHead.name, createdByRole: 'CLUB_HEAD', attendees: 60,
+      status: 'PENDING', createdByRef: roboHead.referenceId, createdByName: roboHead.displayName, createdByRole: 'CLUB_HEAD', attendees: 60,
     },
     {
       title: 'Theatre Annual Play', description: "Theatre Club's flagship production.", type: 'CLUB',
       clubId: theatre.id, clubName: theatre.name, startDate: daysFromNow(14, 18), endDate: daysFromNow(14, 21),
       roomIds: [audi.id], roomNames: [audi.name], budgetAllocated: 18000, budgetSpent: 8100, status: 'APPROVED',
-      createdById: theatreHead.id, createdByName: theatreHead.name, createdByRole: 'CLUB_HEAD',
-      approvedById: admin.id, approvedByName: admin.name, approvedAt: daysFromNow(-1), attendees: 150,
+      createdByRef: theatreHead.referenceId, createdByName: theatreHead.displayName, createdByRole: 'CLUB_HEAD',
+      approvedByRef: admin.referenceId, approvedByName: admin.displayName, approvedAt: daysFromNow(-1), attendees: 150,
     },
     {
       title: 'Inter-Clan Sports Meet', description: 'Inter-clan athletics championship.', type: 'CLAN',
       clanId: clanByName['Maratha'].id, clanName: 'Maratha', startDate: daysFromNow(3, 8), endDate: daysFromNow(3, 16),
       location: 'Sports Ground', budgetAllocated: 10000, budgetSpent: 4200, status: 'APPROVED',
-      createdById: marathaHead.id, createdByName: marathaHead.name, createdByRole: 'CLAN_HEAD',
-      approvedById: admin.id, approvedByName: admin.name, approvedAt: daysFromNow(-3), attendees: 300,
+      createdByRef: marathaHead.referenceId, createdByName: marathaHead.displayName, createdByRole: 'CLAN_HEAD',
+      approvedByRef: admin.referenceId, approvedByName: admin.displayName, approvedAt: daysFromNow(-3), attendees: 300,
     },
     {
       title: 'Freshers Fest 2026', description: 'Campus-wide welcome fest.', type: 'FEST',
       startDate: daysFromNow(20, 16), endDate: daysFromNow(20, 22), roomIds: [audi.id], roomNames: [audi.name],
-      budgetAllocated: 40000, budgetSpent: 12000, status: 'APPROVED', createdById: admin.id, createdByName: admin.name,
-      createdByRole: 'ADMIN', approvedById: admin.id, approvedByName: admin.name, approvedAt: daysFromNow(-1), attendees: 600,
+      budgetAllocated: 40000, budgetSpent: 12000, status: 'APPROVED', createdByRef: admin.referenceId, createdByName: admin.displayName,
+      createdByRole: 'ADMIN', approvedByRef: admin.referenceId, approvedByName: admin.displayName, approvedAt: daysFromNow(-1), attendees: 600,
     },
     {
       title: 'LX Orientation', description: 'Onboarding for new club and clan heads.', type: 'LX',
       startDate: daysFromNow(1, 11), endDate: daysFromNow(1, 13), roomIds: [c103.id], roomNames: [c103.name],
-      budgetAllocated: 3000, budgetSpent: 900, status: 'APPROVED', createdById: admin.id, createdByName: admin.name,
-      createdByRole: 'ADMIN', approvedById: admin.id, approvedByName: admin.name, approvedAt: daysFromNow(-4), attendees: 45,
+      budgetAllocated: 3000, budgetSpent: 900, status: 'APPROVED', createdByRef: admin.referenceId, createdByName: admin.displayName,
+      createdByRole: 'ADMIN', approvedByRef: admin.referenceId, approvedByName: admin.displayName, approvedAt: daysFromNow(-4), attendees: 45,
     },
   ];
   for (const e of eventsData) await prisma.lxEvent.create({ data: e });
@@ -230,42 +257,42 @@ async function main() {
       {
         title: 'Smart India Hackathon — Finalists', description: 'SAST team reached the SIH grand finale.',
         clubId: sast.id, clubName: sast.name, points: 50, category: 'TECHNICAL', kind: 'ACHIEVEMENT',
-        participants: ['Aarav', 'Ishita', 'Dev'], status: 'APPROVED', createdById: headOf('SAST').id, createdByName: headOf('SAST').name,
-        approvedById: admin.id, approvedByName: admin.name, approvedAt: daysFromNow(-2), achievedDate: daysFromNow(-5),
+        participants: ['Aarav', 'Ishita', 'Dev'], status: 'APPROVED', createdByRef: headOf('SAST').referenceId, createdByName: headOf('SAST').displayName,
+        approvedByRef: admin.referenceId, approvedByName: admin.displayName, approvedAt: daysFromNow(-2), achievedDate: daysFromNow(-5),
       },
       {
         title: 'Inter-College Robotics Gold', description: 'Robotics Club won first place at the regional meet.',
         clubId: robotics.id, clubName: robotics.name, points: 30, category: 'TECHNICAL', kind: 'ACHIEVEMENT',
-        participants: ['Kabir', 'Sana'], status: 'APPROVED', createdById: roboHead.id, createdByName: roboHead.name,
-        approvedById: admin.id, approvedByName: admin.name, approvedAt: daysFromNow(-1), achievedDate: daysFromNow(-3),
+        participants: ['Kabir', 'Sana'], status: 'APPROVED', createdByRef: roboHead.referenceId, createdByName: roboHead.displayName,
+        approvedByRef: admin.referenceId, approvedByName: admin.displayName, approvedAt: daysFromNow(-1), achievedDate: daysFromNow(-3),
       },
       {
         title: 'State Athletics Gold', description: 'Maratha clan member won gold in 400m.',
         clanId: clanByName['Maratha'].id, clanName: 'Maratha', points: 20, category: 'SPORTS', kind: 'ACHIEVEMENT',
-        participants: ['Meera'], status: 'APPROVED', createdById: marathaHead.id, createdByName: marathaHead.name,
-        approvedById: admin.id, approvedByName: admin.name, approvedAt: daysFromNow(-1), achievedDate: daysFromNow(-2),
+        participants: ['Meera'], status: 'APPROVED', createdByRef: marathaHead.referenceId, createdByName: marathaHead.displayName,
+        approvedByRef: admin.referenceId, approvedByName: admin.displayName, approvedAt: daysFromNow(-1), achievedDate: daysFromNow(-2),
       },
       {
         title: 'My Design Certification', description: 'Completed an advanced UI/UX design course.', points: 0,
         category: 'ACADEMIC', kind: 'ACHIEVEMENT', participants: ['Student'], status: 'PENDING',
-        createdById: student.id, createdByName: student.name, achievedDate: daysFromNow(-1),
+        createdByRef: student.referenceId, createdByName: student.displayName, achievedDate: daysFromNow(-1),
       },
       {
         title: 'GDG: Study Jams launching', description: 'GDG is starting weekly Google Study Jams this month.',
         clubId: gdg.id, clubName: gdg.name, category: 'SOCIAL', kind: 'UPDATE', status: 'APPROVED',
-        createdById: gdgHead.id, createdByName: gdgHead.name, approvedById: admin.id, approvedByName: admin.name,
+        createdByRef: gdgHead.referenceId, createdByName: gdgHead.displayName, approvedByRef: admin.referenceId, approvedByName: admin.displayName,
         approvedAt: daysFromNow(0), achievedDate: daysFromNow(0),
       },
       {
         title: 'Maratha: Weekly huddle recap', description: 'Great turnout at this week’s Maratha huddle — planning the green-campus drive.',
         clanId: clanByName['Maratha'].id, clanName: 'Maratha', category: 'SOCIAL', kind: 'UPDATE', status: 'APPROVED',
-        createdById: clanHeadOf('Maratha').id, createdByName: clanHeadOf('Maratha').name,
-        approvedById: admin.id, approvedByName: admin.name, approvedAt: daysFromNow(-1), achievedDate: daysFromNow(-1),
+        createdByRef: clanHeadOf('Maratha').referenceId, createdByName: clanHeadOf('Maratha').displayName,
+        approvedByRef: admin.referenceId, approvedByName: admin.displayName, approvedAt: daysFromNow(-1), achievedDate: daysFromNow(-1),
       },
       {
         title: 'SAST: New robotics workshop series', description: 'We are announcing a 4-week robotics workshop — details soon!',
         clubId: sast.id, clubName: sast.name, category: 'SOCIAL', kind: 'UPDATE', status: 'PENDING',
-        createdById: headOf('SAST').id, createdByName: headOf('SAST').name, achievedDate: daysFromNow(0),
+        createdByRef: headOf('SAST').referenceId, createdByName: headOf('SAST').displayName, achievedDate: daysFromNow(0),
       },
     ],
   });
@@ -275,18 +302,18 @@ async function main() {
   await prisma.lxClanPointTxn.create({
     data: {
       clanId: clanByName['Maratha'].id, delta: 20, points: 20, previousPoints: 0,
-      reason: 'State Athletics Gold — achievement approved', createdById: admin.id, createdByName: admin.name,
+      reason: 'State Athletics Gold — achievement approved', createdByRef: admin.referenceId, createdByName: admin.displayName,
     },
   });
   await prisma.lxClan.update({ where: { id: clanByName['Vijaya'].id }, data: { points: 10 } });
   await prisma.lxClanPointTxn.create({
-    data: { clanId: clanByName['Vijaya'].id, delta: 10, points: 10, previousPoints: 0, reason: 'Cultural night participation', createdById: admin.id, createdByName: admin.name },
+    data: { clanId: clanByName['Vijaya'].id, delta: 10, points: 10, previousPoints: 0, reason: 'Cultural night participation', createdByRef: admin.referenceId, createdByName: admin.displayName },
   });
 
   // ---- Initiatives ----
   await prisma.lxInitiative.createMany({
     data: [
-      { title: 'Maratha Green Campus', description: 'Tree plantation drive.', clanId: clanByName['Maratha'].id, clanName: 'Maratha', status: 'ACTIVE', progress: 60, priority: 'HIGH', team: ['Meera', 'Arjun'], semester: SEM, createdById: marathaHead.id, createdByName: marathaHead.name },
+      { title: 'Maratha Green Campus', description: 'Tree plantation drive.', clanId: clanByName['Maratha'].id, clanName: 'Maratha', status: 'ACTIVE', progress: 60, priority: 'HIGH', team: ['Meera', 'Arjun'], semester: SEM, createdByRef: marathaHead.referenceId, createdByName: marathaHead.displayName },
       { title: 'Vijaya Blood Donation', description: 'Campus blood donation camp.', clanId: clanByName['Vijaya'].id, clanName: 'Vijaya', status: 'PLANNING', progress: 20, priority: 'MEDIUM', team: ['Sana'], semester: SEM },
     ],
   });
@@ -295,35 +322,41 @@ async function main() {
   const devfest = events.find((e) => e.title.includes('DevFest'));
   await prisma.lxExpense.createMany({
     data: [
-      { eventId: devfest.id, eventTitle: devfest.title, title: 'Catering for DevFest', amount: 9000, category: 'FOOD', status: 'APPROVED', submittedById: gdgHead.id, submittedByName: gdgHead.name, verifiedById: admin.id, verifiedByName: admin.name, verifiedAt: daysFromNow(-1), budgetApplied: true },
-      { eventId: devfest.id, eventTitle: devfest.title, title: 'Speaker travel', amount: 3500, category: 'OTHER', status: 'PENDING', submittedById: gdgHead.id, submittedByName: gdgHead.name },
+      { eventId: devfest.id, eventTitle: devfest.title, title: 'Catering for DevFest', amount: 9000, category: 'FOOD', status: 'APPROVED', submittedByRef: gdgHead.referenceId, submittedByName: gdgHead.displayName, verifiedByRef: admin.referenceId, verifiedByName: admin.displayName, verifiedAt: daysFromNow(-1), budgetApplied: true },
+      { eventId: devfest.id, eventTitle: devfest.title, title: 'Speaker travel', amount: 3500, category: 'OTHER', status: 'PENDING', submittedByRef: gdgHead.referenceId, submittedByName: gdgHead.displayName },
     ],
   });
 
-  // ---- Reimbursements (workflow states; no bank details, payout ref on processed) ----
+  // ---- Reimbursements (workflow states) ----
+  //
+  // `payoutRef` points at WHO to pay; Finance resolves the actual account from
+  // `Student.bank*` in core. `bankDetails` stays empty here — it is only ever
+  // populated when LX_COLLECT_BANK=true (a documented D3 violation, off by
+  // default). See prisma/models/lx/reimbursementModel.prisma.
+  const payTo = (m) => `student-bank:${m.referenceId}`;
   await prisma.lxReimbursement.createMany({
     data: [
-      { title: 'Auto fare for vendor pickup', amount: 450, expenseDate: daysFromNow(-4), category: 'TRAVEL', purpose: 'DevFest logistics', eventId: devfest.id, eventTitle: devfest.title, clubId: gdg.id, clubName: gdg.name, status: 'PENDING', submittedById: gdgHead.id, submittedByName: gdgHead.name, bankDetails: { accountHolderName: 'GDG Head', accountNumber: '1234567890', ifsc: 'HDFC0001234' } },
-      { title: 'Printing handouts', amount: 800, expenseDate: daysFromNow(-6), category: 'PRINTING', purpose: 'Orientation', clubId: sast.id, clubName: sast.name, status: 'APPROVED', submittedById: headOf('SAST').id, submittedByName: headOf('SAST').name, reviewedById: admin.id, reviewedByName: admin.name, reviewedAt: daysFromNow(-2), bankDetails: { accountHolderName: 'SAST Head', accountNumber: '9876543210', ifsc: 'ICIC0005678' } },
-      { title: 'Props for play', amount: 2200, expenseDate: daysFromNow(-8), category: 'MATERIALS', purpose: 'Annual Play', clubId: theatre.id, clubName: theatre.name, status: 'PROCESSED', submittedById: theatreHead.id, submittedByName: theatreHead.name, reviewedById: admin.id, reviewedByName: admin.name, reviewedAt: daysFromNow(-5), processedById: finance.id, processedByName: finance.name, processedAt: daysFromNow(-3), budgetDeducted: true, payoutRef: 'PAYOUT-2026-0001', bankDetails: { accountHolderName: 'Theatre Head', accountNumber: '4455667788', ifsc: 'SBIN0009012' } },
+      { title: 'Auto fare for vendor pickup', amount: 450, expenseDate: daysFromNow(-4), category: 'TRAVEL', purpose: 'DevFest logistics', eventId: devfest.id, eventTitle: devfest.title, clubId: gdg.id, clubName: gdg.name, status: 'PENDING', submittedByRef: gdgHead.referenceId, submittedByName: gdgHead.displayName, payoutRef: payTo(gdgHead) },
+      { title: 'Printing handouts', amount: 800, expenseDate: daysFromNow(-6), category: 'PRINTING', purpose: 'Orientation', clubId: sast.id, clubName: sast.name, status: 'APPROVED', submittedByRef: headOf('SAST').referenceId, submittedByName: headOf('SAST').displayName, payoutRef: payTo(headOf('SAST')), reviewedByRef: admin.referenceId, reviewedByName: admin.displayName, reviewedAt: daysFromNow(-2) },
+      { title: 'Props for play', amount: 2200, expenseDate: daysFromNow(-8), category: 'MATERIALS', purpose: 'Annual Play', clubId: theatre.id, clubName: theatre.name, status: 'PROCESSED', submittedByRef: theatreHead.referenceId, submittedByName: theatreHead.displayName, payoutRef: payTo(theatreHead), reviewedByRef: admin.referenceId, reviewedByName: admin.displayName, reviewedAt: daysFromNow(-5), processedByRef: finance.referenceId, processedByName: finance.displayName, processedAt: daysFromNow(-3), budgetDeducted: true, payoutTxnRef: 'NEFT/2026/0042' },
     ],
   });
 
   // ---- Files ----
   await prisma.lxFile.createMany({
     data: [
-      { filename: 'sast-constitution.pdf', originalName: 'SAST Constitution.pdf', path: '/uploads/sast-constitution.pdf', mimeType: 'application/pdf', size: 240000, type: 'DOCUMENT', clubId: sast.id, semester: SEM, tags: ['constitution', 'sast'], uploadedById: headOf('SAST').id, uploadedByName: headOf('SAST').name },
-      { filename: 'devfest-report.pdf', originalName: 'GDG DevFest Report.pdf', path: '/uploads/devfest-report.pdf', mimeType: 'application/pdf', size: 512000, type: 'REPORT', eventId: devfest.id, semester: SEM, tags: ['report', 'devfest'], uploadedById: admin.id, uploadedByName: admin.name },
+      { fileKey: 's3:lx-dev-bucket:document/seed-0001-sast-constitution.pdf', originalName: 'SAST Constitution.pdf', mimeType: 'application/pdf', size: 240000, type: 'DOCUMENT', clubId: sast.id, semester: SEM, tags: ['constitution', 'sast'], uploadedByRef: headOf('SAST').referenceId, uploadedByName: headOf('SAST').displayName },
+      { fileKey: 's3:lx-dev-bucket:document/seed-0002-devfest-report.pdf', originalName: 'GDG DevFest Report.pdf', mimeType: 'application/pdf', size: 512000, type: 'REPORT', eventId: devfest.id, semester: SEM, tags: ['report', 'devfest'], uploadedByRef: admin.referenceId, uploadedByName: admin.displayName },
     ],
   });
 
   // ---- Learner Products (2 approved incl. featured, 2 pending) ----
   await prisma.lxProduct.createMany({
     data: [
-      { title: 'CampusEats', tagline: 'Order from campus canteens in taps', description: 'A web app to pre-order food from campus canteens and skip the queue.', url: 'https://campuseats.example.com', repoUrl: 'https://github.com/example/campuseats', category: 'WEB_APP', techStack: ['Next.js', 'Node', 'MongoDB'], tags: ['food', 'campus'], teamMembers: ['Riya', 'Aditya'], clubId: gdg.id, clubName: gdg.name, createdById: student.id, createdByName: student.name, status: 'APPROVED', featured: true, approvedById: admin.id, approvedByName: admin.name, approvedAt: daysFromNow(-2) },
-      { title: 'NoteNest', tagline: 'Shared notes for every course', description: 'A collaborative notes platform where learners share and rate course notes.', url: 'https://notenest.example.com', category: 'WEBSITE', techStack: ['React', 'Firebase'], tags: ['notes', 'study'], teamMembers: ['Kabir'], clubId: sast.id, clubName: sast.name, createdById: headOf('SAST').id, createdByName: headOf('SAST').name, status: 'APPROVED', approvedById: admin.id, approvedByName: admin.name, approvedAt: daysFromNow(-1) },
-      { title: 'ClanClash', tagline: 'A game to boost clan spirit', description: 'A browser mini-game where clans compete in weekly challenges for points.', repoUrl: 'https://github.com/example/clanclash', category: 'GAME', techStack: ['Phaser', 'TypeScript'], tags: ['game', 'clans'], teamMembers: ['Meera'], createdById: marathaHead.id, createdByName: marathaHead.name, status: 'PENDING' },
-      { title: 'GreenTrack', tagline: 'Track campus sustainability', description: 'A dashboard visualising campus energy and waste metrics for SAGE.', category: 'RESEARCH', techStack: ['Python', 'Streamlit'], tags: ['sustainability'], teamMembers: ['Sana', 'Riya'], clubId: clubByName['SAGE'].id, clubName: 'SAGE', createdById: student.id, createdByName: student.name, status: 'PENDING' },
+      { title: 'CampusEats', tagline: 'Order from campus canteens in taps', description: 'A web app to pre-order food from campus canteens and skip the queue.', url: 'https://campuseats.example.com', repoUrl: 'https://github.com/example/campuseats', category: 'WEB_APP', techStack: ['Next.js', 'Node', 'MongoDB'], tags: ['food', 'campus'], teamMembers: ['Riya', 'Aditya'], clubId: gdg.id, clubName: gdg.name, createdByRef: student.referenceId, createdByName: student.displayName, status: 'APPROVED', featured: true, approvedByRef: admin.referenceId, approvedByName: admin.displayName, approvedAt: daysFromNow(-2) },
+      { title: 'NoteNest', tagline: 'Shared notes for every course', description: 'A collaborative notes platform where learners share and rate course notes.', url: 'https://notenest.example.com', category: 'WEBSITE', techStack: ['React', 'Firebase'], tags: ['notes', 'study'], teamMembers: ['Kabir'], clubId: sast.id, clubName: sast.name, createdByRef: headOf('SAST').referenceId, createdByName: headOf('SAST').displayName, status: 'APPROVED', approvedByRef: admin.referenceId, approvedByName: admin.displayName, approvedAt: daysFromNow(-1) },
+      { title: 'ClanClash', tagline: 'A game to boost clan spirit', description: 'A browser mini-game where clans compete in weekly challenges for points.', repoUrl: 'https://github.com/example/clanclash', category: 'GAME', techStack: ['Phaser', 'TypeScript'], tags: ['game', 'clans'], teamMembers: ['Meera'], createdByRef: marathaHead.referenceId, createdByName: marathaHead.displayName, status: 'PENDING' },
+      { title: 'GreenTrack', tagline: 'Track campus sustainability', description: 'A dashboard visualising campus energy and waste metrics for SAGE.', category: 'RESEARCH', techStack: ['Python', 'Streamlit'], tags: ['sustainability'], teamMembers: ['Sana', 'Riya'], clubId: clubByName['SAGE'].id, clubName: 'SAGE', createdByRef: student.referenceId, createdByName: student.displayName, status: 'PENDING' },
     ],
   });
 

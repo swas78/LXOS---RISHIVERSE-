@@ -18,8 +18,8 @@ export const createFileController = async (req, res) => {
     const validatedData = createFileSchema.parse(req.body);
     const payload = {
       ...validatedData,
-      uploadedById: req.actor?.id ?? 'unknown',
-      uploadedByName: req.actor?.name ?? 'Unknown',
+      uploadedByRef: req.actor?.referenceId ?? 'unknown',
+      uploadedByName: req.actor?.displayName ?? null,
     };
     const result = await createFileService(payload);
     if (!result.success) {

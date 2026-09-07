@@ -110,7 +110,8 @@ export const getAllEventsService = async (query) => {
       pagination: {
         page: result.page,
         limit: result.limit,
-        totalRecords: result.totalRecords,
+        totalCount: result.totalCount,
+        totalPages: result.totalPages,
         hasNextPage: result.hasNextPage,
         hasPreviousPage: result.hasPreviousPage,
       },
@@ -210,8 +211,8 @@ export const reviewEventService = async (eventId, { action, rejectionReason, act
       action === 'approve'
         ? {
             status: 'APPROVED',
-            approvedById: actor?.id ?? null,
-            approvedByName: actor?.name ?? null,
+            approvedByRef: actor?.referenceId ?? null,
+            approvedByName: actor?.displayName ?? null,
             approvedAt: new Date(),
             rejectionReason: null,
           }
@@ -247,7 +248,7 @@ export const completeEventService = async (eventId, { actor }) => {
       status: 'COMPLETED',
       isCompleted: true,
       completedAt: new Date(),
-      completedById: actor?.id ?? null,
+      completedByRef: actor?.referenceId ?? null,
     });
     return {
       success: true,

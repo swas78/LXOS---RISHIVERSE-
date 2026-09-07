@@ -17,11 +17,11 @@ import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
 export const createInitiativeController = async (req, res) => {
   try {
     const validatedData = createInitiativeSchema.parse(req.body);
-    // Snapshot the creator (initiative only stores createdById/createdByName).
-    const { createdById, createdByName } = actorSnapshot(req.actor);
+    // Snapshot the creator (initiative only stores createdByRef/createdByName).
+    const { createdByRef, createdByName } = actorSnapshot(req.actor);
     const result = await createInitiativeService({
       ...validatedData,
-      createdById,
+      createdByRef,
       createdByName,
     });
     if (!result.success) {

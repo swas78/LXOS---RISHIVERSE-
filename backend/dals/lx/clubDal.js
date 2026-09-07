@@ -95,7 +95,8 @@ export const getAllClubsDal = async ({
     return {
       page,
       limit,
-      totalRecords: total,
+      totalCount: total,
+      totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
       data: clubs,
       hasNextPage: page * limit < total,
       hasPreviousPage: page > 1,

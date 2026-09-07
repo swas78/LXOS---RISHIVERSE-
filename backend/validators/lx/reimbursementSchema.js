@@ -1,27 +1,49 @@
 import { z } from 'zod';
 import {
+  COLLECT_BANK_DETAILS,
   LX_REIMBURSEMENT_CATEGORIES,
+  LX_REIMBURSEMENT_MAX_BILLS,
   LX_REIMBURSEMENT_STATUSES,
   LX_REIMBURSEMENT_SORT_BY,
 } from '../../constants/lxReimbursementConstant.js';
+import { attachmentSchema } from './uploadSchema.js';
 
-const billItemSchema = z.object({
-  originalName: z.string().trim().min(1, 'originalName is required').max(300),
-  path: z.string().trim().min(1, 'path is required').max(500),
-  mimeType: z.string().trim().max(150).optional().default(''),
-  size: z.number().int().min(0).optional().default(0),
+// Bills are plain attachment pointers — the canonical shape shared with
+// LxExpense.bills and produced by the frontend uploader.
+const AT_LEAST_ONE_BILL =
+  'Attach at least one bill or receipt — a claim without one cannot be reviewed';
+
+const billsArray = (params) =>
+  z
+    .array(attachmentSchema, params)
+    .max(LX_REIMBURSEMENT_MAX_BILLS, `At most ${LX_REIMBURSEMENT_MAX_BILLS} bills can be attached`);
+
+// Required on create: an approver cannot review a claim with no receipt. The
+// required_error matters as much as min(1) — omitting the key and sending an
+// empty array are the same mistake and deserve the same message.
+const createBillsField = billsArray({ required_error: AT_LEAST_ONE_BILL }).min(
+  1,
+  AT_LEAST_ONE_BILL,
+);
+
+const updateBillsField = billsArray().optional();
+
+// ⚠️ D3 VIOLATION, FLAG-GATED. See COLLECT_BANK_DETAILS. When the flag is off
+// the key is simply absent from the shape, so zod's default strip drops any
+// `bankDetails` a stale client still sends — it never reaches the service.
+const bankDetailsSchema = z.object({
+  accountHolderName: z.string().trim().min(1, 'accountHolderName is required').max(200),
+  accountNumber: z
+    .string()
+    .trim()
+    .regex(/^\d{9,18}$/, 'accountNumber must be 9-18 digits'),
+  ifsc: z.preprocess(
+    (val) => (typeof val === 'string' ? val.trim().toUpperCase() : val),
+    z.string().regex(/^[A-Z]{4}0[A-Z0-9]{6}$/, 'ifsc must look like HDFC0001234'),
+  ),
 });
 
-const billsField = z.array(billItemSchema).optional();
-
-// Where the payout should be sent — collected at submission time.
-const bankDetailsSchema = z
-  .object({
-    accountHolderName: z.string().trim().max(200).optional().default(''),
-    accountNumber: z.string().trim().max(60).optional().default(''),
-    ifsc: z.string().trim().max(20).optional().default(''),
-  })
-  .optional();
+const bankDetailsShape = COLLECT_BANK_DETAILS ? { bankDetails: bankDetailsSchema.optional() } : {};
 
 const categoryField = z.enum(LX_REIMBURSEMENT_CATEGORIES, {
   errorMap: () => ({
@@ -42,8 +64,8 @@ export const createReimbursementSchema = z.object({
   clubName: z.string().trim().max(200).optional().nullable(),
   clanId: z.string().trim().optional().nullable(),
   clanName: z.string().trim().max(200).optional().nullable(),
-  bankDetails: bankDetailsSchema,
-  bills: billsField,
+  ...bankDetailsShape,
+  bills: createBillsField,
   notes: z.string().trim().max(2000).optional().nullable(),
 });
 
@@ -60,7 +82,7 @@ export const updateReimbursementSchema = z.object({
   clubName: z.string().trim().max(200).optional().nullable(),
   clanId: z.string().trim().optional().nullable(),
   clanName: z.string().trim().max(200).optional().nullable(),
-  bills: billsField,
+  bills: updateBillsField,
   notes: z.string().trim().max(2000).optional().nullable(),
 });
 
@@ -88,7 +110,7 @@ export const getAllReimbursementsSchema = z.object({
     }
     return undefined;
   }, z.array(z.enum(LX_REIMBURSEMENT_CATEGORIES)).optional()),
-  submittedById: z.preprocess((val) => {
+  submittedByRef: z.preprocess((val) => {
     if (typeof val !== 'string') return undefined;
     const trimmed = val.trim();
     return trimmed === '' ? undefined : trimmed;
@@ -114,8 +136,9 @@ export const reviewReimbursementSchema = z.object({
   rejectionReason: z.string().trim().max(2000).optional().nullable(),
 });
 
-// Finance settles the payout externally and records only a reference to it
-// (never raw bank details).
+// Finance settles the payout externally and records only the bank/UPI txn
+// reference for it (never raw bank details). `payoutRef` — who to pay — is
+// derived at submit time and is not client-writable here.
 export const processReimbursementSchema = z.object({
-  payoutRef: z.string().trim().max(200).optional().nullable(),
+  payoutTxnRef: z.string().trim().max(200).optional().nullable(),
 });
