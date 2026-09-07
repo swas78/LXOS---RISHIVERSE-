@@ -1,4 +1,5 @@
 import createContextLogger from '../../logger/contextLogger.js';
+import { redactClub, redactClubs } from '../../helper/lxScope.js';
 import {
   createClubDal,
   deleteClubDal,
@@ -29,13 +30,20 @@ export const createClubService = async (payload) => {
   }
 };
 
-export const getClubByIdService = async (clubId) => {
+export const getClubByIdService = async (clubId, actor) => {
   try {
     const club = await getClubByIdDal(clubId);
     if (!club) {
       return { success: false, message: 'Club not found', statusCode: 404 };
     }
-    return { success: true, message: 'Club found', statusCode: 200, data: club };
+    // Budget columns are scoped: only finance roles and this club's own head
+    // may read them. Everyone else gets the club with budgets nulled out.
+    return {
+      success: true,
+      message: 'Club found',
+      statusCode: 200,
+      data: redactClub(club, actor),
+    };
   } catch (error) {
     logger.error('Error in getClubByIdService', {
       error: { message: error.message, stack: error.stack },
@@ -44,7 +52,7 @@ export const getClubByIdService = async (clubId) => {
   }
 };
 
-export const getAllClubsService = async (query) => {
+export const getAllClubsService = async (query, actor) => {
   try {
     const result = await getAllClubsDal(query);
     if (!result) {
@@ -54,7 +62,7 @@ export const getAllClubsService = async (query) => {
       success: true,
       message: 'Clubs fetched successfully',
       statusCode: 200,
-      data: result.data,
+      data: redactClubs(result.data, actor),
       pagination: {
         page: result.page,
         limit: result.limit,

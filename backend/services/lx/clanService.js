@@ -1,4 +1,5 @@
 import createContextLogger from '../../logger/contextLogger.js';
+import { redactClan, redactClans } from '../../helper/lxScope.js';
 import {
   applyClanPointsDal,
   createClanDal,
@@ -30,13 +31,20 @@ export const createClanService = async (payload) => {
   }
 };
 
-export const getClanByIdService = async (clanId) => {
+export const getClanByIdService = async (clanId, actor) => {
   try {
     const clan = await getClanByIdDal(clanId);
     if (!clan) {
       return { success: false, message: 'Clan not found', statusCode: 404 };
     }
-    return { success: true, message: 'Clan found', statusCode: 200, data: clan };
+    // Budget columns are scoped to finance roles and this clan's own head.
+    // `points` is deliberately NOT redacted — the leaderboard is public.
+    return {
+      success: true,
+      message: 'Clan found',
+      statusCode: 200,
+      data: redactClan(clan, actor),
+    };
   } catch (error) {
     logger.error('Error in getClanByIdService', {
       error: { message: error.message, stack: error.stack },
@@ -45,7 +53,7 @@ export const getClanByIdService = async (clanId) => {
   }
 };
 
-export const getAllClansService = async (query) => {
+export const getAllClansService = async (query, actor) => {
   try {
     const result = await getAllClansDal(query);
     if (!result) {
@@ -55,7 +63,7 @@ export const getAllClansService = async (query) => {
       success: true,
       message: 'Clans fetched successfully',
       statusCode: 200,
-      data: result.data,
+      data: redactClans(result.data, actor),
       pagination: {
         page: result.page,
         limit: result.limit,

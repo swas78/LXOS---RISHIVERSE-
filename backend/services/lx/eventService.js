@@ -1,4 +1,5 @@
 import createContextLogger from '../../logger/contextLogger.js';
+import { redactEvent, redactEvents } from '../../helper/lxScope.js';
 import { rangesOverlap } from '../../helper/lxHelper.js';
 import {
   createEventDal,
@@ -81,13 +82,20 @@ export const createEventService = async (payload) => {
   }
 };
 
-export const getEventByIdService = async (eventId) => {
+export const getEventByIdService = async (eventId, actor) => {
   try {
     const event = await getEventByIdDal(eventId);
     if (!event) {
       return { success: false, message: 'Event not found', statusCode: 404 };
     }
-    return { success: true, message: 'Event found', statusCode: 200, data: event };
+    // An event's money belongs to the club/clan running it, so budget columns
+    // follow that entity's visibility. Title, dates and venue stay public.
+    return {
+      success: true,
+      message: 'Event found',
+      statusCode: 200,
+      data: redactEvent(event, actor),
+    };
   } catch (error) {
     logger.error('Error in getEventByIdService', {
       error: { message: error.message, stack: error.stack },
@@ -96,7 +104,7 @@ export const getEventByIdService = async (eventId) => {
   }
 };
 
-export const getAllEventsService = async (query) => {
+export const getAllEventsService = async (query, actor) => {
   try {
     const result = await getAllEventsDal(query);
     if (!result) {
@@ -106,7 +114,7 @@ export const getAllEventsService = async (query) => {
       success: true,
       message: 'Events fetched successfully',
       statusCode: 200,
-      data: result.data,
+      data: redactEvents(result.data, actor),
       pagination: {
         page: result.page,
         limit: result.limit,
