@@ -2,11 +2,11 @@
 import createContextLogger from '../../logger/contextLogger.js';
 import prisma from '../../services/prismaClient.js';
 
-const logger = createContextLogger('lxUserDal');
+const logger = createContextLogger('lxMemberDal');
 
 export const getAllUsersDal = async () => {
   try {
-    return await prisma.lxUser.findMany({
+    return await prisma.lxMember.findMany({
       where: { isActive: true },
       orderBy: { createdAt: 'asc' },
     });
@@ -20,7 +20,7 @@ export const getAllUsersDal = async () => {
 
 export const getUserByIdDal = async (userId) => {
   try {
-    return await prisma.lxUser.findFirst({ where: { id: userId, isActive: true } });
+    return await prisma.lxMember.findFirst({ where: { id: userId, isActive: true } });
   } catch (error) {
     logger.error('Error in getUserByIdDal', {
       error: { message: error.message, stack: error.stack },

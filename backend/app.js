@@ -11,7 +11,7 @@ app.use(express.json());
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || '*');
   res.header('Access-Control-Allow-Methods', 'GET,POST,PATCH,PUT,DELETE,OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-lx-user-id');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-lx-actor-ref');
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });

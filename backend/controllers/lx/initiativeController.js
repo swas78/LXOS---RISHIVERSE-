@@ -17,13 +17,12 @@ import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
 export const createInitiativeController = async (req, res) => {
   try {
     const validatedData = createInitiativeSchema.parse(req.body);
-    // Snapshot the creator (initiative only stores createdById/createdByName).
-    const { createdById, createdByName } = actorSnapshot(req.actor);
-    const result = await createInitiativeService({
-      ...validatedData,
-      createdById,
-      createdByName,
-    });
+    // Snapshot the creator (initiative only stores createdByRef/createdByName).
+    const { createdByRef, createdByName } = actorSnapshot(req.actor);
+    const result = await createInitiativeService(
+      { ...validatedData, createdByRef, createdByName },
+      req.actor,
+    );
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
     }
@@ -104,7 +103,7 @@ export const updateInitiativeController = async (req, res) => {
       });
     }
 
-    const result = await updateInitiativeService(initiativeId, validatedData);
+    const result = await updateInitiativeService(initiativeId, validatedData, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
     }
@@ -128,7 +127,7 @@ export const deleteInitiativeController = async (req, res) => {
         errors: [{ path: ['initiativeId'], message: 'initiativeId is required in the path' }],
       });
     }
-    const result = await deleteInitiativeService(initiativeId);
+    const result = await deleteInitiativeService(initiativeId, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
     }

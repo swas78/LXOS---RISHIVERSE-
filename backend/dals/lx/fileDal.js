@@ -4,9 +4,8 @@ import prisma from '../../services/prismaClient.js';
 const logger = createContextLogger('fileDal');
 
 export const createFileDal = async ({
-  filename,
+  fileKey,
   originalName,
-  path,
   mimeType,
   size,
   type,
@@ -15,15 +14,14 @@ export const createFileDal = async ({
   clubId,
   semester,
   description,
-  uploadedById,
+  uploadedByRef,
   uploadedByName,
 }) => {
   try {
     return await prisma.lxFile.create({
       data: {
-        filename,
+        fileKey,
         originalName,
-        path,
         mimeType: mimeType ?? null,
         ...(size !== undefined ? { size } : {}),
         ...(type ? { type } : {}),
@@ -32,7 +30,7 @@ export const createFileDal = async ({
         clubId: clubId ?? null,
         ...(semester ? { semester } : {}),
         description: description ?? null,
-        uploadedById,
+        uploadedByRef,
         uploadedByName,
       },
     });
@@ -79,7 +77,6 @@ export const getAllFilesDal = async ({
       ...(search
         ? {
             OR: [
-              { filename: { contains: search, mode: 'insensitive' } },
               { originalName: { contains: search, mode: 'insensitive' } },
               { description: { contains: search, mode: 'insensitive' } },
             ],
@@ -104,7 +101,8 @@ export const getAllFilesDal = async ({
     return {
       page,
       limit,
-      totalRecords: total,
+      totalCount: total,
+      totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
       data: files,
       hasNextPage: page * limit < total,
       hasPreviousPage: page > 1,

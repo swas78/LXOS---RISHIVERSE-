@@ -7,6 +7,8 @@ import {
   getInitiativeByIdController,
   updateInitiativeController,
 } from '../../controllers/lx/initiativeController.js';
+import { requirePermission } from '../../middleware/lxRequirePermission.js';
+import { PERMISSIONS } from '../../helper/lxPermissions.js';
 
 const router = express.Router();
 const logger = createContextLogger('initiativeRoutes');
@@ -16,10 +18,15 @@ router.use((req, res, next) => {
   next();
 });
 
-router.post('/new', createInitiativeController);
+// Reads are open — the clan project board is visible campus-wide.
+// Writes need MANAGE_CLAN_INITIATIVES (ADMIN, LX_TEAM, CLAN_HEAD). That verb
+// check is necessary but NOT sufficient: it lets a clan head write *an*
+// initiative, not one belonging to *another* clan. Which clan they may touch is
+// a row-level question, enforced in the service via assertClanWrite().
+router.post('/new', requirePermission(PERMISSIONS.MANAGE_CLAN_INITIATIVES), createInitiativeController);
 router.get('/all', getAllInitiativesController);
 router.get('/:initiativeId', getInitiativeByIdController);
-router.patch('/:initiativeId', updateInitiativeController);
-router.delete('/:initiativeId', deleteInitiativeController);
+router.patch('/:initiativeId', requirePermission(PERMISSIONS.MANAGE_CLAN_INITIATIVES), updateInitiativeController);
+router.delete('/:initiativeId', requirePermission(PERMISSIONS.MANAGE_CLAN_INITIATIVES), deleteInitiativeController);
 
 export default router;

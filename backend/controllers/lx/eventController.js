@@ -48,7 +48,7 @@ export const createEventController = async (req, res) => {
       });
     }
 
-    // Snapshot creator (createdById / createdByName / createdByRole match schema).
+    // Snapshot creator (createdByRef / createdByName / createdByRole match schema).
     const payload = { ...validatedData, ...actorSnapshot(req.actor) };
 
     const result = await createEventService(payload);
@@ -76,7 +76,7 @@ export const createEventController = async (req, res) => {
 export const getAllEventsController = async (req, res) => {
   try {
     const validatedData = getAllEventsSchema.parse(req.query);
-    const result = await getAllEventsService(validatedData);
+    const result = await getAllEventsService(validatedData, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
     }
@@ -101,7 +101,7 @@ export const getEventByIdController = async (req, res) => {
         errors: [{ path: ['eventId'], message: 'eventId is required in the path' }],
       });
     }
-    const result = await getEventByIdService(eventId);
+    const result = await getEventByIdService(eventId, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
     }

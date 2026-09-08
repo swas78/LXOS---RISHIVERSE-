@@ -1,0 +1,86 @@
+// ===========================================================================
+// LX MODULE — Event expenses
+//
+// Spend booked directly against an event's budget (as opposed to a personal
+// out-of-pocket claim, which is LxReimbursement).
+//
+// ATTACHMENT SHAPE — `bills`
+// --------------------------
+// Uploads go through core S3, never through Express. The client presigns,
+// PUTs to S3, then persists the returned pointer here. Each entry is:
+//
+//   { s3Path: "s3:<bucket>:document/<uuid>-invoice.pdf",
+//     fileName: "invoice.pdf",
+//     contentType: "application/pdf",
+//     size: 184320,
+//     uploadedAt: "2026-09-07T10:12:00.000Z" }
+//
+// Store the `s3Path` pointer ONLY. Never persist a public bucket URL — core's
+// `middleware/s3UrlMiddleware.js` rewrites pointers to short-lived GET URLs at
+// read time. See lxos-core-pack/upload.md.
+// ===========================================================================
+
+model LxExpense {
+  id         String  @id @default(cuid())
+  eventId    String
+  /// CACHE — may drift. Denormalised from LxEvent.title.
+  eventTitle String?
+
+  title       String
+  description String            @default("")
+  amount      Float
+  category    LxExpenseCategory @default(OTHER)
+
+  /// Array of attachment pointers — see the shape documented above.
+  bills Json @default("[]")
+
+  /// Core `User.referenceId` of the submitter.
+  submittedByRef  String
+  /// CACHE — may drift. Resolve from core User/Student/Employee at read.
+  submittedByName String?
+
+  status LxExpenseStatus @default(PENDING)
+
+  /// Core `User.referenceId` of the finance verifier.
+  verifiedByRef   String?
+  /// CACHE — may drift. See `submittedByName`.
+  verifiedByName  String?
+  verifiedAt      DateTime?
+  rejectionReason String?
+  paidDate        DateTime?
+
+  /// True once this expense has been debited from the owning club/clan budget.
+  /// Guards against double-charging when a row is re-approved.
+  budgetApplied Boolean @default(false)
+
+  /// Money endpoints accept an `Idempotency-Key` header (api-envelope.md).
+  /// A retry with the same key returns the original row with 200 rather than
+  /// booking the spend twice.
+  idempotencyKey String? @unique
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([deletedAt])
+  @@index([eventId, status])
+  @@index([category])
+  @@index([submittedByRef])
+  @@map("lx_expenses")
+}
+
+enum LxExpenseCategory {
+  VENUE
+  FOOD
+  EQUIPMENT
+  DECORATION
+  PRIZES
+  MARKETING
+  OTHER
+}
+
+enum LxExpenseStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}

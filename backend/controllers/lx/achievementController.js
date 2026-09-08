@@ -19,12 +19,12 @@ import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
 export const createAchievementController = async (req, res) => {
   try {
     const validatedData = createAchievementSchema.parse(req.body);
-    // Snapshot the creator. LxAchievement stores createdById/createdByName only
+    // Snapshot the creator. LxAchievement stores createdByRef/createdByName only
     // (no createdByRole column), so drop the role from the snapshot.
-    const { createdById, createdByName } = actorSnapshot(req.actor);
+    const { createdByRef, createdByName } = actorSnapshot(req.actor);
     const result = await createAchievementService({
       ...validatedData,
-      createdById,
+      createdByRef,
       createdByName,
     });
     if (!result.success) {

@@ -121,12 +121,12 @@ export const isFinanceViewer = (role) => FINANCE_VIEW_ROLES.includes(role);
 // Reimbursement list scope: reviewers see everything; everyone else sees only
 // what they submitted.
 export const reimbursementScope = (actor) =>
-  isFinanceViewer(actor?.role) ? {} : { submittedById: actor?.id ?? '__none__' };
+  isFinanceViewer(actor?.role) ? {} : { submittedByRef: actor?.referenceId ?? '__none__' };
 
 // Expense list scope: reviewers see all; a club head sees only what they
 // submitted.
 export const expenseScope = (actor) =>
-  isFinanceViewer(actor?.role) ? {} : { submittedById: actor?.id ?? '__none__' };
+  isFinanceViewer(actor?.role) ? {} : { submittedByRef: actor?.referenceId ?? '__none__' };
 
 // Budget scope: ADMIN/LX/FINANCE see all clubs+clans; a club head sees only
 // their club; a clan head only their clan; anyone else sees nothing.

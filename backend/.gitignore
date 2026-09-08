@@ -6,3 +6,6 @@ coverage/
 .DS_Store
 prisma/*.db
 prisma/*.db-journal
+
+# Dev upload shim fake bucket — not part of handoff.
+.uploads/

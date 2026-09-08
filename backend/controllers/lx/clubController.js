@@ -33,7 +33,7 @@ export const createClubController = async (req, res) => {
 export const getAllClubsController = async (req, res) => {
   try {
     const validatedData = getAllClubsSchema.parse(req.query);
-    const result = await getAllClubsService(validatedData);
+    const result = await getAllClubsService(validatedData, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
     }
@@ -58,7 +58,7 @@ export const getClubByIdController = async (req, res) => {
         errors: [{ path: ['clubId'], message: 'clubId is required in the path' }],
       });
     }
-    const result = await getClubByIdService(clubId);
+    const result = await getClubByIdService(clubId, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
     }

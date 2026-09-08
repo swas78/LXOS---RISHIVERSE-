@@ -22,7 +22,7 @@ export const createEventDal = async ({
   attendees,
   poster,
   status,
-  createdById,
+  createdByRef,
   createdByName,
   createdByRole,
 }) => {
@@ -46,7 +46,7 @@ export const createEventDal = async ({
         ...(attendees !== undefined ? { attendees } : {}),
         poster: poster ?? null,
         ...(status ? { status } : {}),
-        createdById,
+        createdByRef,
         createdByName,
         createdByRole: createdByRole ?? null,
       },
@@ -118,7 +118,8 @@ export const getAllEventsDal = async ({
     return {
       page,
       limit,
-      totalRecords: total,
+      totalCount: total,
+      totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
       data: events,
       hasNextPage: page * limit < total,
       hasPreviousPage: page > 1,

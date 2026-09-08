@@ -1,0 +1,44 @@
+// ===========================================================================
+// LX MODULE — Clan initiatives (ongoing clan projects, tracked by progress).
+// No core equivalent; no collision.
+// ===========================================================================
+
+model LxInitiative {
+  id          String @id @default(cuid())
+  title       String
+  description String @default("")
+
+  clanId   String
+  /// CACHE — may drift. Denormalised from LxClan.name.
+  clanName String?
+
+  semester String             @default("")
+  status   LxInitiativeStatus @default(ACTIVE)
+  /// Completion percentage, 0–100.
+  progress Int                @default(0)
+  priority String             @default("MEDIUM")
+
+  /// Core `User.referenceId` values of the people on this initiative.
+  team String[] @default([])
+
+  date DateTime @default(now())
+
+  /// Core `User.referenceId` of the creator.
+  createdByRef  String?
+  /// CACHE — may drift. Resolve from core User/Student/Employee at read.
+  createdByName String?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([deletedAt])
+  @@index([clanId, semester])
+  @@map("lx_initiatives")
+}
+
+enum LxInitiativeStatus {
+  PLANNING
+  ACTIVE
+  COMPLETED
+}

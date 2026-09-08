@@ -1,20 +1,28 @@
-// LX module — Room entity.
-// Source of truth in the kit is prisma/schema.prisma (single-file compose).
-// At handoff, this file documents the model for placement under
-// prisma/models/lx/ in RishiVerse-Backend.
+// ===========================================================================
+// LX MODULE — Rooms
+//
+// COLLISION NOTE (lxos-core-pack/collisions.md)
+// ---------------------------------------------
+// Core already owns `Building → Floor → Room → RoomBooking` behind the
+// "Book Venue" product. That is a DIFFERENT inventory (hostel/classroom stock)
+// from LX event space. These tables coexist; LXOS must never write to core's
+// `RoomBooking`. The `Lx` prefix and `lx_` table mapping are mandatory.
+// ===========================================================================
 
 model LxRoom {
-  id         String    @id @default(cuid())
-  name       String
-  building   String?
-  floor      String?
-  capacity   Int       @default(0)
-  type       LxRoomType @default(CLASSROOM)
-  amenities  String[]  @default([])
-  isActive   Boolean   @default(true)
-  deletedAt  DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id        String     @id @default(cuid())
+  name      String
+  building  String?
+  floor     String?
+  capacity  Int        @default(0)
+  type      LxRoomType @default(CLASSROOM)
+  amenities String[]   @default([])
+  isActive  Boolean    @default(true)
+  deletedAt DateTime?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  bookings LxRoomBooking[]
 
   @@index([deletedAt])
   @@index([type])

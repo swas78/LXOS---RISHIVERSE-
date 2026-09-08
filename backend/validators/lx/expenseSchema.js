@@ -4,15 +4,11 @@ import {
   LX_EXPENSE_STATUSES,
   LX_EXPENSE_SORT_BY,
 } from '../../constants/lxExpenseConstant.js';
+import { attachmentSchema } from './uploadSchema.js';
 
-const billItemSchema = z.object({
-  originalName: z.string().trim().min(1, 'originalName is required').max(300),
-  path: z.string().trim().min(1, 'path is required').max(500),
-  mimeType: z.string().trim().max(150).optional().default(''),
-  size: z.number().int().min(0).optional().default(0),
-});
-
-const billsField = z.array(billItemSchema).optional();
+// Receipts for one expense. `attachmentSchema` is the canonical shape shared
+// with every other file-bearing row, so a bill looks the same everywhere.
+const billsField = z.array(attachmentSchema).max(6, 'at most 6 bills').optional();
 
 const categoryField = z.enum(LX_EXPENSE_CATEGORIES, {
   errorMap: () => ({ message: `category must be one of: ${LX_EXPENSE_CATEGORIES.join(', ')}` }),

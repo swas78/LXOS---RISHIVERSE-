@@ -5,22 +5,32 @@ export const normalizeSortOrder = (order, fallback = 'desc') =>
   String(order || fallback).toLowerCase() === 'asc' ? 'asc' : 'desc';
 
 // Build the standard pagination block from a total count.
-export const buildPagination = (page, limit, totalRecords) => ({
+//
+// Shape is fixed by lxos-core-pack/api-envelope.md — core's own
+// `buildPaginationMeta` returns exactly { page, limit, totalCount, totalPages }.
+// `hasNextPage` / `hasPreviousPage` are additive conveniences for the kit UI;
+// they can be dropped at handoff without breaking core clients.
+export const buildPagination = (page, limit, totalCount) => ({
   page,
   limit,
-  totalRecords,
-  hasNextPage: page * limit < totalRecords,
+  totalCount,
+  totalPages: limit > 0 ? Math.ceil(totalCount / limit) : 0,
+  hasNextPage: page * limit < totalCount,
   hasPreviousPage: page > 1,
 });
 
 // Compute skip for a page/limit pair.
 export const pageSkip = (page, limit) => (page - 1) * limit;
 
-// Snapshot the acting user onto a create payload (denormalized creator fields).
-// Modules pass req.actor here so reads never need to join the (dev) user table.
+// Snapshot the acting user onto a create payload.
+//
+// `createdByRef` is core `User.referenceId` and IS the source of truth.
+// `createdByName` is a read cache that may drift — see the `/// CACHE` notes in
+// prisma/models/lx/. Anything that must be correct resolves the name at read
+// time via services/lx/identityService.js.
 export const actorSnapshot = (actor) => ({
-  createdById: actor?.id ?? 'unknown',
-  createdByName: actor?.name ?? 'Unknown',
+  createdByRef: actor?.referenceId ?? 'unknown',
+  createdByName: actor?.displayName ?? null,
   createdByRole: actor?.role ?? null,
 });
 

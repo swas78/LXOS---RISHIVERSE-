@@ -1,5 +1,7 @@
 import createContextLogger from '../../logger/contextLogger.js';
 import { reimbursementScope } from '../../helper/lxPermissions.js';
+import { PAYOUT_REF_PREFIX } from '../../constants/lxReimbursementConstant.js';
+import { objectExists, withResolvedUrls } from './uploadService.js';
 import {
   createReimbursementDal,
   deleteReimbursementDal,
@@ -12,9 +14,44 @@ import {
 
 const logger = createContextLogger('reimbursementService');
 
-export const createReimbursementService = async (payload) => {
+// Stored bills are `s3:<bucket>:<key>` pointers; a browser needs a URL. Read
+// URLs are signed per request and never persisted, so they are attached on the
+// way out only.
+const withBillUrls = (row) => (row ? { ...row, bills: withResolvedUrls(row.bills) } : row);
+
+// NOTE: nothing here logs `payload` or `bankDetails`. Under D3 those are PII
+// even behind the demo flag — log ids and errors, never the claim body.
+
+export const createReimbursementService = async (payload, actor) => {
   try {
-    const reimbursement = await createReimbursementDal(payload);
+    // upload.md: "treat confirm as untrusted". A client can POST any string, so
+    // every pointer is checked against the bucket before it reaches a row.
+    for (const bill of payload.bills ?? []) {
+      if (!(await objectExists(bill.s3Path))) {
+        return {
+          success: false,
+          message: `Attachment ${bill.fileName} was not uploaded successfully`,
+          statusCode: 400,
+        };
+      }
+    }
+
+    // D3: LXOS records WHO to pay and core resolves the account from that. With
+    // no referenceId there is no profile to resolve against — mirror the 422
+    // production returns when `Student.bank*` is empty.
+    const referenceId = actor?.referenceId;
+    if (!referenceId) {
+      return {
+        success: false,
+        message: 'Bank details missing on student profile',
+        statusCode: 422,
+      };
+    }
+
+    const reimbursement = await createReimbursementDal({
+      ...payload,
+      payoutRef: `${PAYOUT_REF_PREFIX}${referenceId}`,
+    });
     if (!reimbursement) {
       return { success: false, message: 'Unable to create reimbursement', statusCode: 400 };
     }
@@ -22,7 +59,7 @@ export const createReimbursementService = async (payload) => {
       success: true,
       message: 'Reimbursement submitted successfully',
       statusCode: 201,
-      data: reimbursement,
+      data: withBillUrls(reimbursement),
     };
   } catch (error) {
     logger.error('Error in createReimbursementService', {
@@ -42,7 +79,7 @@ export const getReimbursementByIdService = async (reimbursementId) => {
       success: true,
       message: 'Reimbursement found',
       statusCode: 200,
-      data: reimbursement,
+      data: withBillUrls(reimbursement),
     };
   } catch (error) {
     logger.error('Error in getReimbursementByIdService', {
@@ -64,11 +101,13 @@ export const getAllReimbursementsService = async (query, actor) => {
       success: true,
       message: 'Reimbursements fetched successfully',
       statusCode: 200,
-      data: result.data,
+      data: result.data.map(withBillUrls),
       pagination: {
         page: result.page,
         limit: result.limit,
-        totalRecords: result.totalRecords,
+        totalCount: result.totalCount,
+        totalPages: result.totalPages,
+        totalPages: result.totalPages,
         hasNextPage: result.hasNextPage,
         hasPreviousPage: result.hasPreviousPage,
       },
@@ -87,6 +126,19 @@ export const updateReimbursementService = async (reimbursementId, payload) => {
     if (!existing) {
       return { success: false, message: 'Reimbursement not found', statusCode: 404 };
     }
+
+    // Same untrusted-confirm rule as create: a replaced bill list can smuggle in
+    // pointers that were never uploaded.
+    for (const bill of payload.bills ?? []) {
+      if (!(await objectExists(bill.s3Path))) {
+        return {
+          success: false,
+          message: `Attachment ${bill.fileName} was not uploaded successfully`,
+          statusCode: 400,
+        };
+      }
+    }
+
     const reimbursement = await updateReimbursementDal(reimbursementId, payload);
     if (!reimbursement) {
       return { success: false, message: 'Unable to update reimbursement', statusCode: 400 };
@@ -95,7 +147,7 @@ export const updateReimbursementService = async (reimbursementId, payload) => {
       success: true,
       message: 'Reimbursement updated successfully',
       statusCode: 200,
-      data: reimbursement,
+      data: withBillUrls(reimbursement),
     };
   } catch (error) {
     logger.error('Error in updateReimbursementService', {
@@ -139,13 +191,13 @@ export const reviewReimbursementService = async (reimbursementId, { action, reje
       return { success: false, message: 'Reimbursement not found', statusCode: 404 };
     }
 
-    const reviewedById = actor?.id ?? 'unknown';
-    const reviewedByName = actor?.name ?? 'Unknown';
+    const reviewedByRef = actor?.referenceId ?? 'unknown';
+    const reviewedByName = actor?.displayName ?? null;
 
     if (action === 'reject') {
       const reimbursement = await updateReimbursementDal(reimbursementId, {
         status: 'REJECTED',
-        reviewedById,
+        reviewedByRef,
         reviewedByName,
         reviewedAt: new Date(),
         rejectionReason: rejectionReason ?? null,
@@ -154,7 +206,7 @@ export const reviewReimbursementService = async (reimbursementId, { action, reje
         success: true,
         message: 'Reimbursement rejected',
         statusCode: 200,
-        data: reimbursement,
+        data: withBillUrls(reimbursement),
       };
     }
 
@@ -172,7 +224,7 @@ export const reviewReimbursementService = async (reimbursementId, { action, reje
 
     const reimbursement = await updateReimbursementDal(reimbursementId, {
       status: 'APPROVED',
-      reviewedById,
+      reviewedByRef,
       reviewedByName,
       reviewedAt: new Date(),
       ...(shouldDeductBudget ? { budgetDeducted: true } : {}),
@@ -182,7 +234,7 @@ export const reviewReimbursementService = async (reimbursementId, { action, reje
       success: true,
       message: 'Reimbursement approved',
       statusCode: 200,
-      data: reimbursement,
+      data: withBillUrls(reimbursement),
     };
   } catch (error) {
     logger.error('Error in reviewReimbursementService', {
@@ -193,7 +245,9 @@ export const reviewReimbursementService = async (reimbursementId, { action, reje
 };
 
 // Process workflow (Finance): mark an APPROVED claim as PROCESSED (paid out).
-export const processReimbursementService = async (reimbursementId, actor, payoutRef) => {
+// `payoutTxnRef` is the bank/UPI reference for the transfer that just happened;
+// `payoutRef` (who was paid) was fixed at submit time and stays untouched.
+export const processReimbursementService = async (reimbursementId, actor, payoutTxnRef) => {
   try {
     const existing = await getReimbursementByIdDal(reimbursementId);
     if (!existing) {
@@ -209,17 +263,17 @@ export const processReimbursementService = async (reimbursementId, actor, payout
 
     const reimbursement = await updateReimbursementDal(reimbursementId, {
       status: 'PROCESSED',
-      processedById: actor?.id ?? 'unknown',
-      processedByName: actor?.name ?? 'Unknown',
+      processedByRef: actor?.referenceId ?? 'unknown',
+      processedByName: actor?.displayName ?? null,
       processedAt: new Date(),
-      ...(payoutRef ? { payoutRef } : {}),
+      ...(payoutTxnRef ? { payoutTxnRef } : {}),
     });
 
     return {
       success: true,
       message: 'Reimbursement processed',
       statusCode: 200,
-      data: reimbursement,
+      data: withBillUrls(reimbursement),
     };
   } catch (error) {
     logger.error('Error in processReimbursementService', {

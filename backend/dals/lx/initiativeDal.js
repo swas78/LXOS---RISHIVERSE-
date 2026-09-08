@@ -13,7 +13,7 @@ export const createInitiativeDal = async ({
   progress,
   priority,
   team,
-  createdById,
+  createdByRef,
   createdByName,
 }) => {
   try {
@@ -28,7 +28,7 @@ export const createInitiativeDal = async ({
         ...(progress !== undefined ? { progress } : {}),
         ...(priority !== undefined ? { priority } : {}),
         ...(team ? { team } : {}),
-        ...(createdById !== undefined ? { createdById } : {}),
+        ...(createdByRef !== undefined ? { createdByRef } : {}),
         ...(createdByName !== undefined ? { createdByName } : {}),
       },
     });
@@ -95,7 +95,8 @@ export const getAllInitiativesDal = async ({
     return {
       page,
       limit,
-      totalRecords: total,
+      totalCount: total,
+      totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
       data: initiatives,
       hasNextPage: page * limit < total,
       hasPreviousPage: page > 1,

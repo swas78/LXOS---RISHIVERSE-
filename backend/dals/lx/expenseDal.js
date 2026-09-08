@@ -1,5 +1,6 @@
 import createContextLogger from '../../logger/contextLogger.js';
 import prisma from '../../services/prismaClient.js';
+import { buildPagination, normalizeSortOrder, pageSkip } from '../../helper/lxHelper.js';
 
 const logger = createContextLogger('expenseDal');
 
@@ -13,8 +14,9 @@ export const createExpenseDal = async (payload) => {
       amount,
       category,
       bills,
-      submittedById,
+      submittedByRef,
       submittedByName,
+      idempotencyKey,
     } = payload;
 
     return await prisma.lxExpense.create({
@@ -26,8 +28,9 @@ export const createExpenseDal = async (payload) => {
         amount,
         category,
         bills: bills ?? [],
-        submittedById,
+        submittedByRef,
         submittedByName,
+        idempotencyKey: idempotencyKey ?? null,
       },
     });
   } catch (error) {
@@ -52,11 +55,24 @@ export const getExpenseByIdDal = async (expenseId) => {
   }
 };
 
+// Soft-deleted rows are deliberately in scope: replaying a key must never book
+// the same spend twice, even if the original was withdrawn.
+export const getExpenseByIdempotencyKeyDal = async (idempotencyKey) => {
+  try {
+    return await prisma.lxExpense.findUnique({ where: { idempotencyKey } });
+  } catch (error) {
+    logger.error('Error in getExpenseByIdempotencyKeyDal', {
+      error: { message: error.message, stack: error.stack },
+    });
+    throw error;
+  }
+};
+
 export const getAllExpensesDal = async ({
   eventId,
   status,
   category,
-  submittedById,
+  submittedByRef,
   page,
   limit,
   sortBy,
@@ -66,33 +82,23 @@ export const getAllExpensesDal = async ({
     const where = {
       deletedAt: null,
       ...(eventId ? { eventId } : {}),
-      ...(submittedById ? { submittedById } : {}),
+      ...(submittedByRef ? { submittedByRef } : {}),
       ...(Array.isArray(status) && status.length > 0 ? { status: { in: status } } : {}),
       ...(Array.isArray(category) && category.length > 0 ? { category: { in: category } } : {}),
     };
 
-    const normalizedSortOrder =
-      String(sortOrder || 'desc').toLowerCase() === 'asc' ? 'asc' : 'desc';
-    const skip = (page - 1) * limit;
-
+    const skip = pageSkip(page, limit);
     const [expenses, total] = await Promise.all([
       prisma.lxExpense.findMany({
         where,
-        orderBy: { [sortBy]: normalizedSortOrder },
+        orderBy: { [sortBy]: normalizeSortOrder(sortOrder, 'desc') },
         skip,
         take: limit,
       }),
       prisma.lxExpense.count({ where }),
     ]);
 
-    return {
-      page,
-      limit,
-      totalRecords: total,
-      data: expenses,
-      hasNextPage: page * limit < total,
-      hasPreviousPage: page > 1,
-    };
+    return { data: expenses, ...buildPagination(page, limit, total) };
   } catch (error) {
     logger.error('Error in getAllExpensesDal', {
       error: { message: error.message, stack: error.stack },

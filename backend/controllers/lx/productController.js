@@ -21,8 +21,8 @@ export const createProductController = async (req, res) => {
     // Snapshot the submitting learner from the actor shim.
     const payload = {
       ...validatedData,
-      createdById: req.actor?.id ?? 'unknown',
-      createdByName: req.actor?.name ?? 'Unknown',
+      createdByRef: req.actor?.referenceId ?? 'unknown',
+      createdByName: req.actor?.displayName ?? null,
     };
     const result = await createProductService(payload);
     if (!result.success) {

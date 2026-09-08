@@ -1,7 +1,5 @@
-// Mirror of DemoItem for documentation / handoff layout.
-// Source of truth in the kit is prisma/schema.prisma.
-// When integrating into RishiVerse, place the production model file here:
-//   prisma/models/{module}/{entity}Model.prisma
+// DEMO MODULE — canonical scaffold sample. Copy this pattern for real modules.
+// This file is part of the multi-file schema rooted at prisma/schema.prisma.
 
 model DemoItem {
   id          String         @id @default(cuid())

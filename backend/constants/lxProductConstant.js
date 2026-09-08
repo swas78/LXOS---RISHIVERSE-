@@ -19,7 +19,7 @@ export const LX_PRODUCT_EDITABLE_FIELDS = [
   'description',
   'url',
   'repoUrl',
-  'imageUrl',
+  'images',
   'category',
   'techStack',
   'tags',

@@ -1,0 +1,87 @@
+// ===========================================================================
+// LX MODULE — Achievements and blog posts
+//
+// COLLISION NOTE (lxos-core-pack/collisions.md)
+// ---------------------------------------------
+// Core has `Achievement` — the student public profile / OAA verification
+// record, keyed by `studentId` with `ExtraCurricularType` + `VerificationStatus`.
+// `LxAchievement` is a DIFFERENT entity: campus recognition that awards clan
+// points and feeds the LX activity feed. Never write to core `Achievement`.
+//
+// `kind` overloads this table with two products, matching the original LXOS:
+//   ACHIEVEMENT — an award; carries `points` that credit a clan on approval
+//   UPDATE      — a club/clan blog post; `points` is always 0
+// Both flow through the same admin approval queue, and approved rows of either
+// kind appear in the activity feed.
+// ===========================================================================
+
+model LxAchievement {
+  id          String @id @default(cuid())
+  title       String
+  description String
+
+  eventId  String?
+  clubId   String?
+  /// CACHE — may drift. Denormalised from LxClub.name.
+  clubName String?
+  clanId   String?
+  /// CACHE — may drift. Denormalised from LxClan.name.
+  clanName String?
+
+  /// Clan points awarded on approval. Always 0 when `kind = UPDATE`.
+  points       Int                   @default(0)
+  achievedDate DateTime              @default(now())
+  semester     String                @default("Spring 2026")
+  category     LxAchievementCategory @default(OTHER)
+  kind         LxAchievementKind     @default(ACHIEVEMENT)
+
+  /// Core `User.referenceId` values of the people being recognised.
+  participants String[] @default([])
+  /// s3Path values, e.g. "s3:<bucket>:img/<uuid>-photo.jpg".
+  images       String[] @default([])
+
+  /// Core `User.referenceId` of the submitter.
+  createdByRef  String
+  /// CACHE — may drift. Resolve from core User/Student/Employee at read.
+  createdByName String?
+
+  status LxAchievementStatus @default(PENDING)
+
+  /// Core `User.referenceId` of the approving admin.
+  approvedByRef   String?
+  /// CACHE — may drift. See `createdByName`.
+  approvedByName  String?
+  approvedAt      DateTime?
+  rejectionReason String?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([deletedAt])
+  @@index([status, achievedDate])
+  @@index([semester, category])
+  @@index([kind, status])
+  @@map("lx_achievements")
+}
+
+enum LxAchievementCategory {
+  ACADEMIC
+  SPORTS
+  CULTURAL
+  TECHNICAL
+  SOCIAL
+  OTHER
+}
+
+/// Discriminates an award from a club/clan blog post. See model docs.
+enum LxAchievementKind {
+  ACHIEVEMENT
+  UPDATE
+}
+
+enum LxAchievementStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}

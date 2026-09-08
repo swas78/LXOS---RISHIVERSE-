@@ -2,6 +2,7 @@ import createContextLogger from '../../logger/contextLogger.js';
 import {
   createUserDal,
   findUserByEmailDal,
+  findUserByReferenceIdDal,
   findUserByIdDal,
   getAccessOverviewDal,
   updateUserAccessDal,
@@ -24,7 +25,7 @@ export const getAccessOverviewService = async () => {
     const headsFor = (key, id) =>
       users
         .filter((u) => u[key] === id)
-        .map((u) => ({ id: u.id, name: u.name, email: u.email }));
+        .map((u) => ({ id: u.id, referenceId: u.referenceId, displayName: u.displayName, email: u.email }));
 
     return {
       success: true,
@@ -47,17 +48,46 @@ export const getAccessOverviewService = async () => {
   }
 };
 
-export const assignAccessService = async ({ userId, email, name, type, clubId, clanId }) => {
+export const assignAccessService = async ({
+  memberId,
+  referenceId,
+  email,
+  displayName,
+  type,
+  clubId,
+  clanId,
+}) => {
   try {
+    // Resolution order runs most-specific first: an existing LxMember row, then
+    // the core identity key, then the dev-only email fallback.
     let user = null;
-    if (userId) user = await findUserByIdDal(userId);
-    else if (email) {
+    if (memberId) {
+      user = await findUserByIdDal(memberId);
+    } else if (referenceId) {
+      const ref = referenceId.trim();
+      user = await findUserByReferenceIdDal(ref);
+      // Granting a role to someone with no LX overlay yet creates that overlay.
+      // In production the person already exists in core; this row only records
+      // what they may do inside LX.
+      if (!user) {
+        user = await createUserDal({
+          referenceId: ref,
+          displayName: displayName || ref,
+          email: email ?? null,
+          role: 'GUEST',
+        });
+      }
+    } else if (email) {
       user = await findUserByEmailDal(email);
       if (!user) {
-        user = await createUserDal({ email, name: name || email.split('@')[0], role: 'GUEST' });
+        return {
+          success: false,
+          statusCode: 404,
+          message: `No member with email ${email}. Provide a referenceId (enrollment or employee id) to add them.`,
+        };
       }
     }
-    if (!user) return { success: false, message: 'User not found', statusCode: 404 };
+    if (!user) return { success: false, message: 'Member not found', statusCode: 404 };
 
     const data = {};
     switch (type) {
@@ -98,9 +128,9 @@ export const assignAccessService = async ({ userId, email, name, type, clubId, c
   }
 };
 
-export const removeAccessService = async ({ userId, type }) => {
+export const removeAccessService = async ({ memberId, type }) => {
   try {
-    const user = await findUserByIdDal(userId);
+    const user = await findUserByIdDal(memberId);
     if (!user) return { success: false, message: 'User not found', statusCode: 404 };
 
     const next = { ...user };

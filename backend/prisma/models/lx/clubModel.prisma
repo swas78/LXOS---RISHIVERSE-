@@ -1,0 +1,60 @@
+// ===========================================================================
+// LX MODULE — Clubs
+//
+// COLLISION NOTE — DECISION D1 IS UNRESOLVED (lxos-core-pack/collisions.md)
+// ------------------------------------------------------------------------
+// Core already ships a student Clubs product: models `Club` / `ClubEvent` /
+// `ClubMember`, routes `/api/v1/club`, UI at `/clubs`. Core `Club.id` is an
+// autoincrement Int; LX ids are cuids.
+//
+// This module currently takes option 2, COEXIST: `LxClub` models Learner
+// Experience orgs with budgets and semesters — a different product from core's
+// club directory and membership requests. Routes stay under `/api/v1/lx/club`
+// (never `/club`) and the Redux key is `lxClub` (never `clubs`).
+//
+// If maintainers instead choose option 1, DEFER, this model is dropped and LX
+// rows point at core clubs via `coreClubId Int?`. To keep that migration cheap,
+// nothing outside this module should assume `LxClub` exists — the club id is
+// carried as an opaque string everywhere else.
+// ===========================================================================
+
+model LxClub {
+  id          String         @id @default(cuid())
+  name        String         @unique
+  description String
+  logo        String?
+  category    LxClubCategory @default(OTHER)
+
+  /// Per-semester budget. Rolled over by `services/lx/reportService.js`, which
+  /// archives the closing figures into `budgetHistory` and resets `budgetSpent`.
+  budgetAllocated Float  @default(0)
+  budgetSpent     Float  @default(0)
+  semester        String @default("Spring 2026")
+  /// Array of { semester, budgetAllocated, budgetSpent, closedAt } snapshots.
+  budgetHistory   Json   @default("[]")
+
+  /// Core `User.referenceId` of the club head, if one is assigned.
+  headRef   String?
+  /// CACHE — may drift. Resolve from core User/Student/Employee at read.
+  headName  String?
+  /// CACHE — may drift. Core `User.emailId` is the source of truth.
+  headEmail String?
+
+  isActive  Boolean   @default(true)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([deletedAt])
+  @@index([category])
+  @@map("lx_clubs")
+}
+
+enum LxClubCategory {
+  TECHNICAL
+  CULTURAL
+  SPORTS
+  SOCIAL
+  ACADEMIC
+  OTHER
+}

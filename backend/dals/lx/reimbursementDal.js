@@ -1,5 +1,6 @@
 import createContextLogger from '../../logger/contextLogger.js';
 import prisma from '../../services/prismaClient.js';
+import { COLLECT_BANK_DETAILS } from '../../constants/lxReimbursementConstant.js';
 
 const logger = createContextLogger('reimbursementDal');
 
@@ -21,7 +22,8 @@ export const createReimbursementDal = async (payload) => {
       bankDetails,
       bills,
       notes,
-      submittedById,
+      payoutRef,
+      submittedByRef,
       submittedByName,
     } = payload;
 
@@ -39,10 +41,13 @@ export const createReimbursementDal = async (payload) => {
         clubName: clubName ?? null,
         clanId: clanId ?? null,
         clanName: clanName ?? null,
-        bankDetails: bankDetails ?? {},
+        // Last line of defence for D3: with the demo flag off this column stays
+        // empty no matter what reached the service.
+        bankDetails: COLLECT_BANK_DETAILS ? (bankDetails ?? {}) : {},
         bills: bills ?? [],
         notes: notes ?? null,
-        submittedById,
+        payoutRef: payoutRef ?? null,
+        submittedByRef,
         submittedByName,
       },
     });
@@ -72,7 +77,7 @@ export const getAllReimbursementsDal = async ({
   search,
   status,
   category,
-  submittedById,
+  submittedByRef,
   page,
   limit,
   sortBy,
@@ -83,7 +88,7 @@ export const getAllReimbursementsDal = async ({
       deletedAt: null,
       ...(Array.isArray(status) && status.length > 0 ? { status: { in: status } } : {}),
       ...(Array.isArray(category) && category.length > 0 ? { category: { in: category } } : {}),
-      ...(submittedById ? { submittedById } : {}),
+      ...(submittedByRef ? { submittedByRef } : {}),
       ...(search
         ? {
             OR: [
@@ -111,7 +116,9 @@ export const getAllReimbursementsDal = async ({
     return {
       page,
       limit,
-      totalRecords: total,
+      totalCount: total,
+      totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
+      totalPages: Math.ceil(total / limit),
       data: reimbursements,
       hasNextPage: page * limit < total,
       hasPreviousPage: page > 1,

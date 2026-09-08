@@ -2,7 +2,7 @@
 import createContextLogger from '../../logger/contextLogger.js';
 import { getAllUsersDal, getUserByIdDal } from '../../dals/lx/userDal.js';
 
-const logger = createContextLogger('lxUserService');
+const logger = createContextLogger('lxMemberService');
 
 export const getAllUsersService = async () => {
   try {

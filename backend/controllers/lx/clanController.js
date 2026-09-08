@@ -35,7 +35,7 @@ export const createClanController = async (req, res) => {
 export const getAllClansController = async (req, res) => {
   try {
     const validatedData = getAllClansSchema.parse(req.query);
-    const result = await getAllClansService(validatedData);
+    const result = await getAllClansService(validatedData, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
     }
@@ -60,7 +60,7 @@ export const getClanByIdController = async (req, res) => {
         errors: [{ path: ['clanId'], message: 'clanId is required in the path' }],
       });
     }
-    const result = await getClanByIdService(clanId);
+    const result = await getClanByIdService(clanId, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
     }

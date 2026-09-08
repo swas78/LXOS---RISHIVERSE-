@@ -23,10 +23,11 @@ export const createReimbursementController = async (req, res) => {
     // Snapshot the submitter from the acting user.
     const payload = {
       ...validatedData,
-      submittedById: req.actor?.id ?? 'unknown',
-      submittedByName: req.actor?.name ?? 'Unknown',
+      submittedByRef: req.actor?.referenceId ?? 'unknown',
+      submittedByName: req.actor?.displayName ?? null,
     };
-    const result = await createReimbursementService(payload);
+    // The actor also decides `payoutRef` (who to pay), derived in the service.
+    const result = await createReimbursementService(payload, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
     }
@@ -186,8 +187,8 @@ export const processReimbursementController = async (req, res) => {
         errors: [{ path: ['reimbursementId'], message: 'reimbursementId is required in the path' }],
       });
     }
-    const { payoutRef } = processReimbursementSchema.parse(req.body ?? {});
-    const result = await processReimbursementService(reimbursementId, req.actor, payoutRef);
+    const { payoutTxnRef } = processReimbursementSchema.parse(req.body ?? {});
+    const result = await processReimbursementService(reimbursementId, req.actor, payoutTxnRef);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
     }
