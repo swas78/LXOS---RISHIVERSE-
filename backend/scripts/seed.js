@@ -21,11 +21,18 @@ function daysFromNow(d, hour = 10) {
 const FLOOR = { 1: 'First', 2: 'Second', 3: 'Third', 4: 'Fourth', 5: 'Fifth' };
 function buildRooms() {
   const names = [
-    'C-103', 'C-104', 'A-303', 'A-304', 'Mini Audi',
+    'C-103', 'C-104', 'A-303', 'A-304', 'Main Audi', 'Mini Audi',
     'A-401', 'A-402', 'A-403', 'A-404', 'A-405', 'A-406', 'A-407', 'A-408', 'A-409', 'A-410',
     'A-501', 'A-502', 'A-503', 'A-504', 'A-505', 'A-506', 'A-507', 'A-508', 'A-509', 'A-510',
   ];
   return names.map((name) => {
+    if (name === 'Main Audi') {
+      return {
+        name, building: 'Central Block', floor: 'Ground', capacity: 350,
+        type: 'AUDITORIUM',
+        amenities: ['PROJECTOR', 'WHITEBOARD', 'AC', 'SOUND_SYSTEM', 'MIC', 'STAGE'],
+      };
+    }
     if (name === 'Mini Audi') {
       return {
         name, building: 'Central Block', floor: 'Ground', capacity: 150,

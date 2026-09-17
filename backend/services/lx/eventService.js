@@ -1,5 +1,10 @@
 import createContextLogger from '../../logger/contextLogger.js';
-import { redactEvent, redactEvents } from '../../helper/lxScope.js';
+import {
+  eventVisibilityScope,
+  redactEvent,
+  redactEvents,
+  seesEventQueue,
+} from '../../helper/lxScope.js';
 import { rangesOverlap } from '../../helper/lxHelper.js';
 import {
   createEventDal,
@@ -88,6 +93,15 @@ export const getEventByIdService = async (eventId, actor) => {
     if (!event) {
       return { success: false, message: 'Event not found', statusCode: 404 };
     }
+    // A direct link to a pending event must not bypass the list filter.
+    const visible =
+      seesEventQueue(actor) ||
+      ['APPROVED', 'COMPLETED'].includes(event.status) ||
+      event.createdByRef === actor?.referenceId;
+    if (!visible) {
+      return { success: false, message: 'Event not found', statusCode: 404 };
+    }
+
     // An event's money belongs to the club/clan running it, so budget columns
     // follow that entity's visibility. Title, dates and venue stay public.
     return {
@@ -106,7 +120,8 @@ export const getEventByIdService = async (eventId, actor) => {
 
 export const getAllEventsService = async (query, actor) => {
   try {
-    const result = await getAllEventsDal(query);
+    // Pending and rejected events are internal until someone acts on them.
+    const result = await getAllEventsDal({ ...query, visibility: eventVisibilityScope(actor) });
     if (!result) {
       return { success: false, message: 'Unable to list events', statusCode: 400 };
     }

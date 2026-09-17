@@ -24,7 +24,7 @@
 //     deleted             type is `number | null` rather than an optional, and a
 //                          forgotten check is a visible "—" instead of undefined.
 // ---------------------------------------------------------------------------
-import { ROLES, isFinanceViewer } from './lxPermissions.js';
+import { PERMISSIONS, ROLES, hasPermission, isFinanceViewer } from './lxPermissions.js';
 
 // Budget columns on LxClub / LxClan.
 const ENTITY_BUDGET_FIELDS = ['budgetAllocated', 'budgetSpent', 'budgetHistory'];
@@ -90,6 +90,37 @@ export const redactEvent = (event, actor) => {
 export const redactClubs = (rows, actor) => (rows ?? []).map((r) => redactClub(r, actor));
 export const redactClans = (rows, actor) => (rows ?? []).map((r) => redactClan(r, actor));
 export const redactEvents = (rows, actor) => (rows ?? []).map((r) => redactEvent(r, actor));
+
+// ---- Event visibility -----------------------------------------------------
+
+/**
+ * WHICH EVENTS a person may see at all.
+ *
+ * An event awaiting approval is an internal draft: it may be rejected, moved or
+ * cancelled, and advertising it to the campus as a real event is misleading.
+ * Only the people who act on the queue see PENDING and REJECTED rows.
+ *
+ * Organisers are the exception — they must be able to track their own request,
+ * so their own events are always visible to them whatever the status.
+ *
+ * Returns a Prisma `where` fragment, spread into the DAL's existing clause.
+ */
+export function eventVisibilityScope(actor) {
+  // Approvers work the queue, so they see everything in it.
+  if (hasPermission(actor?.role, PERMISSIONS.APPROVE_EVENT)) return {};
+
+  const publicStatuses = { status: { in: ['APPROVED', 'COMPLETED'] } };
+  const ref = actor?.referenceId;
+
+  // Everyone else: what is actually happening, plus whatever they submitted.
+  return ref
+    ? { OR: [publicStatuses, { createdByRef: ref }] }
+    : publicStatuses;
+}
+
+/** True when this actor sees the approval queue rather than just public events. */
+export const seesEventQueue = (actor) =>
+  hasPermission(actor?.role, PERMISSIONS.APPROVE_EVENT);
 
 // ---- Write scoping --------------------------------------------------------
 

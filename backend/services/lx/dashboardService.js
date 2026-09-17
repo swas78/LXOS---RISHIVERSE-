@@ -1,11 +1,12 @@
 import createContextLogger from '../../logger/contextLogger.js';
 import { getDashboardDataDal } from '../../dals/lx/dashboardDal.js';
+import { eventVisibilityScope } from '../../helper/lxScope.js';
 
 const logger = createContextLogger('dashboardService');
 
-export const getDashboardStatsService = async () => {
+export const getDashboardStatsService = async (actor) => {
   try {
-    const d = await getDashboardDataDal();
+    const d = await getDashboardDataDal(eventVisibilityScope(actor));
     let nextUpDaysAway = null;
     if (d.nextUp) {
       const diffMs = new Date(d.nextUp.startDate).getTime() - Date.now();

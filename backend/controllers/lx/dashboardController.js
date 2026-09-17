@@ -3,7 +3,7 @@ import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
 
 export const getDashboardStatsController = async (req, res) => {
   try {
-    const result = await getDashboardStatsService();
+    const result = await getDashboardStatsService(req.actor);
     return res.status(result.statusCode).json({
       success: true,
       message: result.message,

@@ -3,7 +3,7 @@ import prisma from '../../services/prismaClient.js';
 
 const logger = createContextLogger('dashboardDal');
 
-export const getDashboardDataDal = async () => {
+export const getDashboardDataDal = async (visibility = {}) => {
   try {
     const now = new Date();
     const [
@@ -19,7 +19,9 @@ export const getDashboardDataDal = async () => {
       pendingExpenses,
       pendingProducts,
     ] = await Promise.all([
-      prisma.lxEvent.count({ where: { deletedAt: null } }),
+      // Scoped: a student's "total events" should count what they can see,
+      // not reveal that a pile of unapproved ones exists.
+      prisma.lxEvent.count({ where: { deletedAt: null, ...visibility } }),
       prisma.lxClub.count({ where: { deletedAt: null, isActive: true } }),
       prisma.lxClan.count({ where: { deletedAt: null } }),
       prisma.lxEvent.count({
@@ -30,7 +32,7 @@ export const getDashboardDataDal = async () => {
         orderBy: { startDate: 'asc' },
       }),
       prisma.lxEvent.findMany({
-        where: { deletedAt: null },
+        where: { deletedAt: null, ...visibility },
         orderBy: { createdAt: 'desc' },
         take: 6,
       }),

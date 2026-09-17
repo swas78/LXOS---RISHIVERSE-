@@ -83,10 +83,15 @@ export const getAllEventsDal = async ({
   limit,
   sortBy,
   sortOrder,
+  // Prisma `where` fragment from helper/lxScope.js restricting WHICH events
+  // this actor may see at all. Separate from the `status` filter above, which
+  // is the user's own choice within what they are allowed to see.
+  visibility = {},
 }) => {
   try {
     const where = {
       deletedAt: null,
+      ...visibility,
       ...(Array.isArray(type) && type.length > 0 ? { type: { in: type } } : {}),
       ...(Array.isArray(status) && status.length > 0 ? { status: { in: status } } : {}),
       ...(clubId ? { clubId } : {}),
