@@ -1,0 +1,180 @@
+// ===========================================================================
+// LX MODULE — Library study cabins (Ashok Goel Library)
+//
+// A THIRD room inventory, deliberately separate from the other two:
+//   core  `Room` / `RoomBooking`      — Book Venue (classrooms, hostel stock)
+//   LX    `LxRoom` / `LxRoomBooking`  — event spaces for clubs and clans
+//   LX    `LxCabin` / `LxCabinBooking`— library study cabins  ← this file
+//
+// They are not merged because the rules differ completely: cabins are
+// same-day only, one hour at a time, capped per student per day, granted
+// instantly with no approval, and forfeited if nobody checks in. Folding that
+// into LxRoomBooking would put five unrelated rule sets behind one status enum.
+//
+// The `Lx` prefix and `lx_` mapping are mandatory (lxos-core-pack/collisions.md).
+// ===========================================================================
+
+model LxCabin {
+  id   String @id @default(cuid())
+  /// Display name, e.g. "Cabin P5".
+  name String @unique
+  /// Short code shown on the cabin door, e.g. "P5".
+  code String @unique
+
+  /// Group cabins carry a floor so one student cannot hold six seats — the
+  /// minimum is enforced for students and waived for faculty, whose one-to-one
+  /// consultations are a legitimate use of a group room.
+  minCapacity Int @default(2)
+  maxCapacity Int @default(4)
+
+  floor     String?
+  amenities String[] @default([])
+
+  /// A cabin out of service (AC repair, exam use) stays listed but unbookable,
+  /// with the reason shown to students so the desk is not asked about it.
+  isActive          Boolean @default(true)
+  unavailableReason String?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  bookings LxCabinBooking[]
+
+  @@index([deletedAt])
+  @@index([isActive, code])
+  @@map("lx_cabins")
+}
+
+model LxCabinBooking {
+  id        String  @id @default(cuid())
+  cabinId   String
+  /// CACHE — may drift. Denormalised from LxCabin.name so the desk's record of
+  /// which cabin was used survives a later rename.
+  cabinName String?
+
+  /// Calendar day in IST ("YYYY-MM-DD"). Stored alongside the absolute
+  /// timestamps because every library rule is expressed per calendar day, and
+  /// deriving the day from a UTC instant at query time is a timezone bug
+  /// waiting to happen.
+  date      String
+  /// Wall-clock slot bounds in IST, "HH:mm".
+  slotStart String
+  slotEnd   String
+  /// The same slot as absolute instants — what ordering and expiry run on.
+  startAt   DateTime
+  endAt     DateTime
+
+  /// Core `User.referenceId` of the person who booked.
+  bookedByRef  String
+  /// CACHE — may drift. Resolve from core User/Student/Employee at read.
+  bookedByName String?
+
+  /// Which rule set applied at booking time. Derived from core `User.userType`
+  /// (STUDENT vs EMPLOYEE), recorded because it decides the daily cap and
+  /// whether a no-show blocks the person — and roles can change later.
+  bookerType LxCabinBookerType
+
+  /// Contact number for the desk, captured once and reused. At handoff prefer
+  /// core `Student.mobileNumber`; this is the module's own fallback so the kit
+  /// works without a core profile.
+  contactPhone String?
+
+  /// Everyone else on the booking, as [{ referenceId, name }]. Members are
+  /// resolved against the directory when the booking is made, so this can never
+  /// hold an enrollment number that does not exist. `referenceId` is the source
+  /// of truth; `name` is a display cache.
+  groupMembers Json @default("[]")
+  /// Owner + members. Checked against the cabin's capacity range.
+  peopleCount  Int
+
+  status LxCabinBookingStatus @default(BOOKED)
+
+  /// Set ONLY while this booking holds the slot, and cleared the moment it does
+  /// not (checkout, cancel, no-show). The unique index is what stops two people
+  /// claiming one cabin in the same instant — Postgres treats NULLs as distinct,
+  /// so cleared rows never collide and the slot returns to the pool immediately.
+  /// This is database-level prevention, not an application read-then-write.
+  slotKey String? @unique
+
+  checkedInAt    DateTime?
+  checkedOutAt   DateTime?
+  cancelledAt    DateTime?
+  markedNoShowAt DateTime?
+
+  /// Core `User.referenceId` of the librarian, when the desk acted for someone.
+  handledByRef  String?
+  /// CACHE — may drift. See `bookedByName`.
+  handledByName String?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  cabin LxCabin @relation(fields: [cabinId], references: [id], onDelete: Cascade)
+
+  @@index([deletedAt])
+  @@index([cabinId, date, slotStart, status])
+  @@index([bookedByRef, date])
+  @@index([date, status])
+  @@map("lx_cabin_bookings")
+}
+
+enum LxCabinBookerType {
+  STUDENT
+  FACULTY
+}
+
+enum LxCabinBookingStatus {
+  /// Slot held, waiting for the person to arrive and check in.
+  BOOKED
+  /// Checked in at the desk; the session is running.
+  CHECKED_IN
+  /// Finished — either checked out, or the hour ended.
+  COMPLETED
+  /// Nobody checked in inside the grace window. Slot released; students blocked.
+  NO_SHOW
+  /// Given up before it started, or cut short.
+  CANCELLED
+}
+
+/// A temporary or permanent bar on booking cabins. Created automatically when a
+/// booking settles as a no-show, or by hand at the library desk.
+model LxCabinBlock {
+  id String @id @default(cuid())
+
+  /// Core `User.referenceId` of the blocked person.
+  memberRef  String
+  /// CACHE — may drift. Resolve from core User/Student/Employee at read.
+  memberName String?
+
+  reason LxCabinBlockReason
+  note   String?
+
+  startsAt DateTime @default(now())
+  /// null means PERMANENT — only a librarian can lift it.
+  expiresAt DateTime?
+
+  /// The no-show that caused an automatic block, if any. Also the idempotency
+  /// key: one block per booking, so re-settling never stacks penalties.
+  bookingId String? @unique
+
+  /// Core `User.referenceId` of the librarian who applied it (null = automatic).
+  createdByRef String?
+
+  liftedAt     DateTime?
+  liftedByRef  String?
+  liftReason   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([memberRef, liftedAt, expiresAt])
+  @@map("lx_cabin_blocks")
+}
+
+enum LxCabinBlockReason {
+  NO_SHOW
+  REPEATED_CANCELLATION
+  MANUAL
+}

@@ -20,6 +20,7 @@ import dashboardRoutes from './lx/dashboardRoutes.js';
 import analyticsRoutes from './lx/analyticsRoutes.js';
 import calendarRoutes from './lx/calendarRoutes.js';
 import reportRoutes from './lx/reportRoutes.js';
+import cabinRoutes from './lx/cabinRoutes.js';
 import uploadRoutes from './lx/uploadRoutes.js';
 
 const router = express.Router();
@@ -49,6 +50,7 @@ router.use('/dashboard', dashboardRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/calendar', calendarRoutes);
 router.use('/report', reportRoutes); // LX report + semester rollover
+router.use('/cabin', cabinRoutes); // library study cabins
 // DEV SHIM — core serves the real thing at /api/v1/upload/*. Deleted at handoff.
 router.use('/upload', uploadRoutes);
 

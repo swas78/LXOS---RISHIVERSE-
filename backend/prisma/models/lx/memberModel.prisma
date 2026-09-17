@@ -37,6 +37,10 @@ enum LxMemberRole {
   CLUB_HEAD
   CLAN_HEAD
   FINANCE
+  /// Library desk staff. Runs the study-cabin board: check-in, check-out,
+  /// no-shows, blocks and taking cabins out of service. Deliberately narrow —
+  /// a librarian has no reach into events, budgets or approvals.
+  LIBRARIAN
   GUEST
 }
 
@@ -56,6 +60,11 @@ model LxMember {
   clanId String?
 
   isActive Boolean @default(true)
+
+  /// Contact number, captured once by the library cabin booking form and reused
+  /// so the next booking asks for nothing at all. LX-owned fallback: at handoff
+  /// prefer core `Student.mobileNumber` and treat this as the backup.
+  contactPhone String?
 
   /// DEV-SHIM ONLY — deleted at handoff.
   /// Lets the local kit render a name without a core database. In production

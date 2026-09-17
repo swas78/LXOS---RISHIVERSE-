@@ -75,6 +75,16 @@ const ADMINS = [
   { ref: 'RU2024BTC001', displayName: 'Neelanshu', email: 'neelanshu.2024@nst.rishihood.edu.in' },
 ];
 
+// The library's study cabins. P1-P3 are group rooms on the ground floor,
+// P4-P5 the smaller pair upstairs — matching the live booking portal.
+const CABINS = [
+  { name: 'Cabin P1', code: 'P1', minCapacity: 3, maxCapacity: 6, floor: 'Ground floor' },
+  { name: 'Cabin P2', code: 'P2', minCapacity: 3, maxCapacity: 6, floor: 'Ground floor' },
+  { name: 'Cabin P3', code: 'P3', minCapacity: 3, maxCapacity: 6, floor: 'Ground floor' },
+  { name: 'Cabin P4', code: 'P4', minCapacity: 2, maxCapacity: 4, floor: 'First floor' },
+  { name: 'Cabin P5', code: 'P5', minCapacity: 2, maxCapacity: 4, floor: 'First floor' },
+];
+
 // Deterministic enrollment numbers for the seeded heads, so a reseed keeps the
 // same actor refs and any bookmarked ?actor= link still resolves.
 const clubHeadRef = (i) => `RU2024BTC${String(100 + i).padStart(3, '0')}`;
@@ -83,6 +93,9 @@ const clanHeadRef = (i) => `RU2024BTC${String(200 + i).padStart(3, '0')}`;
 async function clearAll() {
   await prisma.lxClanPointTxn.deleteMany();
   await prisma.lxRoomBooking.deleteMany();
+  await prisma.lxCabinBlock.deleteMany();
+  await prisma.lxCabinBooking.deleteMany();
+  await prisma.lxCabin.deleteMany();
   await Promise.all([
     prisma.lxEvent.deleteMany(),
     prisma.lxAchievement.deleteMany(),
@@ -358,6 +371,22 @@ async function main() {
       { title: 'ClanClash', tagline: 'A game to boost clan spirit', description: 'A browser mini-game where clans compete in weekly challenges for points.', repoUrl: 'https://github.com/example/clanclash', category: 'GAME', techStack: ['Phaser', 'TypeScript'], tags: ['game', 'clans'], teamMembers: ['Meera'], createdByRef: marathaHead.referenceId, createdByName: marathaHead.displayName, status: 'PENDING' },
       { title: 'GreenTrack', tagline: 'Track campus sustainability', description: 'A dashboard visualising campus energy and waste metrics for SAGE.', category: 'RESEARCH', techStack: ['Python', 'Streamlit'], tags: ['sustainability'], teamMembers: ['Sana', 'Riya'], clubId: clubByName['SAGE'].id, clubName: 'SAGE', createdByRef: student.referenceId, createdByName: student.displayName, status: 'PENDING' },
     ],
+  });
+
+  // ---- Library study cabins ----------------------------------------------
+  await prisma.lxCabin.createMany({
+    data: CABINS.map((c) => ({ ...c, amenities: ['AC', 'WHITEBOARD'], isActive: true })),
+  });
+
+  // Library desk staff. A LIBRARIAN can run the cabin board and nothing else —
+  // no events, no budgets, no approvals.
+  await prisma.lxMember.create({
+    data: {
+      referenceId: 'EMP0430',
+      displayName: 'Library Desk',
+      email: 'libraryservices@rishihood.edu.in',
+      role: 'LIBRARIAN',
+    },
   });
 
   console.info('[seed] ✅ done — real LXOS dataset (clubs/clans/rooms/admins) + demo layer seeded.');
