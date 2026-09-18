@@ -8,6 +8,7 @@ import {
   actOnReimbursementDal,
   getPendingApprovalsDal,
 } from '../../dals/lx/approvalDal.js';
+import { actOnLostFoundDal } from '../../dals/lx/lostFoundDal.js';
 
 const logger = createContextLogger('approvalService');
 
@@ -86,9 +87,21 @@ const mapExpense = (x) => ({
   raw: x,
 });
 
+const mapLostFound = (l) => ({
+  id: l.id,
+  type: 'LOST_FOUND',
+  title: l.title,
+  subtitle: `${l.kind === 'LOST' ? 'Lost' : 'Found'} · ${l.category.replace('_', ' ')} · ${l.location}`,
+  requestedBy: l.reportedByName,
+  date: l.createdAt,
+  amount: null,
+  status: l.status,
+  raw: l,
+});
+
 export const getApprovalsService = async (query = {}) => {
   try {
-    const { events, achievements, reimbursements, expenses, products, bookings } =
+    const { events, achievements, reimbursements, expenses, products, bookings, lostFound } =
       await getPendingApprovalsDal();
     let items = [
       ...events.map(mapEvent),
@@ -97,6 +110,7 @@ export const getApprovalsService = async (query = {}) => {
       ...expenses.map(mapExpense),
       ...products.map(mapProduct),
       ...bookings.map(mapBooking),
+      ...lostFound.map(mapLostFound),
     ];
     if (query.type) items = items.filter((i) => i.type === query.type);
     items.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -114,6 +128,7 @@ export const getApprovalsService = async (query = {}) => {
           EXPENSE: expenses.length,
           PRODUCT: products.length,
           BOOKING: bookings.length,
+          LOST_FOUND: lostFound.length,
           total: items.length,
         },
       },
@@ -147,6 +162,9 @@ export const actOnApprovalService = async ({ type, id, action, rejectionReason, 
         break;
       case 'BOOKING':
         result = await actOnBookingDal(id, action, actor, rejectionReason);
+        break;
+      case 'LOST_FOUND':
+        result = await actOnLostFoundDal(id, action, actor, rejectionReason);
         break;
       default:
         return { success: false, message: `Unknown approval type: ${type}`, statusCode: 400 };

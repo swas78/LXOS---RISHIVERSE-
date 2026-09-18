@@ -100,6 +100,7 @@ const clanHeadRef = (i) => `RU2024BTC${String(200 + i).padStart(3, '0')}`;
 async function clearAll() {
   await prisma.lxClanPointTxn.deleteMany();
   await prisma.lxRoomBooking.deleteMany();
+  await prisma.lxLostFoundItem.deleteMany();
   await prisma.lxCabinBlock.deleteMany();
   await prisma.lxCabinBooking.deleteMany();
   await prisma.lxCabin.deleteMany();
@@ -377,6 +378,53 @@ async function main() {
       { title: 'NoteNest', tagline: 'Shared notes for every course', description: 'A collaborative notes platform where learners share and rate course notes.', url: 'https://notenest.example.com', category: 'WEBSITE', techStack: ['React', 'Firebase'], tags: ['notes', 'study'], teamMembers: ['Kabir'], clubId: sast.id, clubName: sast.name, createdByRef: headOf('SAST').referenceId, createdByName: headOf('SAST').displayName, status: 'APPROVED', approvedByRef: admin.referenceId, approvedByName: admin.displayName, approvedAt: daysFromNow(-1) },
       { title: 'ClanClash', tagline: 'A game to boost clan spirit', description: 'A browser mini-game where clans compete in weekly challenges for points.', repoUrl: 'https://github.com/example/clanclash', category: 'GAME', techStack: ['Phaser', 'TypeScript'], tags: ['game', 'clans'], teamMembers: ['Meera'], createdByRef: marathaHead.referenceId, createdByName: marathaHead.displayName, status: 'PENDING' },
       { title: 'GreenTrack', tagline: 'Track campus sustainability', description: 'A dashboard visualising campus energy and waste metrics for SAGE.', category: 'RESEARCH', techStack: ['Python', 'Streamlit'], tags: ['sustainability'], teamMembers: ['Sana', 'Riya'], clubId: clubByName['SAGE'].id, clubName: 'SAGE', createdByRef: student.referenceId, createdByName: student.displayName, status: 'PENDING' },
+    ],
+  });
+
+  // ---- Lost & Found --------------------------------------------------------
+  // Nothing is published at seed time without a named approver, so the board
+  // demonstrates the gate: two live, one still waiting, one turned down.
+  await prisma.lxLostFoundItem.createMany({
+    data: [
+      {
+        kind: 'FOUND', title: 'Black JBL earbuds case',
+        description: 'Found a black JBL charging case on a bench outside the Mini Audi. No earbuds inside.',
+        category: 'ELECTRONICS', images: ['s3:lxos-dev:img/seed-earbuds.jpg'],
+        location: 'Bench outside Mini Audi', occurredOn: daysFromNow(-2),
+        contactPhone: '9876500110',
+        reportedByRef: headOf('GDG').referenceId, reportedByName: headOf('GDG').displayName,
+        status: 'APPROVED', approvedByRef: admin.referenceId, approvedByName: admin.displayName,
+        approvedAt: daysFromNow(-2),
+      },
+      {
+        kind: 'LOST', title: 'Blue Rishihood water bottle',
+        description: 'Navy blue steel bottle with a dented cap and a SAST sticker on the side.',
+        category: 'ACCESSORY', images: ['s3:lxos-dev:img/seed-bottle.jpg'],
+        location: 'A-Block, third floor corridor', occurredOn: daysFromNow(-1),
+        contactPhone: '9876500111',
+        reportedByRef: student.referenceId, reportedByName: student.displayName,
+        status: 'APPROVED', approvedByRef: admin.referenceId, approvedByName: admin.displayName,
+        approvedAt: daysFromNow(-1),
+      },
+      {
+        kind: 'FOUND', title: 'Student ID card',
+        description: 'Found an ID card near the library entrance. Holding it at the desk.',
+        category: 'ID_CARD', images: ['s3:lxos-dev:img/seed-idcard.jpg'],
+        location: 'Ashok Goel Library entrance', occurredOn: daysFromNow(0),
+        reportedByRef: headOf('Robotics Club').referenceId,
+        reportedByName: headOf('Robotics Club').displayName,
+        status: 'PENDING',
+      },
+      {
+        kind: 'LOST', title: 'Set of keys',
+        description: 'Three keys on a red lanyard.',
+        category: 'KEYS', images: ['s3:lxos-dev:img/seed-keys.jpg'],
+        location: 'Somewhere on campus', occurredOn: daysFromNow(-5),
+        reportedByRef: student.referenceId, reportedByName: student.displayName,
+        status: 'REJECTED', approvedByRef: admin.referenceId, approvedByName: admin.displayName,
+        approvedAt: daysFromNow(-4),
+        rejectionReason: 'Please add a clearer photo and say roughly where you last had them.',
+      },
     ],
   });
 

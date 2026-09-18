@@ -6,7 +6,8 @@ const logger = createContextLogger('approvalDal');
 // Fetch everything currently awaiting a decision across the platform.
 export const getPendingApprovalsDal = async () => {
   try {
-    const [events, achievements, reimbursements, expenses, products, bookings] = await Promise.all([
+    const [events, achievements, reimbursements, expenses, products, bookings, lostFound] =
+      await Promise.all([
       prisma.lxEvent.findMany({
         where: { deletedAt: null, status: 'PENDING' },
         orderBy: { createdAt: 'desc' },
@@ -32,8 +33,12 @@ export const getPendingApprovalsDal = async () => {
         where: { deletedAt: null, status: 'PENDING' },
         orderBy: { createdAt: 'desc' },
       }),
+      prisma.lxLostFoundItem.findMany({
+        where: { deletedAt: null, status: 'PENDING' },
+        orderBy: { createdAt: 'desc' },
+      }),
     ]);
-    return { events, achievements, reimbursements, expenses, products, bookings };
+    return { events, achievements, reimbursements, expenses, products, bookings, lostFound };
   } catch (error) {
     logger.error('Error in getPendingApprovalsDal', {
       error: { message: error.message, stack: error.stack },
