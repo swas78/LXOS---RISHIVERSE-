@@ -20,14 +20,14 @@ router.use((req, res, next) => {
   next();
 });
 
-router.post('/availability', checkRoomAvailabilityController);
+router.post('/availability', requirePermission(PERMISSIONS.VIEW_LX), checkRoomAvailabilityController);
 // Only clubs/clans (and admin/LX) can request a room booking.
 router.post('/new', requirePermission(PERMISSIONS.BOOK_ROOM), createRoomBookingController);
-router.get('/all', getAllRoomBookingsController);
-router.get('/:bookingId', getRoomBookingByIdController);
+router.get('/all', requirePermission(PERMISSIONS.VIEW_LX), getAllRoomBookingsController);
+router.get('/:bookingId', requirePermission(PERMISSIONS.VIEW_LX), getRoomBookingByIdController);
 // Only admins / LX can approve or reject bookings.
 router.post('/:bookingId/review', requirePermission(PERMISSIONS.APPROVE_BOOKING), reviewRoomBookingController);
-router.post('/:bookingId/cancel', cancelRoomBookingController);
+router.post('/:bookingId/cancel', requirePermission(PERMISSIONS.BOOK_ROOM), cancelRoomBookingController);
 router.delete('/:bookingId', requirePermission(PERMISSIONS.MANAGE_ROOMS), deleteRoomBookingController);
 
 export default router;

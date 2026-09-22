@@ -7,6 +7,8 @@ import {
   getFileByIdController,
   updateFileController,
 } from '../../controllers/lx/fileController.js';
+import { requirePermission } from '../../middleware/lxRequirePermission.js';
+import { PERMISSIONS } from '../../helper/lxPermissions.js';
 
 const router = express.Router();
 const logger = createContextLogger('fileRoutes');
@@ -16,10 +18,10 @@ router.use((req, res, next) => {
   next();
 });
 
-router.post('/new', createFileController);
-router.get('/all', getAllFilesController);
-router.get('/:fileId', getFileByIdController);
-router.patch('/:fileId', updateFileController);
-router.delete('/:fileId', deleteFileController);
+router.post('/new', requirePermission(PERMISSIONS.UPLOAD_FILE), createFileController);
+router.get('/all', requirePermission(PERMISSIONS.VIEW_LX), getAllFilesController);
+router.get('/:fileId', requirePermission(PERMISSIONS.VIEW_LX), getFileByIdController);
+router.patch('/:fileId', requirePermission(PERMISSIONS.UPLOAD_FILE), updateFileController);
+router.delete('/:fileId', requirePermission(PERMISSIONS.DELETE_FILE), deleteFileController);
 
 export default router;

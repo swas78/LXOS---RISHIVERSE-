@@ -20,10 +20,10 @@ router.use((req, res, next) => {
 });
 
 router.post('/new', requirePermission(PERMISSIONS.SUBMIT_EXPENSE), createExpenseController);
-router.get('/all', getAllExpensesController);
-router.get('/:expenseId', getExpenseByIdController);
-router.patch('/:expenseId', updateExpenseController);
-router.delete('/:expenseId', deleteExpenseController);
+router.get('/all', requirePermission(PERMISSIONS.VIEW_LX), getAllExpensesController);
+router.get('/:expenseId', requirePermission(PERMISSIONS.VIEW_LX), getExpenseByIdController);
+router.patch('/:expenseId', requirePermission(PERMISSIONS.SUBMIT_EXPENSE), updateExpenseController);
+router.delete('/:expenseId', requirePermission(PERMISSIONS.SUBMIT_EXPENSE), deleteExpenseController);
 
 // Workflow action: Finance / Admin approve or reject an expense.
 router.post('/:expenseId/verify', requirePermission(PERMISSIONS.APPROVE_EXPENSE), verifyExpenseController);

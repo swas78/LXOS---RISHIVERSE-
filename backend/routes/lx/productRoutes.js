@@ -19,11 +19,11 @@ router.use((req, res, next) => {
   next();
 });
 
-router.post('/new', createProductController);
-router.get('/all', getAllProductsController);
-router.get('/:productId', getProductByIdController);
-router.patch('/:productId', updateProductController);
-router.delete('/:productId', deleteProductController);
+router.post('/new', requirePermission(PERMISSIONS.SUBMIT_PRODUCT), createProductController);
+router.get('/all', requirePermission(PERMISSIONS.VIEW_LX), getAllProductsController);
+router.get('/:productId', requirePermission(PERMISSIONS.VIEW_LX), getProductByIdController);
+router.patch('/:productId', requirePermission(PERMISSIONS.SUBMIT_PRODUCT), updateProductController);
+router.delete('/:productId', requirePermission(PERMISSIONS.SUBMIT_PRODUCT), deleteProductController);
 router.post('/:productId/review', requirePermission(PERMISSIONS.APPROVE_PRODUCT), reviewProductController);
 
 export default router;

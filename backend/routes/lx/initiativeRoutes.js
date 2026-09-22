@@ -24,8 +24,8 @@ router.use((req, res, next) => {
 // initiative, not one belonging to *another* clan. Which clan they may touch is
 // a row-level question, enforced in the service via assertClanWrite().
 router.post('/new', requirePermission(PERMISSIONS.MANAGE_CLAN_INITIATIVES), createInitiativeController);
-router.get('/all', getAllInitiativesController);
-router.get('/:initiativeId', getInitiativeByIdController);
+router.get('/all', requirePermission(PERMISSIONS.VIEW_LX), getAllInitiativesController);
+router.get('/:initiativeId', requirePermission(PERMISSIONS.VIEW_LX), getInitiativeByIdController);
 router.patch('/:initiativeId', requirePermission(PERMISSIONS.MANAGE_CLAN_INITIATIVES), updateInitiativeController);
 router.delete('/:initiativeId', requirePermission(PERMISSIONS.MANAGE_CLAN_INITIATIVES), deleteInitiativeController);
 

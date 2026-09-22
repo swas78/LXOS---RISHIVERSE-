@@ -21,10 +21,10 @@ router.use((req, res, next) => {
 });
 
 router.post('/new', requirePermission(PERMISSIONS.SUBMIT_REIMBURSEMENT), createReimbursementController);
-router.get('/all', getAllReimbursementsController);
-router.get('/:reimbursementId', getReimbursementByIdController);
-router.patch('/:reimbursementId', updateReimbursementController);
-router.delete('/:reimbursementId', deleteReimbursementController);
+router.get('/all', requirePermission(PERMISSIONS.VIEW_LX), getAllReimbursementsController);
+router.get('/:reimbursementId', requirePermission(PERMISSIONS.VIEW_LX), getReimbursementByIdController);
+router.patch('/:reimbursementId', requirePermission(PERMISSIONS.SUBMIT_REIMBURSEMENT), updateReimbursementController);
+router.delete('/:reimbursementId', requirePermission(PERMISSIONS.SUBMIT_REIMBURSEMENT), deleteReimbursementController);
 
 // Workflow actions.
 // LX / Admin approve or reject a pending claim.

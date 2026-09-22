@@ -20,6 +20,12 @@ export const ROLES = {
 };
 
 export const PERMISSIONS = {
+  // Baseline read. Every authenticated member holds it, so it is not a
+  // restriction today — it exists so that EVERY read route carries an explicit
+  // gate instead of being implicitly open. At integration this maps 1:1 onto
+  // core's checkPermission(ModelName.Lx, Permission.READ), which is the only
+  // reason the swap is mechanical rather than an audit of 20 route files.
+  VIEW_LX: 'VIEW_LX',
   // Events
   CREATE_EVENT: 'CREATE_EVENT',
   EDIT_EVENT: 'EDIT_EVENT',
@@ -52,7 +58,12 @@ export const PERMISSIONS = {
   SUBMIT_PRODUCT: 'SUBMIT_PRODUCT',
   APPROVE_PRODUCT: 'APPROVE_PRODUCT',
   // Files
+  /// Publish into the SHARED document library (/lx/file). Staff and leads only.
   UPLOAD_FILE: 'UPLOAD_FILE',
+  /// Attach bytes to your OWN submission — a reimbursement bill, a product
+  /// mockup, a lost-and-found photo. Everyone needs this; it is not a write
+  /// into shared space, so it is deliberately a separate verb.
+  UPLOAD_ATTACHMENT: 'UPLOAD_ATTACHMENT',
   DELETE_FILE: 'DELETE_FILE',
   // Lost & Found
   REPORT_LOST_FOUND: 'REPORT_LOST_FOUND',
@@ -73,6 +84,8 @@ const P = PERMISSIONS;
 export const rolePermissions = {
   [ROLES.ADMIN]: Object.values(PERMISSIONS), // everything
   [ROLES.LX_TEAM]: [
+    P.UPLOAD_ATTACHMENT,
+    P.VIEW_LX,
     P.REPORT_LOST_FOUND,
     P.BOOK_CABIN,
     P.CREATE_EVENT, P.EDIT_EVENT, P.APPROVE_EVENT, P.VIEW_ALL_EVENTS,
@@ -88,6 +101,8 @@ export const rolePermissions = {
     P.GENERATE_REPORT, P.MANAGE_SEMESTER,
   ],
   [ROLES.CLUB_HEAD]: [
+    P.UPLOAD_ATTACHMENT,
+    P.VIEW_LX,
     P.REPORT_LOST_FOUND,
     P.BOOK_CABIN,
     P.CREATE_EVENT, P.VIEW_ALL_EVENTS, P.BOOK_ROOM,
@@ -96,6 +111,8 @@ export const rolePermissions = {
     P.CREATE_ACHIEVEMENT, P.SUBMIT_PRODUCT, P.UPLOAD_FILE,
   ],
   [ROLES.CLAN_HEAD]: [
+    P.UPLOAD_ATTACHMENT,
+    P.VIEW_LX,
     P.REPORT_LOST_FOUND,
     P.BOOK_CABIN,
     P.CREATE_EVENT, P.VIEW_ALL_EVENTS, P.BOOK_ROOM,
@@ -105,10 +122,14 @@ export const rolePermissions = {
   ],
   // Library desk staff — the cabin board and nothing else.
   [ROLES.LIBRARIAN]: [
+    P.UPLOAD_ATTACHMENT,
+    P.VIEW_LX,
     P.REPORT_LOST_FOUND,
     P.BOOK_CABIN, P.MANAGE_LIBRARY_CABINS,
   ],
   [ROLES.FINANCE]: [
+    P.UPLOAD_ATTACHMENT,
+    P.VIEW_LX,
     P.REPORT_LOST_FOUND,
     P.BOOK_CABIN,
     P.VIEW_ALL_EVENTS, P.VIEW_ALL_CLUBS,
@@ -116,12 +137,16 @@ export const rolePermissions = {
     P.VIEW_ANALYTICS, P.VIEW_APPROVALS, P.GENERATE_REPORT,
     P.UPLOAD_FILE,
   ],
-  // General access — view public content, submit own achievements/products/files.
+  // General access — read public content, submit their OWN achievements and
+  // products, and attach files to those submissions. Deliberately NOT
+  // UPLOAD_FILE: the shared document library is not a student write surface.
   [ROLES.GUEST]: [
+    P.UPLOAD_ATTACHMENT,
+    P.VIEW_LX,
     P.REPORT_LOST_FOUND,
     P.BOOK_CABIN,
     P.VIEW_ALL_EVENTS, P.VIEW_ALL_CLUBS,
-    P.CREATE_ACHIEVEMENT, P.SUBMIT_PRODUCT, P.UPLOAD_FILE,
+    P.CREATE_ACHIEVEMENT, P.SUBMIT_PRODUCT,
   ],
 };
 

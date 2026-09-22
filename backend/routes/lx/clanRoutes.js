@@ -20,8 +20,8 @@ router.use((req, res, next) => {
 });
 
 router.post('/new', requirePermission(PERMISSIONS.MANAGE_CLANS), createClanController);
-router.get('/all', getAllClansController);
-router.get('/:clanId', getClanByIdController);
+router.get('/all', requirePermission(PERMISSIONS.VIEW_LX), getAllClansController);
+router.get('/:clanId', requirePermission(PERMISSIONS.VIEW_LX), getClanByIdController);
 router.patch('/:clanId', requirePermission(PERMISSIONS.MANAGE_CLANS), updateClanController);
 router.delete('/:clanId', requirePermission(PERMISSIONS.MANAGE_CLANS), deleteClanController);
 router.post('/:clanId/points', requirePermission(PERMISSIONS.ALLOCATE_CLAN_POINTS), manageClanPointsController);

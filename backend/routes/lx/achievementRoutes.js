@@ -20,10 +20,10 @@ router.use((req, res, next) => {
 });
 
 router.post('/new', requirePermission(PERMISSIONS.CREATE_ACHIEVEMENT), createAchievementController);
-router.get('/all', getAllAchievementsController);
-router.get('/:achievementId', getAchievementByIdController);
-router.patch('/:achievementId', updateAchievementController);
-router.delete('/:achievementId', deleteAchievementController);
+router.get('/all', requirePermission(PERMISSIONS.VIEW_LX), getAllAchievementsController);
+router.get('/:achievementId', requirePermission(PERMISSIONS.VIEW_LX), getAchievementByIdController);
+router.patch('/:achievementId', requirePermission(PERMISSIONS.CREATE_ACHIEVEMENT), updateAchievementController);
+router.delete('/:achievementId', requirePermission(PERMISSIONS.CREATE_ACHIEVEMENT), deleteAchievementController);
 router.post('/:achievementId/review', requirePermission(PERMISSIONS.APPROVE_ACHIEVEMENT), reviewAchievementController);
 
 export default router;

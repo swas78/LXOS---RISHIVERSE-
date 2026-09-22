@@ -19,8 +19,8 @@ router.use((req, res, next) => {
 });
 
 router.post('/new', requirePermission(PERMISSIONS.MANAGE_CLUBS), createClubController);
-router.get('/all', getAllClubsController);
-router.get('/:clubId', getClubByIdController);
+router.get('/all', requirePermission(PERMISSIONS.VIEW_LX), getAllClubsController);
+router.get('/:clubId', requirePermission(PERMISSIONS.VIEW_LX), getClubByIdController);
 router.patch('/:clubId', requirePermission(PERMISSIONS.MANAGE_CLUBS), updateClubController);
 router.delete('/:clubId', requirePermission(PERMISSIONS.MANAGE_CLUBS), deleteClubController);
 

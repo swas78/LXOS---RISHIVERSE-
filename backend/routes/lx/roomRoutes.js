@@ -20,8 +20,8 @@ router.use((req, res, next) => {
 
 // Managing rooms (create/edit/delete) is admin-only (MANAGE_ROOMS).
 router.post('/new', requirePermission(PERMISSIONS.MANAGE_ROOMS), createRoomController);
-router.get('/all', getAllRoomsController);
-router.get('/:roomId', getRoomByIdController);
+router.get('/all', requirePermission(PERMISSIONS.VIEW_LX), getAllRoomsController);
+router.get('/:roomId', requirePermission(PERMISSIONS.VIEW_LX), getRoomByIdController);
 router.patch('/:roomId', requirePermission(PERMISSIONS.MANAGE_ROOMS), updateRoomController);
 router.delete('/:roomId', requirePermission(PERMISSIONS.MANAGE_ROOMS), deleteRoomController);
 

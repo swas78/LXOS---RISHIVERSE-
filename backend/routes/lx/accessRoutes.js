@@ -12,9 +12,9 @@ const router = express.Router();
 // Access management is admin-only (MANAGE_ACCESS → ADMIN).
 router.use(requirePermission(PERMISSIONS.MANAGE_ACCESS));
 
-router.get('/', getAccessController);
-router.get('/all', getAccessController);
-router.post('/assign', assignAccessController);
-router.post('/remove', removeAccessController);
+router.get('/', requirePermission(PERMISSIONS.VIEW_LX), getAccessController);
+router.get('/all', requirePermission(PERMISSIONS.VIEW_LX), getAccessController);
+router.post('/assign', requirePermission(PERMISSIONS.MANAGE_ACCESS), assignAccessController);
+router.post('/remove', requirePermission(PERMISSIONS.MANAGE_ACCESS), removeAccessController);
 
 export default router;
