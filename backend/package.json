@@ -12,7 +12,9 @@
     "start": "node server.js",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
-    "prisma:push": "prisma db push"
+    "prisma:push": "prisma db push",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
@@ -21,6 +23,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "prettier": "^3.9.8",
     "prisma": "^6.19.0"
   }
 }

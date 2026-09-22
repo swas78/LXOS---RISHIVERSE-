@@ -1,0 +1,3527 @@
+{
+  "info": {
+    "name": "LX \u2014 Learner Experience OS",
+    "description": "Every /api/v1/lx endpoint, generated from routes/lx/*.js so it cannot drift from the code.\n\nVariables: baseUrl (default http://localhost:3010/api/v1), actorRef.\n\nAT HANDOFF: the x-lx-actor-ref header is the kit's dev auth shim. Replace it with `Authorization: Bearer {{accessToken}}` \u2014 identity then comes from the JWT and the header is ignored.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3010/api/v1"
+    },
+    {
+      "key": "actorRef",
+      "value": "EMP0417",
+      "description": "Seeded ADMIN. Dev shim only."
+    }
+  ],
+  "item": [
+    {
+      "name": "access",
+      "item": [
+        {
+          "name": "GET /lx/access",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/access",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "access"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        },
+        {
+          "name": "GET /lx/access/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/access/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "access",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        },
+        {
+          "name": "POST /lx/access/assign",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/access/assign",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "access",
+                "assign"
+              ]
+            },
+            "description": "Permission: MANAGE_ACCESS \u00b7 Validates body with assignAccessSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /lx/access/remove",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/access/remove",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "access",
+                "remove"
+              ]
+            },
+            "description": "Permission: MANAGE_ACCESS \u00b7 Validates body with removeAccessSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "achievement",
+      "item": [
+        {
+          "name": "POST /lx/achievement/new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/achievement/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "achievement",
+                "new"
+              ]
+            },
+            "description": "Permission: CREATE_ACHIEVEMENT \u00b7 Validates body with createAchievementSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /lx/achievement/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/achievement/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "achievement",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_LX \u00b7 Validates query with getAllAchievementsSchema"
+          }
+        },
+        {
+          "name": "GET /lx/achievement/:achievementId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/achievement/:achievementId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "achievement",
+                ":achievementId"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        },
+        {
+          "name": "PATCH /lx/achievement/:achievementId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/achievement/:achievementId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "achievement",
+                ":achievementId"
+              ]
+            },
+            "description": "Permission: CREATE_ACHIEVEMENT \u00b7 Validates body with updateAchievementSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /lx/achievement/:achievementId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/achievement/:achievementId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "achievement",
+                ":achievementId"
+              ]
+            },
+            "description": "Permission: CREATE_ACHIEVEMENT"
+          }
+        },
+        {
+          "name": "POST /lx/achievement/:achievementId/review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/achievement/:achievementId/review",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "achievement",
+                ":achievementId",
+                "review"
+              ]
+            },
+            "description": "Permission: APPROVE_ACHIEVEMENT \u00b7 Validates body with reviewAchievementSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "analytics",
+      "item": [
+        {
+          "name": "GET /lx/analytics/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/analytics/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "analytics",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_ANALYTICS"
+          }
+        }
+      ]
+    },
+    {
+      "name": "approval",
+      "item": [
+        {
+          "name": "GET /lx/approval/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/approval/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "approval",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_APPROVALS"
+          }
+        },
+        {
+          "name": "POST /lx/approval/act",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/approval/act",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "approval",
+                "act"
+              ]
+            },
+            "description": "Permission: VIEW_APPROVALS \u00b7 Validates body with actOnApprovalSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "budget",
+      "item": [
+        {
+          "name": "GET /lx/budget/summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/budget/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "budget",
+                "summary"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        }
+      ]
+    },
+    {
+      "name": "cabin",
+      "item": [
+        {
+          "name": "GET /lx/cabin/board",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/cabin/board",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "cabin",
+                "board"
+              ]
+            },
+            "description": "Permission: BOOK_CABIN \u00b7 Validates query with availabilityQuerySchema"
+          }
+        },
+        {
+          "name": "GET /lx/cabin/directory",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/cabin/directory",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "cabin",
+                "directory"
+              ]
+            },
+            "description": "Permission: BOOK_CABIN \u00b7 Validates query with directoryQuerySchema"
+          }
+        },
+        {
+          "name": "GET /lx/cabin/booking/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/cabin/booking/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "cabin",
+                "booking",
+                "all"
+              ]
+            },
+            "description": "Permission: BOOK_CABIN \u00b7 Validates query with listBookingsSchema"
+          }
+        },
+        {
+          "name": "POST /lx/cabin/booking/new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/cabin/booking/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "cabin",
+                "booking",
+                "new"
+              ]
+            },
+            "description": "Permission: BOOK_CABIN \u00b7 Validates body with createCabinBookingSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /lx/cabin/booking/:bookingId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/cabin/booking/:bookingId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "cabin",
+                "booking",
+                ":bookingId"
+              ]
+            },
+            "description": "Permission: BOOK_CABIN \u00b7 Validates body with bookingActionSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /lx/cabin/desk/board",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/cabin/desk/board",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "cabin",
+                "desk",
+                "board"
+              ]
+            },
+            "description": "Permission: MANAGE_LIBRARY_CABINS \u00b7 Validates query with boardQuerySchema"
+          }
+        },
+        {
+          "name": "GET /lx/cabin/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/cabin/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "cabin",
+                "all"
+              ]
+            },
+            "description": "Permission: MANAGE_LIBRARY_CABINS"
+          }
+        },
+        {
+          "name": "POST /lx/cabin/new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/cabin/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "cabin",
+                "new"
+              ]
+            },
+            "description": "Permission: MANAGE_LIBRARY_CABINS \u00b7 Validates body with createCabinSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /lx/cabin/:cabinId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/cabin/:cabinId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "cabin",
+                ":cabinId"
+              ]
+            },
+            "description": "Permission: MANAGE_LIBRARY_CABINS \u00b7 Validates body with updateCabinSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /lx/cabin/:cabinId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/cabin/:cabinId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "cabin",
+                ":cabinId"
+              ]
+            },
+            "description": "Permission: MANAGE_LIBRARY_CABINS"
+          }
+        },
+        {
+          "name": "GET /lx/cabin/block/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/cabin/block/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "cabin",
+                "block",
+                "all"
+              ]
+            },
+            "description": "Permission: MANAGE_LIBRARY_CABINS"
+          }
+        },
+        {
+          "name": "POST /lx/cabin/block/new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/cabin/block/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "cabin",
+                "block",
+                "new"
+              ]
+            },
+            "description": "Permission: MANAGE_LIBRARY_CABINS \u00b7 Validates body with createBlockSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "PATCH /lx/cabin/block/:blockId/lift",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/cabin/block/:blockId/lift",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "cabin",
+                "block",
+                ":blockId",
+                "lift"
+              ]
+            },
+            "description": "Permission: MANAGE_LIBRARY_CABINS \u00b7 Validates body with liftBlockSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "calendar",
+      "item": [
+        {
+          "name": "GET /lx/calendar/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/calendar/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "calendar",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        }
+      ]
+    },
+    {
+      "name": "clan",
+      "item": [
+        {
+          "name": "POST /lx/clan/new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/clan/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "clan",
+                "new"
+              ]
+            },
+            "description": "Permission: MANAGE_CLANS \u00b7 Validates body with createClanSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /lx/clan/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/clan/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "clan",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_LX \u00b7 Validates query with getAllClansSchema"
+          }
+        },
+        {
+          "name": "GET /lx/clan/:clanId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/clan/:clanId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "clan",
+                ":clanId"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        },
+        {
+          "name": "PATCH /lx/clan/:clanId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/clan/:clanId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "clan",
+                ":clanId"
+              ]
+            },
+            "description": "Permission: MANAGE_CLANS \u00b7 Validates body with updateClanSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /lx/clan/:clanId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/clan/:clanId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "clan",
+                ":clanId"
+              ]
+            },
+            "description": "Permission: MANAGE_CLANS"
+          }
+        },
+        {
+          "name": "POST /lx/clan/:clanId/points",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/clan/:clanId/points",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "clan",
+                ":clanId",
+                "points"
+              ]
+            },
+            "description": "Permission: ALLOCATE_CLAN_POINTS \u00b7 Validates body with manageClanPointsSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "club",
+      "item": [
+        {
+          "name": "POST /lx/club/new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/club/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "club",
+                "new"
+              ]
+            },
+            "description": "Permission: MANAGE_CLUBS \u00b7 Validates body with createClubSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /lx/club/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/club/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "club",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_LX \u00b7 Validates query with getAllClubsSchema"
+          }
+        },
+        {
+          "name": "GET /lx/club/:clubId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/club/:clubId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "club",
+                ":clubId"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        },
+        {
+          "name": "PATCH /lx/club/:clubId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/club/:clubId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "club",
+                ":clubId"
+              ]
+            },
+            "description": "Permission: MANAGE_CLUBS \u00b7 Validates body with updateClubSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /lx/club/:clubId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/club/:clubId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "club",
+                ":clubId"
+              ]
+            },
+            "description": "Permission: MANAGE_CLUBS"
+          }
+        }
+      ]
+    },
+    {
+      "name": "dashboard",
+      "item": [
+        {
+          "name": "GET /lx/dashboard/stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/dashboard/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "dashboard",
+                "stats"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        }
+      ]
+    },
+    {
+      "name": "event",
+      "item": [
+        {
+          "name": "POST /lx/event/new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/event/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "event",
+                "new"
+              ]
+            },
+            "description": "Permission: CREATE_EVENT \u00b7 Validates body with createEventSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /lx/event/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/event/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "event",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_LX \u00b7 Validates query with getAllEventsSchema"
+          }
+        },
+        {
+          "name": "POST /lx/event/availability",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/event/availability",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "event",
+                "availability"
+              ]
+            },
+            "description": "Permission: VIEW_LX \u00b7 Validates body with availabilitySchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /lx/event/:eventId/approve",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/event/:eventId/approve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "event",
+                ":eventId",
+                "approve"
+              ]
+            },
+            "description": "Permission: APPROVE_EVENT \u00b7 Validates body with approveEventSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /lx/event/:eventId/complete",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/event/:eventId/complete",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "event",
+                ":eventId",
+                "complete"
+              ]
+            },
+            "description": "Permission: APPROVE_EVENT",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /lx/event/:eventId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/event/:eventId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "event",
+                ":eventId"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        },
+        {
+          "name": "PATCH /lx/event/:eventId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/event/:eventId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "event",
+                ":eventId"
+              ]
+            },
+            "description": "Permission: EDIT_EVENT \u00b7 Validates body with updateEventSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /lx/event/:eventId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/event/:eventId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "event",
+                ":eventId"
+              ]
+            },
+            "description": "Permission: DELETE_EVENT"
+          }
+        }
+      ]
+    },
+    {
+      "name": "expense",
+      "item": [
+        {
+          "name": "POST /lx/expense/new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/expense/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "expense",
+                "new"
+              ]
+            },
+            "description": "Permission: SUBMIT_EXPENSE \u00b7 Validates body with createExpenseSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /lx/expense/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/expense/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "expense",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_LX \u00b7 Validates query with getAllExpensesSchema"
+          }
+        },
+        {
+          "name": "GET /lx/expense/:expenseId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/expense/:expenseId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "expense",
+                ":expenseId"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        },
+        {
+          "name": "PATCH /lx/expense/:expenseId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/expense/:expenseId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "expense",
+                ":expenseId"
+              ]
+            },
+            "description": "Permission: SUBMIT_EXPENSE \u00b7 Validates body with updateExpenseSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /lx/expense/:expenseId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/expense/:expenseId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "expense",
+                ":expenseId"
+              ]
+            },
+            "description": "Permission: SUBMIT_EXPENSE"
+          }
+        },
+        {
+          "name": "POST /lx/expense/:expenseId/verify",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/expense/:expenseId/verify",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "expense",
+                ":expenseId",
+                "verify"
+              ]
+            },
+            "description": "Permission: APPROVE_EXPENSE \u00b7 Validates body with verifyExpenseSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "feed",
+      "item": [
+        {
+          "name": "GET /lx/feed/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/feed/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "feed",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        }
+      ]
+    },
+    {
+      "name": "file",
+      "item": [
+        {
+          "name": "POST /lx/file/new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/file/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "file",
+                "new"
+              ]
+            },
+            "description": "Permission: UPLOAD_FILE \u00b7 Validates body with createFileSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /lx/file/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/file/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "file",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_LX \u00b7 Validates query with getAllFilesSchema"
+          }
+        },
+        {
+          "name": "GET /lx/file/:fileId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/file/:fileId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "file",
+                ":fileId"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        },
+        {
+          "name": "PATCH /lx/file/:fileId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/file/:fileId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "file",
+                ":fileId"
+              ]
+            },
+            "description": "Permission: UPLOAD_FILE \u00b7 Validates body with updateFileSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /lx/file/:fileId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/file/:fileId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "file",
+                ":fileId"
+              ]
+            },
+            "description": "Permission: DELETE_FILE"
+          }
+        }
+      ]
+    },
+    {
+      "name": "initiative",
+      "item": [
+        {
+          "name": "POST /lx/initiative/new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/initiative/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "initiative",
+                "new"
+              ]
+            },
+            "description": "Permission: MANAGE_CLAN_INITIATIVES \u00b7 Validates body with createInitiativeSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /lx/initiative/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/initiative/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "initiative",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_LX \u00b7 Validates query with getAllInitiativesSchema"
+          }
+        },
+        {
+          "name": "GET /lx/initiative/:initiativeId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/initiative/:initiativeId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "initiative",
+                ":initiativeId"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        },
+        {
+          "name": "PATCH /lx/initiative/:initiativeId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/initiative/:initiativeId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "initiative",
+                ":initiativeId"
+              ]
+            },
+            "description": "Permission: MANAGE_CLAN_INITIATIVES \u00b7 Validates body with updateInitiativeSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /lx/initiative/:initiativeId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/initiative/:initiativeId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "initiative",
+                ":initiativeId"
+              ]
+            },
+            "description": "Permission: MANAGE_CLAN_INITIATIVES"
+          }
+        }
+      ]
+    },
+    {
+      "name": "lostFound",
+      "item": [
+        {
+          "name": "GET /lx/lost-found/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/lost-found/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "lost-found",
+                "all"
+              ]
+            },
+            "description": "Permission: REPORT_LOST_FOUND \u00b7 Validates query with getAllLostFoundSchema"
+          }
+        },
+        {
+          "name": "POST /lx/lost-found/new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/lost-found/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "lost-found",
+                "new"
+              ]
+            },
+            "description": "Permission: REPORT_LOST_FOUND \u00b7 Validates body with createLostFoundSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /lx/lost-found/:itemId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/lost-found/:itemId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "lost-found",
+                ":itemId"
+              ]
+            },
+            "description": "Permission: REPORT_LOST_FOUND"
+          }
+        },
+        {
+          "name": "PATCH /lx/lost-found/:itemId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/lost-found/:itemId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "lost-found",
+                ":itemId"
+              ]
+            },
+            "description": "Permission: REPORT_LOST_FOUND \u00b7 Validates body with updateLostFoundSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /lx/lost-found/:itemId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/lost-found/:itemId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "lost-found",
+                ":itemId"
+              ]
+            },
+            "description": "Permission: REPORT_LOST_FOUND"
+          }
+        },
+        {
+          "name": "POST /lx/lost-found/:itemId/resolve",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/lost-found/:itemId/resolve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "lost-found",
+                ":itemId",
+                "resolve"
+              ]
+            },
+            "description": "Permission: REPORT_LOST_FOUND \u00b7 Validates body with resolveLostFoundSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /lx/lost-found/:itemId/review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/lost-found/:itemId/review",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "lost-found",
+                ":itemId",
+                "review"
+              ]
+            },
+            "description": "Permission: APPROVE_LOST_FOUND \u00b7 Validates body with reviewLostFoundSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "product",
+      "item": [
+        {
+          "name": "POST /lx/product/new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/product/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "product",
+                "new"
+              ]
+            },
+            "description": "Permission: SUBMIT_PRODUCT \u00b7 Validates body with createProductSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /lx/product/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/product/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "product",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_LX \u00b7 Validates query with getAllProductsSchema"
+          }
+        },
+        {
+          "name": "GET /lx/product/:productId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/product/:productId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "product",
+                ":productId"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        },
+        {
+          "name": "PATCH /lx/product/:productId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/product/:productId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "product",
+                ":productId"
+              ]
+            },
+            "description": "Permission: SUBMIT_PRODUCT \u00b7 Validates body with updateProductSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /lx/product/:productId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/product/:productId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "product",
+                ":productId"
+              ]
+            },
+            "description": "Permission: SUBMIT_PRODUCT"
+          }
+        },
+        {
+          "name": "POST /lx/product/:productId/review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/product/:productId/review",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "product",
+                ":productId",
+                "review"
+              ]
+            },
+            "description": "Permission: APPROVE_PRODUCT \u00b7 Validates body with reviewProductSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "reimbursement",
+      "item": [
+        {
+          "name": "POST /lx/reimbursement/new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/reimbursement/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "reimbursement",
+                "new"
+              ]
+            },
+            "description": "Permission: SUBMIT_REIMBURSEMENT \u00b7 Validates body with createReimbursementSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /lx/reimbursement/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/reimbursement/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "reimbursement",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_LX \u00b7 Validates query with getAllReimbursementsSchema"
+          }
+        },
+        {
+          "name": "GET /lx/reimbursement/:reimbursementId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/reimbursement/:reimbursementId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "reimbursement",
+                ":reimbursementId"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        },
+        {
+          "name": "PATCH /lx/reimbursement/:reimbursementId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/reimbursement/:reimbursementId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "reimbursement",
+                ":reimbursementId"
+              ]
+            },
+            "description": "Permission: SUBMIT_REIMBURSEMENT \u00b7 Validates body with updateReimbursementSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /lx/reimbursement/:reimbursementId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/reimbursement/:reimbursementId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "reimbursement",
+                ":reimbursementId"
+              ]
+            },
+            "description": "Permission: SUBMIT_REIMBURSEMENT"
+          }
+        },
+        {
+          "name": "POST /lx/reimbursement/:reimbursementId/review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/reimbursement/:reimbursementId/review",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "reimbursement",
+                ":reimbursementId",
+                "review"
+              ]
+            },
+            "description": "Permission: REVIEW_REIMBURSEMENT \u00b7 Validates body with reviewReimbursementSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /lx/reimbursement/:reimbursementId/process",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/reimbursement/:reimbursementId/process",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "reimbursement",
+                ":reimbursementId",
+                "process"
+              ]
+            },
+            "description": "Permission: PROCESS_REIMBURSEMENT \u00b7 Validates body with processReimbursementSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "report",
+      "item": [
+        {
+          "name": "GET /lx/report/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/report/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "report",
+                "all"
+              ]
+            },
+            "description": "Permission: GENERATE_REPORT"
+          }
+        },
+        {
+          "name": "GET /lx/report/csv",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/report/csv",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "report",
+                "csv"
+              ]
+            },
+            "description": "Permission: GENERATE_REPORT"
+          }
+        },
+        {
+          "name": "GET /lx/report/semesters",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/report/semesters",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "report",
+                "semesters"
+              ]
+            },
+            "description": "Permission: GENERATE_REPORT"
+          }
+        },
+        {
+          "name": "POST /lx/report/rollover",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/report/rollover",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "report",
+                "rollover"
+              ]
+            },
+            "description": "Permission: MANAGE_SEMESTER \u00b7 Validates body with rolloverSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "roomBooking",
+      "item": [
+        {
+          "name": "POST /lx/room-booking/availability",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/room-booking/availability",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "room-booking",
+                "availability"
+              ]
+            },
+            "description": "Permission: VIEW_LX \u00b7 Validates body with roomBookingAvailabilitySchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /lx/room-booking/new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/room-booking/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "room-booking",
+                "new"
+              ]
+            },
+            "description": "Permission: BOOK_ROOM \u00b7 Validates body with createRoomBookingSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /lx/room-booking/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/room-booking/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "room-booking",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_LX \u00b7 Validates query with getAllRoomBookingsSchema"
+          }
+        },
+        {
+          "name": "GET /lx/room-booking/:bookingId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/room-booking/:bookingId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "room-booking",
+                ":bookingId"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        },
+        {
+          "name": "POST /lx/room-booking/:bookingId/review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/room-booking/:bookingId/review",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "room-booking",
+                ":bookingId",
+                "review"
+              ]
+            },
+            "description": "Permission: APPROVE_BOOKING \u00b7 Validates body with reviewRoomBookingSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "POST /lx/room-booking/:bookingId/cancel",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/room-booking/:bookingId/cancel",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "room-booking",
+                ":bookingId",
+                "cancel"
+              ]
+            },
+            "description": "Permission: BOOK_ROOM",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /lx/room-booking/:bookingId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/room-booking/:bookingId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "room-booking",
+                ":bookingId"
+              ]
+            },
+            "description": "Permission: MANAGE_ROOMS"
+          }
+        }
+      ]
+    },
+    {
+      "name": "room",
+      "item": [
+        {
+          "name": "POST /lx/room/new",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/room/new",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "room",
+                "new"
+              ]
+            },
+            "description": "Permission: MANAGE_ROOMS \u00b7 Validates body with createRoomSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /lx/room/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/room/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "room",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_LX \u00b7 Validates query with getAllRoomsSchema"
+          }
+        },
+        {
+          "name": "GET /lx/room/:roomId",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/room/:roomId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "room",
+                ":roomId"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        },
+        {
+          "name": "PATCH /lx/room/:roomId",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/room/:roomId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "room",
+                ":roomId"
+              ]
+            },
+            "description": "Permission: MANAGE_ROOMS \u00b7 Validates body with updateRoomSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "DELETE /lx/room/:roomId",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/room/:roomId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "room",
+                ":roomId"
+              ]
+            },
+            "description": "Permission: MANAGE_ROOMS"
+          }
+        }
+      ]
+    },
+    {
+      "name": "upload",
+      "item": [
+        {
+          "name": "POST /lx/upload/presigned-url",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/upload/presigned-url",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "upload",
+                "presigned-url"
+              ]
+            },
+            "description": "Permission: UPLOAD_ATTACHMENT \u00b7 Validates body with presignedUrlSchema",
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "GET /lx/upload/object/:key",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/upload/object/:key",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "upload",
+                "object",
+                ":key"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        }
+      ]
+    },
+    {
+      "name": "user",
+      "item": [
+        {
+          "name": "GET /lx/user/all",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/user/all",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "user",
+                "all"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        },
+        {
+          "name": "GET /lx/user/me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "x-lx-actor-ref",
+                "value": "{{actorRef}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/lx/user/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "lx",
+                "user",
+                "me"
+              ]
+            },
+            "description": "Permission: VIEW_LX"
+          }
+        }
+      ]
+    }
+  ]
+}
