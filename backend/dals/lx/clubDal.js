@@ -98,8 +98,6 @@ export const getAllClubsDal = async ({
       totalCount: total,
       totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
       data: clubs,
-      hasNextPage: page * limit < total,
-      hasPreviousPage: page > 1,
     };
   } catch (error) {
     logger.error('Error in getAllClubsDal', {

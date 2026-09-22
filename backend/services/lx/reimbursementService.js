@@ -19,8 +19,8 @@ const logger = createContextLogger('reimbursementService');
 // way out only.
 const withBillUrls = (row) => (row ? { ...row, bills: withResolvedUrls(row.bills) } : row);
 
-// NOTE: nothing here logs `payload` or `bankDetails`. Under D3 those are PII
-// even behind the demo flag — log ids and errors, never the claim body.
+// NOTE: nothing here logs `payload`. A claim body carries amounts and a
+// payoutRef that identifies a person — log ids and errors, never the body.
 
 export const createReimbursementService = async (payload, actor) => {
   try {
@@ -108,8 +108,6 @@ export const getAllReimbursementsService = async (query, actor) => {
         totalCount: result.totalCount,
         totalPages: result.totalPages,
         totalPages: result.totalPages,
-        hasNextPage: result.hasNextPage,
-        hasPreviousPage: result.hasPreviousPage,
       },
     };
   } catch (error) {

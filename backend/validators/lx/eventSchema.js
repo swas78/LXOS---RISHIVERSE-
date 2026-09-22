@@ -112,7 +112,7 @@ export const getAllEventsSchema = z.object({
     if (val === undefined || val === null) return undefined;
     if (typeof val === 'string') return parseInt(val, 10);
     return val;
-  }, z.number().int().min(1).max(100).default(12)),
+  }, z.number().int().min(1).max(100).default(10)),
   sortBy: z.enum(LX_EVENT_SORT_BY).optional().default('startDate'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('asc'),
 });

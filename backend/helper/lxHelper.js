@@ -6,18 +6,21 @@ export const normalizeSortOrder = (order, fallback = 'desc') =>
 
 // Build the standard pagination block from a total count.
 //
-// Shape is fixed by lxos-core-pack/api-envelope.md — core's own
-// `buildPaginationMeta` returns exactly { page, limit, totalCount, totalPages }.
-// `hasNextPage` / `hasPreviousPage` are additive conveniences for the kit UI;
-// they can be dropped at handoff without breaking core clients.
+// EXACTLY core's `buildPaginationMeta`: { page, limit, totalCount, totalPages }.
+// Nothing more. The kit previously added hasNextPage / hasPreviousPage, which
+// clients then read — making the kit's response shape a superset of core's and
+// quietly guaranteeing a break at integration. A client can derive both from
+// page and totalPages.
 export const buildPagination = (page, limit, totalCount) => ({
   page,
   limit,
   totalCount,
   totalPages: limit > 0 ? Math.ceil(totalCount / limit) : 0,
-  hasNextPage: page * limit < totalCount,
-  hasPreviousPage: page > 1,
 });
+
+// Core's default page size. The kit used 12 (and 24/50/60 in places), which
+// silently changes how every list paginates once it lands in core.
+export const DEFAULT_PAGE_LIMIT = 10;
 
 // Compute skip for a page/limit pair.
 export const pageSkip = (page, limit) => (page - 1) * limit;

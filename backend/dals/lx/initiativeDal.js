@@ -98,8 +98,6 @@ export const getAllInitiativesDal = async ({
       totalCount: total,
       totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
       data: initiatives,
-      hasNextPage: page * limit < total,
-      hasPreviousPage: page > 1,
     };
   } catch (error) {
     logger.error('Error in getAllInitiativesDal', {

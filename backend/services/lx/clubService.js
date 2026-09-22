@@ -68,8 +68,6 @@ export const getAllClubsService = async (query, actor) => {
         limit: result.limit,
         totalCount: result.totalCount,
         totalPages: result.totalPages,
-        hasNextPage: result.hasNextPage,
-        hasPreviousPage: result.hasPreviousPage,
       },
     };
   } catch (error) {

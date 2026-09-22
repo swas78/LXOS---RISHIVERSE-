@@ -104,8 +104,6 @@ export const getAllFilesDal = async ({
       totalCount: total,
       totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
       data: files,
-      hasNextPage: page * limit < total,
-      hasPreviousPage: page > 1,
     };
   } catch (error) {
     logger.error('Error in getAllFilesDal', {

@@ -351,9 +351,7 @@ async function main() {
   // ---- Reimbursements (workflow states) ----
   //
   // `payoutRef` points at WHO to pay; Finance resolves the actual account from
-  // `Student.bank*` in core. `bankDetails` stays empty here — it is only ever
-  // populated when LX_COLLECT_BANK=true (a documented D3 violation, off by
-  // default). See prisma/models/lx/reimbursementModel.prisma.
+  // `Student.bank*` in core. This module stores no account numbers at all.
   const payTo = (m) => `student-bank:${m.referenceId}`;
   await prisma.lxReimbursement.createMany({
     data: [

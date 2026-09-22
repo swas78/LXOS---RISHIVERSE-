@@ -90,8 +90,6 @@ export const getAllRoomsDal = async ({
       totalCount: total,
       totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
       data: rooms,
-      hasNextPage: page * limit < total,
-      hasPreviousPage: page > 1,
     };
   } catch (error) {
     logger.error('Error in getAllRoomsDal', {

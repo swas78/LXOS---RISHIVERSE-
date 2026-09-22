@@ -51,19 +51,6 @@ model LxReimbursement {
   /// claim has actually been paid out. Free text, e.g. "NEFT/2026/0042".
   payoutTxnRef String?
 
-  /// ⚠️ D3 VIOLATION — OFF BY DEFAULT. DO NOT SHIP ENABLED.
-  ///
-  /// Raw { accountHolderName, accountNumber, ifsc } captured in the LX form.
-  /// Only ever populated when `LX_COLLECT_BANK=true`, which exists solely so
-  /// the standalone kit can be demoed without a core `Student` table to read
-  /// bank details from. The flag defaults to false and MUST stay false at
-  /// handoff — core forbids plaintext bank columns in `lx_` tables.
-  ///
-  /// When the flag is off this column stays `{}` and `payoutRef` is the only
-  /// payout information stored. Deleting the column is the intended endgame;
-  /// it survives now only to keep the local demo self-contained.
-  bankDetails Json @default("{}")
-
   /// Array of bill/receipt attachment pointers. Same shape as LxExpense.bills:
   /// { s3Path, fileName, contentType, size, uploadedAt }. Store the s3Path
   /// pointer only — never a public bucket URL. See lxos-core-pack/upload.md.

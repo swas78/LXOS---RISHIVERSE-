@@ -1,14 +1,5 @@
 // LX Reimbursement constants.
 
-/**
- * D3 (lxos-core-pack/payouts.md) forbids LXOS from holding account numbers or
- * IFSC codes — they already live on core's `Student` row. This flag exists only
- * so the standalone kit can be demoed with no core profile to read from, and it
- * MUST stay false at handoff. Read once at boot: `dotenv/config` runs in
- * server.js before anything imports this module.
- */
-export const COLLECT_BANK_DETAILS = process.env.LX_COLLECT_BANK === 'true';
-
 /** `payoutRef` points at a person, never at credentials: "student-bank:<enrollmentNo>". */
 export const PAYOUT_REF_PREFIX = 'student-bank:';
 
@@ -40,8 +31,6 @@ export const LX_REIMBURSEMENT_EDITABLE_FIELDS = [
   'clubName',
   'clanId',
   'clanName',
-  // `bankDetails` is deliberately absent: it is captured at submit time only
-  // (and only under COLLECT_BANK_DETAILS), never edited afterwards.
   'bills',
   'notes',
 ];

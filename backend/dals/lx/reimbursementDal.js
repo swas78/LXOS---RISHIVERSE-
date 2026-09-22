@@ -1,6 +1,5 @@
 import createContextLogger from '../../logger/contextLogger.js';
 import prisma from '../../services/prismaClient.js';
-import { COLLECT_BANK_DETAILS } from '../../constants/lxReimbursementConstant.js';
 
 const logger = createContextLogger('reimbursementDal');
 
@@ -19,7 +18,6 @@ export const createReimbursementDal = async (payload) => {
       clubName,
       clanId,
       clanName,
-      bankDetails,
       bills,
       notes,
       payoutRef,
@@ -41,9 +39,6 @@ export const createReimbursementDal = async (payload) => {
         clubName: clubName ?? null,
         clanId: clanId ?? null,
         clanName: clanName ?? null,
-        // Last line of defence for D3: with the demo flag off this column stays
-        // empty no matter what reached the service.
-        bankDetails: COLLECT_BANK_DETAILS ? (bankDetails ?? {}) : {},
         bills: bills ?? [],
         notes: notes ?? null,
         payoutRef: payoutRef ?? null,
@@ -120,8 +115,6 @@ export const getAllReimbursementsDal = async ({
       totalPages: limit > 0 ? Math.ceil(total / limit) : 0,
       totalPages: Math.ceil(total / limit),
       data: reimbursements,
-      hasNextPage: page * limit < total,
-      hasPreviousPage: page > 1,
     };
   } catch (error) {
     logger.error('Error in getAllReimbursementsDal', {

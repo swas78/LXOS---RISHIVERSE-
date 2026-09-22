@@ -56,7 +56,7 @@ export const getAllLostFoundSchema = z.object({
   /// BOARD = the public noticeboard, PENDING = the review queue, MINE = my reports.
   scope: z.enum(['BOARD', 'PENDING', 'MINE', 'RESOLVED']).optional().default('BOARD'),
   page: z.coerce.number().int().min(1).optional().default(1),
-  limit: z.coerce.number().int().min(1).max(100).optional().default(12),
+  limit: z.coerce.number().int().min(1).max(100).optional().default(10),
   sortBy: z.enum(LX_LOST_FOUND_SORT_BY).optional().default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 });

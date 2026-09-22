@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import {
-  COLLECT_BANK_DETAILS,
   LX_REIMBURSEMENT_CATEGORIES,
   LX_REIMBURSEMENT_MAX_BILLS,
   LX_REIMBURSEMENT_STATUSES,
@@ -28,23 +27,6 @@ const createBillsField = billsArray({ required_error: AT_LEAST_ONE_BILL }).min(
 
 const updateBillsField = billsArray().optional();
 
-// ⚠️ D3 VIOLATION, FLAG-GATED. See COLLECT_BANK_DETAILS. When the flag is off
-// the key is simply absent from the shape, so zod's default strip drops any
-// `bankDetails` a stale client still sends — it never reaches the service.
-const bankDetailsSchema = z.object({
-  accountHolderName: z.string().trim().min(1, 'accountHolderName is required').max(200),
-  accountNumber: z
-    .string()
-    .trim()
-    .regex(/^\d{9,18}$/, 'accountNumber must be 9-18 digits'),
-  ifsc: z.preprocess(
-    (val) => (typeof val === 'string' ? val.trim().toUpperCase() : val),
-    z.string().regex(/^[A-Z]{4}0[A-Z0-9]{6}$/, 'ifsc must look like HDFC0001234'),
-  ),
-});
-
-const bankDetailsShape = COLLECT_BANK_DETAILS ? { bankDetails: bankDetailsSchema.optional() } : {};
-
 const categoryField = z.enum(LX_REIMBURSEMENT_CATEGORIES, {
   errorMap: () => ({
     message: `category must be one of: ${LX_REIMBURSEMENT_CATEGORIES.join(', ')}`,
@@ -64,7 +46,6 @@ export const createReimbursementSchema = z.object({
   clubName: z.string().trim().max(200).optional().nullable(),
   clanId: z.string().trim().optional().nullable(),
   clanName: z.string().trim().max(200).optional().nullable(),
-  ...bankDetailsShape,
   bills: createBillsField,
   notes: z.string().trim().max(2000).optional().nullable(),
 });
@@ -124,7 +105,7 @@ export const getAllReimbursementsSchema = z.object({
     if (val === undefined || val === null) return undefined;
     if (typeof val === 'string') return parseInt(val, 10);
     return val;
-  }, z.number().int().min(1).max(200).default(50)),
+  }, z.number().int().min(1).max(100).default(10)),
   sortBy: z.enum(LX_REIMBURSEMENT_SORT_BY).optional().default('createdAt'),
   sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 });
