@@ -25,7 +25,7 @@ export const createLostFoundSchema = z.object({
     .min(1, 'Add at least one photo of the item')
     .max(6),
   location: z.string().trim().min(3, 'Say where it was lost or found').max(200),
-  occurredOn: z.coerce.date({ errorMap: () => ({ message: 'When did this happen?' }) }),
+  occurredOn: z.coerce.date({ message: 'When did this happen?', }),
   contactPhone: phone.optional().nullable(),
 });
 

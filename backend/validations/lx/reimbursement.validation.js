@@ -28,16 +28,14 @@ const createBillsField = billsArray({ required_error: AT_LEAST_ONE_BILL }).min(
 const updateBillsField = billsArray().optional();
 
 const categoryField = z.enum(LX_REIMBURSEMENT_CATEGORIES, {
-  errorMap: () => ({
-    message: `category must be one of: ${LX_REIMBURSEMENT_CATEGORIES.join(', ')}`,
-  }),
+  message: `category must be one of: ${LX_REIMBURSEMENT_CATEGORIES.join(', ')}`,
 });
 
 export const createReimbursementSchema = z.object({
   title: z.string().trim().min(1, 'title is required').max(200),
   description: z.string().trim().max(2000).optional(),
   amount: z.number().min(1, 'amount must be at least 1'),
-  expenseDate: z.coerce.date({ errorMap: () => ({ message: 'expenseDate is required' }) }),
+  expenseDate: z.coerce.date({ message: 'expenseDate is required', }),
   category: categoryField,
   eventId: z.string().trim().optional().nullable(),
   eventTitle: z.string().trim().max(200).optional().nullable(),
@@ -112,7 +110,7 @@ export const getAllReimbursementsSchema = z.object({
 
 export const reviewReimbursementSchema = z.object({
   action: z.enum(['approve', 'reject'], {
-    errorMap: () => ({ message: "action must be 'approve' or 'reject'" }),
+    message: "action must be 'approve' or 'reject'",
   }),
   rejectionReason: z.string().trim().max(2000).optional().nullable(),
 });

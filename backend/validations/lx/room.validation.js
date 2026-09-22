@@ -8,9 +8,7 @@ import {
 const amenitiesField = z
   .array(
     z.enum(LX_ROOM_AMENITIES, {
-      errorMap: () => ({
-        message: `amenities must be from: ${LX_ROOM_AMENITIES.join(', ')}`,
-      }),
+      message: `amenities must be from: ${LX_ROOM_AMENITIES.join(', ')}`,
     }),
   )
   .optional();
@@ -22,7 +20,7 @@ export const createRoomSchema = z.object({
   capacity: z.number().int().min(0).max(100000).optional(),
   type: z
     .enum(LX_ROOM_TYPES, {
-      errorMap: () => ({ message: `type must be one of: ${LX_ROOM_TYPES.join(', ')}` }),
+      message: `type must be one of: ${LX_ROOM_TYPES.join(', ')}`,
     })
     .optional(),
   amenities: amenitiesField,
@@ -36,7 +34,7 @@ export const updateRoomSchema = z.object({
   capacity: z.number().int().min(0).max(100000).optional(),
   type: z
     .enum(LX_ROOM_TYPES, {
-      errorMap: () => ({ message: `type must be one of: ${LX_ROOM_TYPES.join(', ')}` }),
+      message: `type must be one of: ${LX_ROOM_TYPES.join(', ')}`,
     })
     .optional(),
   amenities: amenitiesField,

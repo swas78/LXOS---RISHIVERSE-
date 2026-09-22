@@ -11,15 +11,13 @@ const imagesField = z.array(z.string().trim().min(1).max(2048)).optional();
 
 const categoryField = z
   .enum(LX_ACHIEVEMENT_CATEGORIES, {
-    errorMap: () => ({
-      message: `category must be one of: ${LX_ACHIEVEMENT_CATEGORIES.join(', ')}`,
-    }),
+    message: `category must be one of: ${LX_ACHIEVEMENT_CATEGORIES.join(', ')}`,
   })
   .optional();
 
 const kindField = z
   .enum(LX_ACHIEVEMENT_KINDS, {
-    errorMap: () => ({ message: `kind must be one of: ${LX_ACHIEVEMENT_KINDS.join(', ')}` }),
+    message: `kind must be one of: ${LX_ACHIEVEMENT_KINDS.join(', ')}`,
   })
   .optional();
 
@@ -108,7 +106,7 @@ export const getAllAchievementsSchema = z.object({
 
 export const reviewAchievementSchema = z.object({
   action: z.enum(['approve', 'reject'], {
-    errorMap: () => ({ message: "action must be 'approve' or 'reject'" }),
+    message: "action must be 'approve' or 'reject'",
   }),
   rejectionReason: z.string().trim().max(2000).optional().nullable(),
 });

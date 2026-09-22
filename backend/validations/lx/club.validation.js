@@ -5,9 +5,7 @@ import {
 } from '../../constants/lxClubConstant.js';
 
 const categoryField = z.enum(LX_CLUB_CATEGORIES, {
-  errorMap: () => ({
-    message: `category must be one of: ${LX_CLUB_CATEGORIES.join(', ')}`,
-  }),
+  message: `category must be one of: ${LX_CLUB_CATEGORIES.join(', ')}`,
 });
 
 export const createClubSchema = z.object({

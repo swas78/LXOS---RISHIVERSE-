@@ -17,7 +17,7 @@ export const createFileSchema = z.object({
   size: z.number().int().min(0).max(1000000000000),
   type: z
     .enum(LX_FILE_TYPES, {
-      errorMap: () => ({ message: `type must be one of: ${LX_FILE_TYPES.join(', ')}` }),
+      message: `type must be one of: ${LX_FILE_TYPES.join(', ')}`,
     })
     .optional(),
   tags: tagsField,
@@ -31,7 +31,7 @@ export const updateFileSchema = z.object({
   originalName: z.string().trim().min(1).max(255).optional(),
   type: z
     .enum(LX_FILE_TYPES, {
-      errorMap: () => ({ message: `type must be one of: ${LX_FILE_TYPES.join(', ')}` }),
+      message: `type must be one of: ${LX_FILE_TYPES.join(', ')}`,
     })
     .optional(),
   tags: tagsField,

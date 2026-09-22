@@ -36,7 +36,7 @@ export const createProductSchema = z.object({
   images: imagesField.default([]),
   category: z
     .enum(LX_PRODUCT_CATEGORIES, {
-      errorMap: () => ({ message: `category must be one of: ${LX_PRODUCT_CATEGORIES.join(', ')}` }),
+      message: `category must be one of: ${LX_PRODUCT_CATEGORIES.join(', ')}`,
     })
     .optional(),
   techStack: z.preprocess(csvToArray, z.array(z.string().trim()).optional()),

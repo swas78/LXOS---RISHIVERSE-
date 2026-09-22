@@ -24,17 +24,17 @@ export const createEventSchema = z.object({
   title: z.string().trim().min(1, 'title is required').max(200),
   description: z.string().trim().min(1, 'description is required').max(5000),
   type: z.enum(LX_EVENT_TYPES, {
-    errorMap: () => ({ message: `type must be one of: ${LX_EVENT_TYPES.join(', ')}` }),
+    message: `type must be one of: ${LX_EVENT_TYPES.join(', ')}`,
   }),
   clubId: z.string().trim().optional().nullable(),
   clubName: z.string().trim().max(200).optional().nullable(),
   clanId: z.string().trim().optional().nullable(),
   clanName: z.string().trim().max(200).optional().nullable(),
   startDate: z.coerce.date({
-    errorMap: () => ({ message: 'startDate must be a valid date' }),
+    message: 'startDate must be a valid date',
   }),
   endDate: z.coerce.date({
-    errorMap: () => ({ message: 'endDate must be a valid date' }),
+    message: 'endDate must be a valid date',
   }),
   roomIds: stringArrayField,
   roomNames: stringArrayField,
@@ -50,7 +50,7 @@ export const updateEventSchema = z.object({
   description: z.string().trim().min(1).max(5000).optional(),
   type: z
     .enum(LX_EVENT_TYPES, {
-      errorMap: () => ({ message: `type must be one of: ${LX_EVENT_TYPES.join(', ')}` }),
+      message: `type must be one of: ${LX_EVENT_TYPES.join(', ')}`,
     })
     .optional(),
   clubId: z.string().trim().optional().nullable(),
@@ -120,17 +120,17 @@ export const getAllEventsSchema = z.object({
 export const availabilitySchema = z.object({
   roomIds: z.array(z.string().trim().min(1)).min(1, 'roomIds is required'),
   startDate: z.coerce.date({
-    errorMap: () => ({ message: 'startDate must be a valid date' }),
+    message: 'startDate must be a valid date',
   }),
   endDate: z.coerce.date({
-    errorMap: () => ({ message: 'endDate must be a valid date' }),
+    message: 'endDate must be a valid date',
   }),
   excludeEventId: z.string().trim().optional().nullable(),
 });
 
 export const approveEventSchema = z.object({
   action: z.enum(['approve', 'reject'], {
-    errorMap: () => ({ message: "action must be 'approve' or 'reject'" }),
+    message: "action must be 'approve' or 'reject'",
   }),
   rejectionReason: z.string().trim().max(2000).optional().nullable(),
 });

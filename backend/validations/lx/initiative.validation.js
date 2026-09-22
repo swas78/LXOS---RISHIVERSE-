@@ -15,17 +15,13 @@ export const createInitiativeSchema = z.object({
   semester: z.string().trim().max(60).optional(),
   status: z
     .enum(LX_INITIATIVE_STATUSES, {
-      errorMap: () => ({
-        message: `status must be one of: ${LX_INITIATIVE_STATUSES.join(', ')}`,
-      }),
+      message: `status must be one of: ${LX_INITIATIVE_STATUSES.join(', ')}`,
     })
     .optional(),
   progress: z.number().int().min(0).max(100).optional(),
   priority: z
     .enum(LX_INITIATIVE_PRIORITIES, {
-      errorMap: () => ({
-        message: `priority must be one of: ${LX_INITIATIVE_PRIORITIES.join(', ')}`,
-      }),
+      message: `priority must be one of: ${LX_INITIATIVE_PRIORITIES.join(', ')}`,
     })
     .optional(),
   team: teamField,
@@ -39,17 +35,13 @@ export const updateInitiativeSchema = z.object({
   semester: z.string().trim().max(60).optional(),
   status: z
     .enum(LX_INITIATIVE_STATUSES, {
-      errorMap: () => ({
-        message: `status must be one of: ${LX_INITIATIVE_STATUSES.join(', ')}`,
-      }),
+      message: `status must be one of: ${LX_INITIATIVE_STATUSES.join(', ')}`,
     })
     .optional(),
   progress: z.number().int().min(0).max(100).optional(),
   priority: z
     .enum(LX_INITIATIVE_PRIORITIES, {
-      errorMap: () => ({
-        message: `priority must be one of: ${LX_INITIATIVE_PRIORITIES.join(', ')}`,
-      }),
+      message: `priority must be one of: ${LX_INITIATIVE_PRIORITIES.join(', ')}`,
     })
     .optional(),
   team: teamField,

@@ -12,8 +12,8 @@ export const createRoomBookingSchema = z
     eventTitle: z.string().trim().max(200).optional().nullable(),
     title: z.string().trim().min(1, 'title is required').max(200),
     purpose: z.string().trim().max(1000).optional(),
-    startTime: z.coerce.date({ errorMap: () => ({ message: 'startTime is required' }) }),
-    endTime: z.coerce.date({ errorMap: () => ({ message: 'endTime is required' }) }),
+    startTime: z.coerce.date({ message: 'startTime is required', }),
+    endTime: z.coerce.date({ message: 'endTime is required', }),
   })
   .refine((v) => v.endTime > v.startTime, {
     message: 'endTime must be after startTime',

@@ -11,7 +11,7 @@ import { attachmentSchema } from './upload.validation.js';
 const billsField = z.array(attachmentSchema).max(6, 'at most 6 bills').optional();
 
 const categoryField = z.enum(LX_EXPENSE_CATEGORIES, {
-  errorMap: () => ({ message: `category must be one of: ${LX_EXPENSE_CATEGORIES.join(', ')}` }),
+  message: `category must be one of: ${LX_EXPENSE_CATEGORIES.join(', ')}`,
 });
 
 export const createExpenseSchema = z.object({
@@ -74,7 +74,7 @@ export const getAllExpensesSchema = z.object({
 
 export const verifyExpenseSchema = z.object({
   action: z.enum(['approve', 'reject'], {
-    errorMap: () => ({ message: "action must be 'approve' or 'reject'" }),
+    message: "action must be 'approve' or 'reject'",
   }),
   rejectionReason: z.string().trim().max(2000).optional().nullable(),
 });
