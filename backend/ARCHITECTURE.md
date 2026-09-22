@@ -38,15 +38,15 @@ In production RishiVerse, `/api/v1` sits behind an **auth router** and often `ch
 
 ## Layers
 
-| Layer | Responsibility | May use | Must not |
-|-------|----------------|---------|----------|
-| Routes | Wire verbs + logging | Controllers | Zod, Prisma, business rules |
-| Controller | Validate, rule checks, HTTP envelope | Schemas, services, `responseUtils` | Prisma |
-| Validator | Input shape | Zod | DB, `res` |
-| Service | Orchestration, result objects | DALs, helpers | `req`/`res`, Prisma directly |
-| DAL | Persistence | Prisma | HTTP |
-| Constants | Enums / allow-lists | — | Runtime I/O |
-| Helper | Pure/reusable domain helpers | — | Prisma, HTTP |
+| Layer      | Responsibility                       | May use                            | Must not                     |
+| ---------- | ------------------------------------ | ---------------------------------- | ---------------------------- |
+| Routes     | Wire verbs + logging                 | Controllers                        | Zod, Prisma, business rules  |
+| Controller | Validate, rule checks, HTTP envelope | Schemas, services, `responseUtils` | Prisma                       |
+| Validator  | Input shape                          | Zod                                | DB, `res`                    |
+| Service    | Orchestration, result objects        | DALs, helpers                      | `req`/`res`, Prisma directly |
+| DAL        | Persistence                          | Prisma                             | HTTP                         |
+| Constants  | Enums / allow-lists                  | —                                  | Runtime I/O                  |
+| Helper     | Pure/reusable domain helpers         | —                                  | Prisma, HTTP                 |
 
 ## Directory map
 
@@ -72,10 +72,10 @@ logger/contextLogger.js
 
 ```javascript
 // routes/demoRoutes.js
-router.use('/item', itemRoutes);
+router.use("/item", itemRoutes);
 
 // app.js
-apiRouter.use('/demo', demoRoutes);
+apiRouter.use("/demo", demoRoutes);
 // → /api/v1/demo/item/...
 ```
 
@@ -86,15 +86,15 @@ Services never write HTTP. Controllers:
 ```javascript
 const result = await createItemService(data);
 if (!result.success) {
-  return res.status(result.statusCode).json({
-    success: false,
-    message: result.message,
-  });
+    return res.status(result.statusCode).json({
+        success: false,
+        message: result.message,
+    });
 }
 return res.status(result.statusCode).json({
-  success: true,
-  message: result.message,
-  data: result.data,
+    success: true,
+    message: result.message,
+    data: result.data,
 });
 ```
 

@@ -10,153 +10,182 @@
 // ---------------------------------------------------------------------------
 
 export const ROLES = {
-  ADMIN: 'ADMIN',
-  LX_TEAM: 'LX_TEAM',
-  CLUB_HEAD: 'CLUB_HEAD',
-  CLAN_HEAD: 'CLAN_HEAD',
-  FINANCE: 'FINANCE',
-  LIBRARIAN: 'LIBRARIAN',
-  GUEST: 'GUEST',
+    ADMIN: "ADMIN",
+    LX_TEAM: "LX_TEAM",
+    CLUB_HEAD: "CLUB_HEAD",
+    CLAN_HEAD: "CLAN_HEAD",
+    FINANCE: "FINANCE",
+    LIBRARIAN: "LIBRARIAN",
+    GUEST: "GUEST",
 };
 
 export const PERMISSIONS = {
-  // Baseline read. Every authenticated member holds it, so it is not a
-  // restriction today — it exists so that EVERY read route carries an explicit
-  // gate instead of being implicitly open. At integration this maps 1:1 onto
-  // core's checkPermission(ModelName.Lx, Permission.READ), which is the only
-  // reason the swap is mechanical rather than an audit of 20 route files.
-  VIEW_LX: 'VIEW_LX',
-  // Events
-  CREATE_EVENT: 'CREATE_EVENT',
-  EDIT_EVENT: 'EDIT_EVENT',
-  DELETE_EVENT: 'DELETE_EVENT',
-  APPROVE_EVENT: 'APPROVE_EVENT',
-  VIEW_ALL_EVENTS: 'VIEW_ALL_EVENTS',
-  // Rooms / bookings
-  BOOK_ROOM: 'BOOK_ROOM',
-  APPROVE_BOOKING: 'APPROVE_BOOKING',
-  MANAGE_ROOMS: 'MANAGE_ROOMS',
-  // Clubs
-  VIEW_ALL_CLUBS: 'VIEW_ALL_CLUBS',
-  MANAGE_CLUBS: 'MANAGE_CLUBS',
-  MANAGE_CLUB_BUDGET: 'MANAGE_CLUB_BUDGET',
-  // Clans
-  MANAGE_CLANS: 'MANAGE_CLANS',
-  ALLOCATE_CLAN_POINTS: 'ALLOCATE_CLAN_POINTS',
-  MANAGE_CLAN_INITIATIVES: 'MANAGE_CLAN_INITIATIVES',
-  // Finance
-  SUBMIT_EXPENSE: 'SUBMIT_EXPENSE',
-  APPROVE_EXPENSE: 'APPROVE_EXPENSE',
-  SUBMIT_REIMBURSEMENT: 'SUBMIT_REIMBURSEMENT',
-  REVIEW_REIMBURSEMENT: 'REVIEW_REIMBURSEMENT',
-  PROCESS_REIMBURSEMENT: 'PROCESS_REIMBURSEMENT',
-  VIEW_ALL_BUDGETS: 'VIEW_ALL_BUDGETS',
-  // Achievements
-  CREATE_ACHIEVEMENT: 'CREATE_ACHIEVEMENT',
-  APPROVE_ACHIEVEMENT: 'APPROVE_ACHIEVEMENT',
-  // Products
-  SUBMIT_PRODUCT: 'SUBMIT_PRODUCT',
-  APPROVE_PRODUCT: 'APPROVE_PRODUCT',
-  // Files
-  /// Publish into the SHARED document library (/lx/file). Staff and leads only.
-  UPLOAD_FILE: 'UPLOAD_FILE',
-  /// Attach bytes to your OWN submission — a reimbursement bill, a product
-  /// mockup, a lost-and-found photo. Everyone needs this; it is not a write
-  /// into shared space, so it is deliberately a separate verb.
-  UPLOAD_ATTACHMENT: 'UPLOAD_ATTACHMENT',
-  DELETE_FILE: 'DELETE_FILE',
-  // Lost & Found
-  REPORT_LOST_FOUND: 'REPORT_LOST_FOUND',
-  APPROVE_LOST_FOUND: 'APPROVE_LOST_FOUND',
-  // Library study cabins
-  BOOK_CABIN: 'BOOK_CABIN',
-  MANAGE_LIBRARY_CABINS: 'MANAGE_LIBRARY_CABINS',
-  // Cross-cutting
-  VIEW_ANALYTICS: 'VIEW_ANALYTICS',
-  VIEW_APPROVALS: 'VIEW_APPROVALS',
-  MANAGE_ACCESS: 'MANAGE_ACCESS',
-  GENERATE_REPORT: 'GENERATE_REPORT',
-  MANAGE_SEMESTER: 'MANAGE_SEMESTER',
+    // Baseline read. Every authenticated member holds it, so it is not a
+    // restriction today — it exists so that EVERY read route carries an explicit
+    // gate instead of being implicitly open. At integration this maps 1:1 onto
+    // core's checkPermission(ModelName.Lx, Permission.READ), which is the only
+    // reason the swap is mechanical rather than an audit of 20 route files.
+    VIEW_LX: "VIEW_LX",
+    // Events
+    CREATE_EVENT: "CREATE_EVENT",
+    EDIT_EVENT: "EDIT_EVENT",
+    DELETE_EVENT: "DELETE_EVENT",
+    APPROVE_EVENT: "APPROVE_EVENT",
+    VIEW_ALL_EVENTS: "VIEW_ALL_EVENTS",
+    // Rooms / bookings
+    BOOK_ROOM: "BOOK_ROOM",
+    APPROVE_BOOKING: "APPROVE_BOOKING",
+    MANAGE_ROOMS: "MANAGE_ROOMS",
+    // Clubs
+    VIEW_ALL_CLUBS: "VIEW_ALL_CLUBS",
+    MANAGE_CLUBS: "MANAGE_CLUBS",
+    MANAGE_CLUB_BUDGET: "MANAGE_CLUB_BUDGET",
+    // Clans
+    MANAGE_CLANS: "MANAGE_CLANS",
+    ALLOCATE_CLAN_POINTS: "ALLOCATE_CLAN_POINTS",
+    MANAGE_CLAN_INITIATIVES: "MANAGE_CLAN_INITIATIVES",
+    // Finance
+    SUBMIT_EXPENSE: "SUBMIT_EXPENSE",
+    APPROVE_EXPENSE: "APPROVE_EXPENSE",
+    SUBMIT_REIMBURSEMENT: "SUBMIT_REIMBURSEMENT",
+    REVIEW_REIMBURSEMENT: "REVIEW_REIMBURSEMENT",
+    PROCESS_REIMBURSEMENT: "PROCESS_REIMBURSEMENT",
+    VIEW_ALL_BUDGETS: "VIEW_ALL_BUDGETS",
+    // Achievements
+    CREATE_ACHIEVEMENT: "CREATE_ACHIEVEMENT",
+    APPROVE_ACHIEVEMENT: "APPROVE_ACHIEVEMENT",
+    // Products
+    SUBMIT_PRODUCT: "SUBMIT_PRODUCT",
+    APPROVE_PRODUCT: "APPROVE_PRODUCT",
+    // Files
+    /// Publish into the SHARED document library (/lx/file). Staff and leads only.
+    UPLOAD_FILE: "UPLOAD_FILE",
+    /// Attach bytes to your OWN submission — a reimbursement bill, a product
+    /// mockup, a lost-and-found photo. Everyone needs this; it is not a write
+    /// into shared space, so it is deliberately a separate verb.
+    UPLOAD_ATTACHMENT: "UPLOAD_ATTACHMENT",
+    DELETE_FILE: "DELETE_FILE",
+    // Lost & Found
+    REPORT_LOST_FOUND: "REPORT_LOST_FOUND",
+    APPROVE_LOST_FOUND: "APPROVE_LOST_FOUND",
+    // Library study cabins
+    BOOK_CABIN: "BOOK_CABIN",
+    MANAGE_LIBRARY_CABINS: "MANAGE_LIBRARY_CABINS",
+    // Cross-cutting
+    VIEW_ANALYTICS: "VIEW_ANALYTICS",
+    VIEW_APPROVALS: "VIEW_APPROVALS",
+    MANAGE_ACCESS: "MANAGE_ACCESS",
+    GENERATE_REPORT: "GENERATE_REPORT",
+    MANAGE_SEMESTER: "MANAGE_SEMESTER",
 };
 
 const P = PERMISSIONS;
 
 export const rolePermissions = {
-  [ROLES.ADMIN]: Object.values(PERMISSIONS), // everything
-  [ROLES.LX_TEAM]: [
-    P.UPLOAD_ATTACHMENT,
-    P.VIEW_LX,
-    P.REPORT_LOST_FOUND,
-    P.BOOK_CABIN,
-    P.CREATE_EVENT, P.EDIT_EVENT, P.APPROVE_EVENT, P.VIEW_ALL_EVENTS,
-    P.BOOK_ROOM, P.APPROVE_BOOKING,
-    P.VIEW_ALL_CLUBS, P.MANAGE_CLUB_BUDGET,
-    P.MANAGE_CLAN_INITIATIVES,
-    P.SUBMIT_EXPENSE, P.SUBMIT_REIMBURSEMENT, P.REVIEW_REIMBURSEMENT, P.VIEW_ALL_BUDGETS,
-    P.CREATE_ACHIEVEMENT, P.APPROVE_ACHIEVEMENT,
-    P.SUBMIT_PRODUCT, P.APPROVE_PRODUCT,
-    P.APPROVE_LOST_FOUND,
-    P.UPLOAD_FILE,
-    P.VIEW_ANALYTICS, P.VIEW_APPROVALS,
-    P.GENERATE_REPORT, P.MANAGE_SEMESTER,
-  ],
-  [ROLES.CLUB_HEAD]: [
-    P.UPLOAD_ATTACHMENT,
-    P.VIEW_LX,
-    P.REPORT_LOST_FOUND,
-    P.BOOK_CABIN,
-    P.CREATE_EVENT, P.VIEW_ALL_EVENTS, P.BOOK_ROOM,
-    P.VIEW_ALL_CLUBS,
-    P.SUBMIT_EXPENSE, P.SUBMIT_REIMBURSEMENT,
-    P.CREATE_ACHIEVEMENT, P.SUBMIT_PRODUCT, P.UPLOAD_FILE,
-  ],
-  [ROLES.CLAN_HEAD]: [
-    P.UPLOAD_ATTACHMENT,
-    P.VIEW_LX,
-    P.REPORT_LOST_FOUND,
-    P.BOOK_CABIN,
-    P.CREATE_EVENT, P.VIEW_ALL_EVENTS, P.BOOK_ROOM,
-    P.MANAGE_CLAN_INITIATIVES,
-    P.SUBMIT_REIMBURSEMENT,
-    P.CREATE_ACHIEVEMENT, P.SUBMIT_PRODUCT, P.UPLOAD_FILE,
-  ],
-  // Library desk staff — the cabin board and nothing else.
-  [ROLES.LIBRARIAN]: [
-    P.UPLOAD_ATTACHMENT,
-    P.VIEW_LX,
-    P.REPORT_LOST_FOUND,
-    P.BOOK_CABIN, P.MANAGE_LIBRARY_CABINS,
-  ],
-  [ROLES.FINANCE]: [
-    P.UPLOAD_ATTACHMENT,
-    P.VIEW_LX,
-    P.REPORT_LOST_FOUND,
-    P.BOOK_CABIN,
-    P.VIEW_ALL_EVENTS, P.VIEW_ALL_CLUBS,
-    P.APPROVE_EXPENSE, P.PROCESS_REIMBURSEMENT, P.VIEW_ALL_BUDGETS,
-    P.VIEW_ANALYTICS, P.VIEW_APPROVALS, P.GENERATE_REPORT,
-    P.UPLOAD_FILE,
-  ],
-  // General access — read public content, submit their OWN achievements and
-  // products, and attach files to those submissions. Deliberately NOT
-  // UPLOAD_FILE: the shared document library is not a student write surface.
-  [ROLES.GUEST]: [
-    P.UPLOAD_ATTACHMENT,
-    P.VIEW_LX,
-    P.REPORT_LOST_FOUND,
-    P.BOOK_CABIN,
-    P.VIEW_ALL_EVENTS, P.VIEW_ALL_CLUBS,
-    P.CREATE_ACHIEVEMENT, P.SUBMIT_PRODUCT,
-  ],
+    [ROLES.ADMIN]: Object.values(PERMISSIONS), // everything
+    [ROLES.LX_TEAM]: [
+        P.UPLOAD_ATTACHMENT,
+        P.VIEW_LX,
+        P.REPORT_LOST_FOUND,
+        P.BOOK_CABIN,
+        P.CREATE_EVENT,
+        P.EDIT_EVENT,
+        P.APPROVE_EVENT,
+        P.VIEW_ALL_EVENTS,
+        P.BOOK_ROOM,
+        P.APPROVE_BOOKING,
+        P.VIEW_ALL_CLUBS,
+        P.MANAGE_CLUB_BUDGET,
+        P.MANAGE_CLAN_INITIATIVES,
+        P.SUBMIT_EXPENSE,
+        P.SUBMIT_REIMBURSEMENT,
+        P.REVIEW_REIMBURSEMENT,
+        P.VIEW_ALL_BUDGETS,
+        P.CREATE_ACHIEVEMENT,
+        P.APPROVE_ACHIEVEMENT,
+        P.SUBMIT_PRODUCT,
+        P.APPROVE_PRODUCT,
+        P.APPROVE_LOST_FOUND,
+        P.UPLOAD_FILE,
+        P.VIEW_ANALYTICS,
+        P.VIEW_APPROVALS,
+        P.GENERATE_REPORT,
+        P.MANAGE_SEMESTER,
+    ],
+    [ROLES.CLUB_HEAD]: [
+        P.UPLOAD_ATTACHMENT,
+        P.VIEW_LX,
+        P.REPORT_LOST_FOUND,
+        P.BOOK_CABIN,
+        P.CREATE_EVENT,
+        P.VIEW_ALL_EVENTS,
+        P.BOOK_ROOM,
+        P.VIEW_ALL_CLUBS,
+        P.SUBMIT_EXPENSE,
+        P.SUBMIT_REIMBURSEMENT,
+        P.CREATE_ACHIEVEMENT,
+        P.SUBMIT_PRODUCT,
+        P.UPLOAD_FILE,
+    ],
+    [ROLES.CLAN_HEAD]: [
+        P.UPLOAD_ATTACHMENT,
+        P.VIEW_LX,
+        P.REPORT_LOST_FOUND,
+        P.BOOK_CABIN,
+        P.CREATE_EVENT,
+        P.VIEW_ALL_EVENTS,
+        P.BOOK_ROOM,
+        P.MANAGE_CLAN_INITIATIVES,
+        P.SUBMIT_REIMBURSEMENT,
+        P.CREATE_ACHIEVEMENT,
+        P.SUBMIT_PRODUCT,
+        P.UPLOAD_FILE,
+    ],
+    // Library desk staff — the cabin board and nothing else.
+    [ROLES.LIBRARIAN]: [
+        P.UPLOAD_ATTACHMENT,
+        P.VIEW_LX,
+        P.REPORT_LOST_FOUND,
+        P.BOOK_CABIN,
+        P.MANAGE_LIBRARY_CABINS,
+    ],
+    [ROLES.FINANCE]: [
+        P.UPLOAD_ATTACHMENT,
+        P.VIEW_LX,
+        P.REPORT_LOST_FOUND,
+        P.BOOK_CABIN,
+        P.VIEW_ALL_EVENTS,
+        P.VIEW_ALL_CLUBS,
+        P.APPROVE_EXPENSE,
+        P.PROCESS_REIMBURSEMENT,
+        P.VIEW_ALL_BUDGETS,
+        P.VIEW_ANALYTICS,
+        P.VIEW_APPROVALS,
+        P.GENERATE_REPORT,
+        P.UPLOAD_FILE,
+    ],
+    // General access — read public content, submit their OWN achievements and
+    // products, and attach files to those submissions. Deliberately NOT
+    // UPLOAD_FILE: the shared document library is not a student write surface.
+    [ROLES.GUEST]: [
+        P.UPLOAD_ATTACHMENT,
+        P.VIEW_LX,
+        P.REPORT_LOST_FOUND,
+        P.BOOK_CABIN,
+        P.VIEW_ALL_EVENTS,
+        P.VIEW_ALL_CLUBS,
+        P.CREATE_ACHIEVEMENT,
+        P.SUBMIT_PRODUCT,
+    ],
 };
 
 export function hasPermission(role, permission) {
-  if (!role || !permission) return false;
-  return (rolePermissions[role] || []).includes(permission);
+    if (!role || !permission) return false;
+    return (rolePermissions[role] || []).includes(permission);
 }
 
 export function getRolePermissions(role) {
-  return rolePermissions[role] || [];
+    return rolePermissions[role] || [];
 }
 
 // ---- Data-scoping helpers -------------------------------------------------
@@ -169,22 +198,22 @@ export const isFinanceViewer = (role) => FINANCE_VIEW_ROLES.includes(role);
 // Reimbursement list scope: reviewers see everything; everyone else sees only
 // what they submitted.
 export const reimbursementScope = (actor) =>
-  isFinanceViewer(actor?.role) ? {} : { submittedByRef: actor?.referenceId ?? '__none__' };
+    isFinanceViewer(actor?.role) ? {} : { submittedByRef: actor?.referenceId ?? "__none__" };
 
 // Expense list scope: reviewers see all; a club head sees only what they
 // submitted.
 export const expenseScope = (actor) =>
-  isFinanceViewer(actor?.role) ? {} : { submittedByRef: actor?.referenceId ?? '__none__' };
+    isFinanceViewer(actor?.role) ? {} : { submittedByRef: actor?.referenceId ?? "__none__" };
 
 // Budget scope: ADMIN/LX/FINANCE see all clubs+clans; a club head sees only
 // their club; a clan head only their clan; anyone else sees nothing.
 export function budgetScope(actor) {
-  if (isFinanceViewer(actor?.role)) return { clubIds: null, clanIds: null, all: true };
-  if (actor?.role === ROLES.CLUB_HEAD && actor.clubId) {
-    return { clubIds: [actor.clubId], clanIds: [], all: false };
-  }
-  if (actor?.role === ROLES.CLAN_HEAD && actor.clanId) {
-    return { clubIds: [], clanIds: [actor.clanId], all: false };
-  }
-  return { clubIds: [], clanIds: [], all: false };
+    if (isFinanceViewer(actor?.role)) return { clubIds: null, clanIds: null, all: true };
+    if (actor?.role === ROLES.CLUB_HEAD && actor.clubId) {
+        return { clubIds: [actor.clubId], clanIds: [], all: false };
+    }
+    if (actor?.role === ROLES.CLAN_HEAD && actor.clanId) {
+        return { clubIds: [], clanIds: [actor.clanId], all: false };
+    }
+    return { clubIds: [], clanIds: [], all: false };
 }

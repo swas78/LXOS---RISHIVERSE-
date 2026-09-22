@@ -1,196 +1,221 @@
-import { LX_REIMBURSEMENT_EDITABLE_FIELDS } from '../../constants/lxReimbursementConstant.js';
+import { LX_REIMBURSEMENT_EDITABLE_FIELDS } from "../../constants/lxReimbursementConstant.js";
 import {
-  createReimbursementService,
-  deleteReimbursementService,
-  getAllReimbursementsService,
-  getReimbursementByIdService,
-  updateReimbursementService,
-  reviewReimbursementService,
-  processReimbursementService,
-} from '../../services/lx/reimbursementService.js';
-import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
+    createReimbursementService,
+    deleteReimbursementService,
+    getAllReimbursementsService,
+    getReimbursementByIdService,
+    updateReimbursementService,
+    reviewReimbursementService,
+    processReimbursementService,
+} from "../../services/lx/reimbursementService.js";
+import { handleControllerErrorResponse } from "../../utils/responseUtils.js";
 
 export const createReimbursementController = async (req, res) => {
-  try {
-    const validatedData = req.body;
-    // Snapshot the submitter from the acting user.
-    const payload = {
-      ...validatedData,
-      submittedByRef: req.actor?.referenceId ?? 'unknown',
-      submittedByName: req.actor?.displayName ?? null,
-    };
-    // The actor also decides `payoutRef` (who to pay), derived in the service.
-    const result = await createReimbursementService(payload, req.actor);
-    if (!result.success) {
-      return res.status(result.statusCode).json({ success: false, message: result.message });
+    try {
+        const validatedData = req.body;
+        // Snapshot the submitter from the acting user.
+        const payload = {
+            ...validatedData,
+            submittedByRef: req.actor?.referenceId ?? "unknown",
+            submittedByName: req.actor?.displayName ?? null,
+        };
+        // The actor also decides `payoutRef` (who to pay), derived in the service.
+        const result = await createReimbursementService(payload, req.actor);
+        if (!result.success) {
+            return res.status(result.statusCode).json({ success: false, message: result.message });
+        }
+        return res.status(result.statusCode).json({
+            success: true,
+            message: result.message,
+            data: result.data,
+        });
+    } catch (error) {
+        handleControllerErrorResponse(error, "createReimbursementController", req, res);
     }
-    return res.status(result.statusCode).json({
-      success: true,
-      message: result.message,
-      data: result.data,
-    });
-  } catch (error) {
-    handleControllerErrorResponse(error, 'createReimbursementController', req, res);
-  }
 };
 
 export const getAllReimbursementsController = async (req, res) => {
-  try {
-    const validatedData = req.query;
-    const result = await getAllReimbursementsService(validatedData, req.actor);
-    if (!result.success) {
-      return res.status(result.statusCode).json({ success: false, message: result.message });
+    try {
+        const validatedData = req.query;
+        const result = await getAllReimbursementsService(validatedData, req.actor);
+        if (!result.success) {
+            return res.status(result.statusCode).json({ success: false, message: result.message });
+        }
+        return res.status(result.statusCode).json({
+            success: true,
+            message: result.message,
+            data: result.data,
+            pagination: result.pagination,
+        });
+    } catch (error) {
+        handleControllerErrorResponse(error, "getAllReimbursementsController", req, res);
     }
-    return res.status(result.statusCode).json({
-      success: true,
-      message: result.message,
-      data: result.data,
-      pagination: result.pagination,
-    });
-  } catch (error) {
-    handleControllerErrorResponse(error, 'getAllReimbursementsController', req, res);
-  }
 };
 
 export const getReimbursementByIdController = async (req, res) => {
-  try {
-    const { reimbursementId } = req.params;
-    if (!reimbursementId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors: [{ path: ['reimbursementId'], message: 'reimbursementId is required in the path' }],
-      });
+    try {
+        const { reimbursementId } = req.params;
+        if (!reimbursementId) {
+            return res.status(400).json({
+                success: false,
+                message: "Validation failed",
+                errors: [
+                    {
+                        path: ["reimbursementId"],
+                        message: "reimbursementId is required in the path",
+                    },
+                ],
+            });
+        }
+        const result = await getReimbursementByIdService(reimbursementId);
+        if (!result.success) {
+            return res.status(result.statusCode).json({ success: false, message: result.message });
+        }
+        return res.status(result.statusCode).json({
+            success: true,
+            message: result.message,
+            data: result.data,
+        });
+    } catch (error) {
+        handleControllerErrorResponse(error, "getReimbursementByIdController", req, res);
     }
-    const result = await getReimbursementByIdService(reimbursementId);
-    if (!result.success) {
-      return res.status(result.statusCode).json({ success: false, message: result.message });
-    }
-    return res.status(result.statusCode).json({
-      success: true,
-      message: result.message,
-      data: result.data,
-    });
-  } catch (error) {
-    handleControllerErrorResponse(error, 'getReimbursementByIdController', req, res);
-  }
 };
 
 export const updateReimbursementController = async (req, res) => {
-  try {
-    const { reimbursementId } = req.params;
-    if (!reimbursementId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors: [{ path: ['reimbursementId'], message: 'reimbursementId is required in the path' }],
-      });
-    }
+    try {
+        const { reimbursementId } = req.params;
+        if (!reimbursementId) {
+            return res.status(400).json({
+                success: false,
+                message: "Validation failed",
+                errors: [
+                    {
+                        path: ["reimbursementId"],
+                        message: "reimbursementId is required in the path",
+                    },
+                ],
+            });
+        }
 
-    const validatedData = req.body;
-    if (Object.keys(validatedData).length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors: [
-          {
-            path: LX_REIMBURSEMENT_EDITABLE_FIELDS,
-            message: 'At least one field is required to update',
-          },
-        ],
-      });
-    }
+        const validatedData = req.body;
+        if (Object.keys(validatedData).length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Validation failed",
+                errors: [
+                    {
+                        path: LX_REIMBURSEMENT_EDITABLE_FIELDS,
+                        message: "At least one field is required to update",
+                    },
+                ],
+            });
+        }
 
-    const result = await updateReimbursementService(reimbursementId, validatedData);
-    if (!result.success) {
-      return res.status(result.statusCode).json({ success: false, message: result.message });
+        const result = await updateReimbursementService(reimbursementId, validatedData);
+        if (!result.success) {
+            return res.status(result.statusCode).json({ success: false, message: result.message });
+        }
+        return res.status(result.statusCode).json({
+            success: true,
+            message: result.message,
+            data: result.data,
+        });
+    } catch (error) {
+        handleControllerErrorResponse(error, "updateReimbursementController", req, res);
     }
-    return res.status(result.statusCode).json({
-      success: true,
-      message: result.message,
-      data: result.data,
-    });
-  } catch (error) {
-    handleControllerErrorResponse(error, 'updateReimbursementController', req, res);
-  }
 };
 
 export const deleteReimbursementController = async (req, res) => {
-  try {
-    const { reimbursementId } = req.params;
-    if (!reimbursementId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors: [{ path: ['reimbursementId'], message: 'reimbursementId is required in the path' }],
-      });
+    try {
+        const { reimbursementId } = req.params;
+        if (!reimbursementId) {
+            return res.status(400).json({
+                success: false,
+                message: "Validation failed",
+                errors: [
+                    {
+                        path: ["reimbursementId"],
+                        message: "reimbursementId is required in the path",
+                    },
+                ],
+            });
+        }
+        const result = await deleteReimbursementService(reimbursementId);
+        if (!result.success) {
+            return res.status(result.statusCode).json({ success: false, message: result.message });
+        }
+        return res.status(result.statusCode).json({
+            success: true,
+            message: result.message,
+            data: result.data,
+        });
+    } catch (error) {
+        handleControllerErrorResponse(error, "deleteReimbursementController", req, res);
     }
-    const result = await deleteReimbursementService(reimbursementId);
-    if (!result.success) {
-      return res.status(result.statusCode).json({ success: false, message: result.message });
-    }
-    return res.status(result.statusCode).json({
-      success: true,
-      message: result.message,
-      data: result.data,
-    });
-  } catch (error) {
-    handleControllerErrorResponse(error, 'deleteReimbursementController', req, res);
-  }
 };
 
 // LX / Admin review: approve or reject a claim.
 export const reviewReimbursementController = async (req, res) => {
-  try {
-    const { reimbursementId } = req.params;
-    if (!reimbursementId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors: [{ path: ['reimbursementId'], message: 'reimbursementId is required in the path' }],
-      });
+    try {
+        const { reimbursementId } = req.params;
+        if (!reimbursementId) {
+            return res.status(400).json({
+                success: false,
+                message: "Validation failed",
+                errors: [
+                    {
+                        path: ["reimbursementId"],
+                        message: "reimbursementId is required in the path",
+                    },
+                ],
+            });
+        }
+        const { action, rejectionReason } = req.body;
+        const result = await reviewReimbursementService(reimbursementId, {
+            action,
+            rejectionReason,
+            actor: req.actor,
+        });
+        if (!result.success) {
+            return res.status(result.statusCode).json({ success: false, message: result.message });
+        }
+        return res.status(result.statusCode).json({
+            success: true,
+            message: result.message,
+            data: result.data,
+        });
+    } catch (error) {
+        handleControllerErrorResponse(error, "reviewReimbursementController", req, res);
     }
-    const { action, rejectionReason } = req.body;
-    const result = await reviewReimbursementService(reimbursementId, {
-      action,
-      rejectionReason,
-      actor: req.actor,
-    });
-    if (!result.success) {
-      return res.status(result.statusCode).json({ success: false, message: result.message });
-    }
-    return res.status(result.statusCode).json({
-      success: true,
-      message: result.message,
-      data: result.data,
-    });
-  } catch (error) {
-    handleControllerErrorResponse(error, 'reviewReimbursementController', req, res);
-  }
 };
 
 // Finance process: mark an approved claim as paid out.
 export const processReimbursementController = async (req, res) => {
-  try {
-    const { reimbursementId } = req.params;
-    if (!reimbursementId) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors: [{ path: ['reimbursementId'], message: 'reimbursementId is required in the path' }],
-      });
+    try {
+        const { reimbursementId } = req.params;
+        if (!reimbursementId) {
+            return res.status(400).json({
+                success: false,
+                message: "Validation failed",
+                errors: [
+                    {
+                        path: ["reimbursementId"],
+                        message: "reimbursementId is required in the path",
+                    },
+                ],
+            });
+        }
+        const { payoutTxnRef } = req.body;
+        const result = await processReimbursementService(reimbursementId, req.actor, payoutTxnRef);
+        if (!result.success) {
+            return res.status(result.statusCode).json({ success: false, message: result.message });
+        }
+        return res.status(result.statusCode).json({
+            success: true,
+            message: result.message,
+            data: result.data,
+        });
+    } catch (error) {
+        handleControllerErrorResponse(error, "processReimbursementController", req, res);
     }
-    const { payoutTxnRef } = req.body;
-    const result = await processReimbursementService(reimbursementId, req.actor, payoutTxnRef);
-    if (!result.success) {
-      return res.status(result.statusCode).json({ success: false, message: result.message });
-    }
-    return res.status(result.statusCode).json({
-      success: true,
-      message: result.message,
-      data: result.data,
-    });
-  } catch (error) {
-    handleControllerErrorResponse(error, 'processReimbursementController', req, res);
-  }
 };

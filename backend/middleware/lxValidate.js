@@ -19,40 +19,40 @@
 // code sees coerced types (dates as Date, numbers as number) and defaults are
 // already applied.
 // ---------------------------------------------------------------------------
-import createContextLogger from '../logger/contextLogger.js';
+import createContextLogger from "../logger/contextLogger.js";
 
-const logger = createContextLogger('lxValidate');
+const logger = createContextLogger("lxValidate");
 
 const validate = (source) => (schema) => (req, res, next) => {
-  const result = schema.safeParse(req[source]);
+    const result = schema.safeParse(req[source]);
 
-  if (!result.success) {
-    logger.warn('Validation failed', {
-      source,
-      path: req.originalUrl,
-      errors: result.error.issues,
-      ip: req.ip,
-    });
-    return res.status(400).json({
-      success: false,
-      message: 'Validation failed',
-      errors: result.error.issues,
-    });
-  }
+    if (!result.success) {
+        logger.warn("Validation failed", {
+            source,
+            path: req.originalUrl,
+            errors: result.error.issues,
+            ip: req.ip,
+        });
+        return res.status(400).json({
+            success: false,
+            message: "Validation failed",
+            errors: result.error.issues,
+        });
+    }
 
-  // Express 5 makes req.query a getter, so assigning to it throws. Defining the
-  // property keeps the coerced value available without fighting the framework.
-  Object.defineProperty(req, source, {
-    value: result.data,
-    writable: true,
-    configurable: true,
-    enumerable: true,
-  });
-  return next();
+    // Express 5 makes req.query a getter, so assigning to it throws. Defining the
+    // property keeps the coerced value available without fighting the framework.
+    Object.defineProperty(req, source, {
+        value: result.data,
+        writable: true,
+        configurable: true,
+        enumerable: true,
+    });
+    return next();
 };
 
-export const validateBody = validate('body');
-export const validateQuery = validate('query');
-export const validateParams = validate('params');
+export const validateBody = validate("body");
+export const validateQuery = validate("query");
+export const validateParams = validate("params");
 
 export default { validateBody, validateQuery, validateParams };

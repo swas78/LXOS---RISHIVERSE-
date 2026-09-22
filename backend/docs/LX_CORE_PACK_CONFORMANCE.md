@@ -33,18 +33,18 @@ file disables implicit `.env` loading. Core does not need that line; drop it.
 
 ### Prefix gate
 
-| Check | Result |
-|---|---|
-| Models + enums under `prisma/models/lx/` | 30 |
-| …of those, `Lx`-prefixed | **30** |
-| Models with `@@map("lx_…")` | **13 / 13** |
-| Prohibited core names redeclared (`User`, `Club`, `Room`, `Achievement`, …) | **0** |
+| Check                                                                       | Result      |
+| --------------------------------------------------------------------------- | ----------- |
+| Models + enums under `prisma/models/lx/`                                    | 30          |
+| …of those, `Lx`-prefixed                                                    | **30**      |
+| Models with `@@map("lx_…")`                                                 | **13 / 13** |
+| Prohibited core names redeclared (`User`, `Club`, `Room`, `Achievement`, …) | **0**       |
 
 ---
 
 ## 2. Identity — DONE (with one deliberate divergence)
 
-LXOS declares **no user table**. `LxMember` is the LX *overlay* on core
+LXOS declares **no user table**. `LxMember` is the LX _overlay_ on core
 identity: `referenceId` + `role` + optional `clubId`/`clanId`.
 
 Every person-reference in every other LX table is a `*ByRef` column holding
@@ -80,8 +80,8 @@ Every such column carries a `/// CACHE — may drift` doc comment, and
 **one batched lookup per page of rows**, never a query per row:
 
 ```js
-import { hydrateNames } from './identityService.js';
-const rows = await hydrateNames(await someDal());   // one query, N rows
+import { hydrateNames } from "./identityService.js";
+const rows = await hydrateNames(await someDal()); // one query, N rows
 ```
 
 **To finish the job at handoff:** replace the body of `fetchNames()` in that
@@ -98,7 +98,7 @@ makes them redundant.
 
 `payoutRef` is the canonical payout destination: `student-bank:<enrollmentNo>`.
 Finance resolves the real account from `Student.bank*` in the core UI. LXOS
-records *which person* to pay, not their credentials.
+records _which person_ to pay, not their credentials.
 
 `payoutTxnRef` (new) holds the bank/UPI reference Finance captures once an
 approved claim is actually paid.
@@ -109,10 +109,10 @@ approved claim is actually paid.
 is gated behind `LX_COLLECT_BANK`, which is **`false` by default** and must
 stay false at handoff.
 
-| Flag | Behaviour |
-|---|---|
+| Flag                       | Behaviour                                                                                                                                                         |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `false` (default, shipped) | Validator strips `bankDetails`; DAL writes `{}` unconditionally; form shows "Payouts go to the bank account on your student profile."; only `payoutRef` is stored |
-| `true` (local demo only) | Collects account holder / number / IFSC so the standalone kit is demoable with no core `Student` table to read from |
+| `true` (local demo only)   | Collects account holder / number / IFSC so the standalone kit is demoable with no core `Student` table to read from                                               |
 
 Verified: posting `bankDetails` in the request body with the flag off stores
 `{}` and still derives `payoutRef` correctly. No log statement touches the
@@ -142,7 +142,7 @@ The **frontend flow is the real production flow**: presign → PUT with the exac
 **Handoff is one constant.** In `src/features/upload/uploadApi.ts`:
 
 ```ts
-const UPLOAD_BASE = "/lx/upload";   //  →  "/upload"
+const UPLOAD_BASE = "/lx/upload"; //  →  "/upload"
 ```
 
 …then delete `routes/lx/uploadRoutes.js`, `controllers/lx/uploadController.js`,
@@ -162,12 +162,12 @@ presign and upload it before submitting
 
 ### Where uploads are wired
 
-| Feature | Column | UI |
-|---|---|---|
-| Reimbursement bills | `LxReimbursement.bills` (≥1 required) | list uploader + gallery on the review screen |
-| Expense bills | `LxExpense.bills` | list uploader + bills column |
-| Product mockups | `LxProduct.images` (≤8, `[0]` = cover) | grid uploader, thumbnail strip, lightbox |
-| Files module | `LxFile.fileKey` | replaced the old `filename`/`path` pair |
+| Feature             | Column                                 | UI                                           |
+| ------------------- | -------------------------------------- | -------------------------------------------- |
+| Reimbursement bills | `LxReimbursement.bills` (≥1 required)  | list uploader + gallery on the review screen |
+| Expense bills       | `LxExpense.bills`                      | list uploader + bills column                 |
+| Product mockups     | `LxProduct.images` (≤8, `[0]` = cover) | grid uploader, thumbnail strip, lightbox     |
+| Files module        | `LxFile.fileKey`                       | replaced the old `filename`/`path` pair      |
 
 ---
 
@@ -178,8 +178,14 @@ Services return `{ success, message, statusCode, data?, pagination? }`.
 Pagination on **every** list endpoint now matches core's `buildPaginationMeta`:
 
 ```json
-{ "page": 1, "limit": 10, "totalCount": 42, "totalPages": 5,
-  "hasNextPage": true, "hasPreviousPage": false }
+{
+    "page": 1,
+    "limit": 10,
+    "totalCount": 42,
+    "totalPages": 5,
+    "hasNextPage": true,
+    "hasPreviousPage": false
+}
 ```
 
 `totalRecords` (the kit's old key) is gone from LX code. `hasNextPage` /
@@ -199,13 +205,13 @@ on `LxExpense` and `LxReimbursement`; a replay returns the original row with
 
 ## 6. Collisions — coexist, D1 still unsigned
 
-| Core product | LX table | Stance |
-|---|---|---|
-| `Club` / `ClubEvent` / `ClubMember` (`/api/v1/club`, `/clubs`) | `LxClub`, `LxEvent` | **Coexist** (pack option 2). Different product: budgets, semesters, approval workflow. Routes `/api/v1/lx/club`, Redux key `lxClub` |
-| `Building→Floor→Room→RoomBooking` (Book Venue) | `LxRoom`, `LxRoomBooking` | Coexist — LX event space, not hostel/classroom stock. LX never writes core `RoomBooking` |
-| `Achievement` (profile / OAA) | `LxAchievement` | Different entity — clan points + campus recognition |
+| Core product                                                   | LX table                  | Stance                                                                                                                              |
+| -------------------------------------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `Club` / `ClubEvent` / `ClubMember` (`/api/v1/club`, `/clubs`) | `LxClub`, `LxEvent`       | **Coexist** (pack option 2). Different product: budgets, semesters, approval workflow. Routes `/api/v1/lx/club`, Redux key `lxClub` |
+| `Building→Floor→Room→RoomBooking` (Book Venue)                 | `LxRoom`, `LxRoomBooking` | Coexist — LX event space, not hostel/classroom stock. LX never writes core `RoomBooking`                                            |
+| `Achievement` (profile / OAA)                                  | `LxAchievement`           | Different entity — clan points + campus recognition                                                                                 |
 
-**D1 is a maintainer decision and is not made here.** If you choose *defer*
+**D1 is a maintainer decision and is not made here.** If you choose _defer_
 instead, `LxClub` is dropped and LX rows point at core clubs via
 `coreClubId Int?`. To keep that migration cheap, nothing outside the club module
 assumes `LxClub` exists — the club id is an opaque string everywhere else.
@@ -245,18 +251,18 @@ These need a core-side decision or change. None are worked around silently.
 
 ## 8. Things to delete at handoff
 
-| Path | Why |
-|---|---|
-| `middleware/lxActor.js` | Dev actor shim. Replaced by `authenticate` + a `req.user → req.actor` mapper (the exact production body is in the file header) |
-| `routes/lx/userRoutes.js`, `controllers/lx/userController.js`, `services/lx/userService.js`, `dals/lx/userDal.js` | Back the dev switcher only |
-| `routes/lx/uploadRoutes.js`, `controllers/lx/uploadController.js`, `services/lx/uploadService.js` | Core owns uploads |
-| `src/components/lx/RoleSwitcher.tsx` | Explicitly must not ship |
-| `src/hooks/useCan.ts`, `src/lib/permissions.ts` | LX-only UX helpers — use `useAccessControl()` / `ac.can(Model.Lx, Action.UPDATE)` instead |
-| `src/features/upload/uploadApi.ts` | Core already has this file at this path |
-| `LxMember.displayName` / `.email` / `.avatar` | Marked `DEV-SHIM ONLY`; core owns all three |
-| `prisma.config.ts` line `import 'dotenv/config'` | Core injects the datasource url |
-| `.uploads/` | Fake bucket |
-| The `x-lx-actor-ref` header (frontend `src/lib/axios.ts` interceptor, and the entry in `app.js` CORS `Access-Control-Allow-Headers`) | Trusted only because nothing here is authenticated |
+| Path                                                                                                                                 | Why                                                                                                                            |
+| ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| `middleware/lxActor.js`                                                                                                              | Dev actor shim. Replaced by `authenticate` + a `req.user → req.actor` mapper (the exact production body is in the file header) |
+| `routes/lx/userRoutes.js`, `controllers/lx/userController.js`, `services/lx/userService.js`, `dals/lx/userDal.js`                    | Back the dev switcher only                                                                                                     |
+| `routes/lx/uploadRoutes.js`, `controllers/lx/uploadController.js`, `services/lx/uploadService.js`                                    | Core owns uploads                                                                                                              |
+| `src/components/lx/RoleSwitcher.tsx`                                                                                                 | Explicitly must not ship                                                                                                       |
+| `src/hooks/useCan.ts`, `src/lib/permissions.ts`                                                                                      | LX-only UX helpers — use `useAccessControl()` / `ac.can(Model.Lx, Action.UPDATE)` instead                                      |
+| `src/features/upload/uploadApi.ts`                                                                                                   | Core already has this file at this path                                                                                        |
+| `LxMember.displayName` / `.email` / `.avatar`                                                                                        | Marked `DEV-SHIM ONLY`; core owns all three                                                                                    |
+| `prisma.config.ts` line `import 'dotenv/config'`                                                                                     | Core injects the datasource url                                                                                                |
+| `.uploads/`                                                                                                                          | Fake bucket                                                                                                                    |
+| The `x-lx-actor-ref` header (frontend `src/lib/axios.ts` interceptor, and the entry in `app.js` CORS `Access-Control-Allow-Headers`) | Trusted only because nothing here is authenticated                                                                             |
 
 ## 9. Frontend moves at handoff
 

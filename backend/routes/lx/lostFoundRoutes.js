@@ -1,46 +1,79 @@
-import express from 'express';
-import createContextLogger from '../../logger/contextLogger.js';
+import express from "express";
+import createContextLogger from "../../logger/contextLogger.js";
 import {
-  createLostFoundController,
-  deleteLostFoundController,
-  getAllLostFoundController,
-  getLostFoundByIdController,
-  resolveLostFoundController,
-  reviewLostFoundController,
-  updateLostFoundController,
-} from '../../controllers/lx/lostFoundController.js';
-import { requirePermission } from '../../middleware/lxRequirePermission.js';
-import { PERMISSIONS } from '../../helper/lxPermissions.js';
-import { validateBody, validateQuery } from '../../middleware/lxValidate.js';
+    createLostFoundController,
+    deleteLostFoundController,
+    getAllLostFoundController,
+    getLostFoundByIdController,
+    resolveLostFoundController,
+    reviewLostFoundController,
+    updateLostFoundController,
+} from "../../controllers/lx/lostFoundController.js";
+import { requirePermission } from "../../middleware/lxRequirePermission.js";
+import { PERMISSIONS } from "../../helper/lxPermissions.js";
+import { validateBody, validateQuery } from "../../middleware/lxValidate.js";
 import {
-  createLostFoundSchema,
-  getAllLostFoundSchema,
-  resolveLostFoundSchema,
-  reviewLostFoundSchema,
-  updateLostFoundSchema,
-} from '../../validations/lx/lostFound.validation.js';
+    createLostFoundSchema,
+    getAllLostFoundSchema,
+    resolveLostFoundSchema,
+    reviewLostFoundSchema,
+    updateLostFoundSchema,
+} from "../../validations/lx/lostFound.validation.js";
 
 const router = express.Router();
-const logger = createContextLogger('lostFoundRoutes');
+const logger = createContextLogger("lostFoundRoutes");
 
 router.use((req, res, next) => {
-  logger.debug('LX lost-found route accessed', { method: req.method, path: req.path });
-  next();
+    logger.debug("LX lost-found route accessed", { method: req.method, path: req.path });
+    next();
 });
 
 // Anyone may report and browse. WHICH rows a read returns is a row-level
 // question — pending posts are invisible to everyone but their author and the
 // reviewers — so it is answered in the service, not by this middleware.
-router.get('/all', requirePermission(PERMISSIONS.REPORT_LOST_FOUND), validateQuery(getAllLostFoundSchema), getAllLostFoundController);
-router.post('/new', requirePermission(PERMISSIONS.REPORT_LOST_FOUND), validateBody(createLostFoundSchema), createLostFoundController);
-router.get('/:itemId', requirePermission(PERMISSIONS.REPORT_LOST_FOUND), getLostFoundByIdController);
+router.get(
+    "/all",
+    requirePermission(PERMISSIONS.REPORT_LOST_FOUND),
+    validateQuery(getAllLostFoundSchema),
+    getAllLostFoundController,
+);
+router.post(
+    "/new",
+    requirePermission(PERMISSIONS.REPORT_LOST_FOUND),
+    validateBody(createLostFoundSchema),
+    createLostFoundController,
+);
+router.get(
+    "/:itemId",
+    requirePermission(PERMISSIONS.REPORT_LOST_FOUND),
+    getLostFoundByIdController,
+);
 
 // Author-or-reviewer; the ownership half is enforced in the service.
-router.patch('/:itemId', requirePermission(PERMISSIONS.REPORT_LOST_FOUND), validateBody(updateLostFoundSchema), updateLostFoundController);
-router.delete('/:itemId', requirePermission(PERMISSIONS.REPORT_LOST_FOUND), deleteLostFoundController);
-router.post('/:itemId/resolve', requirePermission(PERMISSIONS.REPORT_LOST_FOUND), validateBody(resolveLostFoundSchema), resolveLostFoundController);
+router.patch(
+    "/:itemId",
+    requirePermission(PERMISSIONS.REPORT_LOST_FOUND),
+    validateBody(updateLostFoundSchema),
+    updateLostFoundController,
+);
+router.delete(
+    "/:itemId",
+    requirePermission(PERMISSIONS.REPORT_LOST_FOUND),
+    deleteLostFoundController,
+);
+router.post(
+    "/:itemId/resolve",
+    requirePermission(PERMISSIONS.REPORT_LOST_FOUND),
+    validateBody(resolveLostFoundSchema),
+    resolveLostFoundController,
+);
 
 // The approval gate itself.
-router.post('/:itemId/review', requirePermission(PERMISSIONS.APPROVE_LOST_FOUND), validateBody(reviewLostFoundSchema), reviewLostFoundController);
+router.post(
+    "/:itemId/review",
+    requirePermission(PERMISSIONS.APPROVE_LOST_FOUND),
+    validateBody(reviewLostFoundSchema),
+    reviewLostFoundController,
+);
 
 export default router;

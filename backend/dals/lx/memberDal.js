@@ -8,34 +8,40 @@
 // signature and `findDisplayNamesByRefsDal` becomes the batched core query
 // against User + Student + Employee.
 // ---------------------------------------------------------------------------
-import createContextLogger from '../../logger/contextLogger.js';
-import prisma from '../../services/prismaClient.js';
+import createContextLogger from "../../logger/contextLogger.js";
+import prisma from "../../services/prismaClient.js";
 
-const logger = createContextLogger('memberDal');
+const logger = createContextLogger("memberDal");
 
-const wrap = (name, fn) => async (...args) => {
-  try {
-    return await fn(...args);
-  } catch (error) {
-    logger.error(`Error in ${name}`, { error: { message: error.message, stack: error.stack } });
-    throw error;
-  }
-};
+const wrap =
+    (name, fn) =>
+    async (...args) => {
+        try {
+            return await fn(...args);
+        } catch (error) {
+            logger.error(`Error in ${name}`, {
+                error: { message: error.message, stack: error.stack },
+            });
+            throw error;
+        }
+    };
 
 /**
  * The LX overlay row for a core `User.referenceId`.
  * Used by the actor resolver on every request, so it stays a single indexed
  * lookup on a unique column.
  */
-export const findMemberByReferenceIdDal = wrap('findMemberByReferenceIdDal', (referenceId) =>
-  prisma.lxMember.findFirst({ where: { referenceId, isActive: true } }));
+export const findMemberByReferenceIdDal = wrap("findMemberByReferenceIdDal", (referenceId) =>
+    prisma.lxMember.findFirst({ where: { referenceId, isActive: true } }),
+);
 
 /** First seeded admin — the kit's fallback actor. DEV-SHIM ONLY. */
-export const findFallbackAdminDal = wrap('findFallbackAdminDal', () =>
-  prisma.lxMember.findFirst({
-    where: { role: 'ADMIN', isActive: true },
-    orderBy: { createdAt: 'asc' },
-  }));
+export const findFallbackAdminDal = wrap("findFallbackAdminDal", () =>
+    prisma.lxMember.findFirst({
+        where: { role: "ADMIN", isActive: true },
+        orderBy: { createdAt: "asc" },
+    }),
+);
 
 /**
  * Display names for a set of referenceIds, in ONE query.
@@ -53,8 +59,9 @@ export const findFallbackAdminDal = wrap('findFallbackAdminDal', () =>
  *
  * Never select `Student.bank*` here — that is PII and belongs to finance flows.
  */
-export const findDisplayNamesByRefsDal = wrap('findDisplayNamesByRefsDal', (refs) =>
-  prisma.lxMember.findMany({
-    where: { referenceId: { in: refs } },
-    select: { referenceId: true, displayName: true },
-  }));
+export const findDisplayNamesByRefsDal = wrap("findDisplayNamesByRefsDal", (refs) =>
+    prisma.lxMember.findMany({
+        where: { referenceId: { in: refs } },
+        select: { referenceId: true, displayName: true },
+    }),
+);

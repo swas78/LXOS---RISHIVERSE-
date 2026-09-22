@@ -1,8 +1,8 @@
 // Shared pure helpers for LX modules. No Prisma, no HTTP.
 
 // Normalize an "asc"/"desc" string to a Prisma sort order.
-export const normalizeSortOrder = (order, fallback = 'desc') =>
-  String(order || fallback).toLowerCase() === 'asc' ? 'asc' : 'desc';
+export const normalizeSortOrder = (order, fallback = "desc") =>
+    String(order || fallback).toLowerCase() === "asc" ? "asc" : "desc";
 
 // Build the standard pagination block from a total count.
 //
@@ -12,10 +12,10 @@ export const normalizeSortOrder = (order, fallback = 'desc') =>
 // quietly guaranteeing a break at integration. A client can derive both from
 // page and totalPages.
 export const buildPagination = (page, limit, totalCount) => ({
-  page,
-  limit,
-  totalCount,
-  totalPages: limit > 0 ? Math.ceil(totalCount / limit) : 0,
+    page,
+    limit,
+    totalCount,
+    totalPages: limit > 0 ? Math.ceil(totalCount / limit) : 0,
 });
 
 // Core's default page size. The kit used 12 (and 24/50/60 in places), which
@@ -32,11 +32,11 @@ export const pageSkip = (page, limit) => (page - 1) * limit;
 // prisma/models/lx/. Anything that must be correct resolves the name at read
 // time via services/lx/identityService.js.
 export const actorSnapshot = (actor) => ({
-  createdByRef: actor?.referenceId ?? 'unknown',
-  createdByName: actor?.displayName ?? null,
-  createdByRole: actor?.role ?? null,
+    createdByRef: actor?.referenceId ?? "unknown",
+    createdByName: actor?.displayName ?? null,
+    createdByRole: actor?.role ?? null,
 });
 
 // Two datetime ranges overlap if each starts before the other ends.
 export const rangesOverlap = (startA, endA, startB, endB) =>
-  new Date(startA) < new Date(endB) && new Date(startB) < new Date(endA);
+    new Date(startA) < new Date(endB) && new Date(startB) < new Date(endA);

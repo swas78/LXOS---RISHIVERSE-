@@ -24,67 +24,66 @@
 //     deleted             type is `number | null` rather than an optional, and a
 //                          forgotten check is a visible "—" instead of undefined.
 // ---------------------------------------------------------------------------
-import { PERMISSIONS, ROLES, hasPermission, isFinanceViewer } from './lxPermissions.js';
+import { PERMISSIONS, ROLES, hasPermission, isFinanceViewer } from "./lxPermissions.js";
 
 // Budget columns on LxClub / LxClan.
-const ENTITY_BUDGET_FIELDS = ['budgetAllocated', 'budgetSpent', 'budgetHistory'];
+const ENTITY_BUDGET_FIELDS = ["budgetAllocated", "budgetSpent", "budgetHistory"];
 // Budget columns on LxEvent.
-const EVENT_BUDGET_FIELDS = ['budgetAllocated', 'budgetSpent'];
+const EVENT_BUDGET_FIELDS = ["budgetAllocated", "budgetSpent"];
 
 /**
  * What an actor may see budgets for.
  * @returns {{ all: boolean, clubIds: string[], clanIds: string[] }}
  */
 export function budgetVisibility(actor) {
-  // ADMIN / LX_TEAM / FINANCE see every club and clan.
-  if (isFinanceViewer(actor?.role)) return { all: true, clubIds: [], clanIds: [] };
-  // A head sees exactly the one entity they lead — nothing else.
-  if (actor?.role === ROLES.CLUB_HEAD && actor.clubId) {
-    return { all: false, clubIds: [actor.clubId], clanIds: [] };
-  }
-  if (actor?.role === ROLES.CLAN_HEAD && actor.clanId) {
-    return { all: false, clubIds: [], clanIds: [actor.clanId] };
-  }
-  // Everyone else (GUEST, an unassigned head) sees no budgets at all.
-  return { all: false, clubIds: [], clanIds: [] };
+    // ADMIN / LX_TEAM / FINANCE see every club and clan.
+    if (isFinanceViewer(actor?.role)) return { all: true, clubIds: [], clanIds: [] };
+    // A head sees exactly the one entity they lead — nothing else.
+    if (actor?.role === ROLES.CLUB_HEAD && actor.clubId) {
+        return { all: false, clubIds: [actor.clubId], clanIds: [] };
+    }
+    if (actor?.role === ROLES.CLAN_HEAD && actor.clanId) {
+        return { all: false, clubIds: [], clanIds: [actor.clanId] };
+    }
+    // Everyone else (GUEST, an unassigned head) sees no budgets at all.
+    return { all: false, clubIds: [], clanIds: [] };
 }
 
 export const canSeeClubBudget = (actor, clubId) => {
-  const v = budgetVisibility(actor);
-  return v.all || (!!clubId && v.clubIds.includes(clubId));
+    const v = budgetVisibility(actor);
+    return v.all || (!!clubId && v.clubIds.includes(clubId));
 };
 
 export const canSeeClanBudget = (actor, clanId) => {
-  const v = budgetVisibility(actor);
-  return v.all || (!!clanId && v.clanIds.includes(clanId));
+    const v = budgetVisibility(actor);
+    return v.all || (!!clanId && v.clanIds.includes(clanId));
 };
 
 const applyRedaction = (row, fields, visible) => {
-  if (!row) return row;
-  if (visible) return { ...row, budgetVisible: true };
-  const out = { ...row, budgetVisible: false };
-  for (const f of fields) if (f in out) out[f] = null;
-  return out;
+    if (!row) return row;
+    if (visible) return { ...row, budgetVisible: true };
+    const out = { ...row, budgetVisible: false };
+    for (const f of fields) if (f in out) out[f] = null;
+    return out;
 };
 
 /** Redact budget columns on one club row. */
 export const redactClub = (club, actor) =>
-  applyRedaction(club, ENTITY_BUDGET_FIELDS, canSeeClubBudget(actor, club?.id));
+    applyRedaction(club, ENTITY_BUDGET_FIELDS, canSeeClubBudget(actor, club?.id));
 
 /** Redact budget columns on one clan row. Points are NOT redacted — the clan
  *  leaderboard is public by design; only money is scoped. */
 export const redactClan = (clan, actor) =>
-  applyRedaction(clan, ENTITY_BUDGET_FIELDS, canSeeClanBudget(actor, clan?.id));
+    applyRedaction(clan, ENTITY_BUDGET_FIELDS, canSeeClanBudget(actor, clan?.id));
 
 /**
  * Redact budget columns on one event row. An event's money belongs to the club
  * or clan running it, so it follows that entity's visibility.
  */
 export const redactEvent = (event, actor) => {
-  if (!event) return event;
-  const visible =
-    canSeeClubBudget(actor, event.clubId) || canSeeClanBudget(actor, event.clanId);
-  return applyRedaction(event, EVENT_BUDGET_FIELDS, visible);
+    if (!event) return event;
+    const visible = canSeeClubBudget(actor, event.clubId) || canSeeClanBudget(actor, event.clanId);
+    return applyRedaction(event, EVENT_BUDGET_FIELDS, visible);
 };
 
 export const redactClubs = (rows, actor) => (rows ?? []).map((r) => redactClub(r, actor));
@@ -106,21 +105,18 @@ export const redactEvents = (rows, actor) => (rows ?? []).map((r) => redactEvent
  * Returns a Prisma `where` fragment, spread into the DAL's existing clause.
  */
 export function eventVisibilityScope(actor) {
-  // Approvers work the queue, so they see everything in it.
-  if (hasPermission(actor?.role, PERMISSIONS.APPROVE_EVENT)) return {};
+    // Approvers work the queue, so they see everything in it.
+    if (hasPermission(actor?.role, PERMISSIONS.APPROVE_EVENT)) return {};
 
-  const publicStatuses = { status: { in: ['APPROVED', 'COMPLETED'] } };
-  const ref = actor?.referenceId;
+    const publicStatuses = { status: { in: ["APPROVED", "COMPLETED"] } };
+    const ref = actor?.referenceId;
 
-  // Everyone else: what is actually happening, plus whatever they submitted.
-  return ref
-    ? { OR: [publicStatuses, { createdByRef: ref }] }
-    : publicStatuses;
+    // Everyone else: what is actually happening, plus whatever they submitted.
+    return ref ? { OR: [publicStatuses, { createdByRef: ref }] } : publicStatuses;
 }
 
 /** True when this actor sees the approval queue rather than just public events. */
-export const seesEventQueue = (actor) =>
-  hasPermission(actor?.role, PERMISSIONS.APPROVE_EVENT);
+export const seesEventQueue = (actor) => hasPermission(actor?.role, PERMISSIONS.APPROVE_EVENT);
 
 // ---- Write scoping --------------------------------------------------------
 
@@ -132,31 +128,31 @@ export const seesEventQueue = (actor) =>
  * @returns {{ ok: true } | { ok: false, statusCode: number, message: string }}
  */
 export function assertClanWrite(actor, clanId) {
-  if (actor?.role === ROLES.ADMIN || actor?.role === ROLES.LX_TEAM) return { ok: true };
+    if (actor?.role === ROLES.ADMIN || actor?.role === ROLES.LX_TEAM) return { ok: true };
 
-  if (actor?.role === ROLES.CLAN_HEAD) {
-    if (!actor.clanId) {
-      return {
+    if (actor?.role === ROLES.CLAN_HEAD) {
+        if (!actor.clanId) {
+            return {
+                ok: false,
+                statusCode: 403,
+                message: "You are not assigned to a clan yet. Ask an admin to assign you.",
+            };
+        }
+        if (clanId && clanId !== actor.clanId) {
+            return {
+                ok: false,
+                statusCode: 403,
+                message: "You can only manage initiatives for your own clan.",
+            };
+        }
+        return { ok: true };
+    }
+
+    return {
         ok: false,
         statusCode: 403,
-        message: 'You are not assigned to a clan yet. Ask an admin to assign you.',
-      };
-    }
-    if (clanId && clanId !== actor.clanId) {
-      return {
-        ok: false,
-        statusCode: 403,
-        message: 'You can only manage initiatives for your own clan.',
-      };
-    }
-    return { ok: true };
-  }
-
-  return {
-    ok: false,
-    statusCode: 403,
-    message: 'Only clan heads and the LX team can manage clan initiatives.',
-  };
+        message: "Only clan heads and the LX team can manage clan initiatives.",
+    };
 }
 
 /**
@@ -170,7 +166,7 @@ export function assertClanWrite(actor, clanId) {
  * Callers must still run assertClanWrite() on the result.
  */
 export const resolveWriteClanId = (actor, requestedClanId) => {
-  if (requestedClanId) return requestedClanId;
-  if (actor?.role === ROLES.CLAN_HEAD && actor.clanId) return actor.clanId;
-  return requestedClanId;
+    if (requestedClanId) return requestedClanId;
+    if (actor?.role === ROLES.CLAN_HEAD && actor.clanId) return actor.clanId;
+    return requestedClanId;
 };

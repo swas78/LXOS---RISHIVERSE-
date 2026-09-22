@@ -9,10 +9,10 @@ it by hand.
 
 ## Variables
 
-| Variable | Default | Notes |
-|---|---|---|
-| `baseUrl` | `http://localhost:3010/api/v1` | |
-| `actorRef` | `EMP0417` | Seeded ADMIN. **Dev shim only.** |
+| Variable   | Default                        | Notes                            |
+| ---------- | ------------------------------ | -------------------------------- |
+| `baseUrl`  | `http://localhost:3010/api/v1` |                                  |
+| `actorRef` | `EMP0417`                      | Seeded ADMIN. **Dev shim only.** |
 
 ## At handoff
 

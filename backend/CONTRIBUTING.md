@@ -23,11 +23,11 @@ Never skip layers. Controllers must not import Prisma. Services must not call `r
 
 ## Naming
 
-| Kind | Pattern |
-|------|---------|
-| Files | `{entity}Routes.js`, `{entity}Controller.js`, `{entity}Service.js`, `{entity}Dal.js`, `{entity}Schema.js` |
-| Exports | `{action}{Entity}Controller`, etc. |
-| URLs | `/api/v1/{module}/{kebab-entity}/new` (POST), `/all` (GET), `/:entityId` (GET/PATCH/DELETE) |
+| Kind    | Pattern                                                                                                   |
+| ------- | --------------------------------------------------------------------------------------------------------- |
+| Files   | `{entity}Routes.js`, `{entity}Controller.js`, `{entity}Service.js`, `{entity}Dal.js`, `{entity}Schema.js` |
+| Exports | `{action}{Entity}Controller`, etc.                                                                        |
+| URLs    | `/api/v1/{module}/{kebab-entity}/new` (POST), `/all` (GET), `/:entityId` (GET/PATCH/DELETE)               |
 
 ## Service result
 
