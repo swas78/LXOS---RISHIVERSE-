@@ -45,7 +45,7 @@ enum LxMemberRole {
 }
 
 model LxMember {
-  id String @id @default(cuid())
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
   /// Core `User.referenceId` — enrollmentNo for students, employeeId for
   /// employees. This is the actor key for the whole LX module.
@@ -56,8 +56,8 @@ model LxMember {
   /// Primary affiliation, used by DAL scoping predicates. Core `ClubMember` is
   /// many-to-many; if LXOS later defers to core clubs (decision D1), scoping
   /// should union approved `ClubMember` rows instead of reading this column.
-  clubId String?
-  clanId String?
+  clubId String? @db.Uuid
+  clanId String? @db.Uuid
 
   isActive Boolean @default(true)
 
@@ -76,8 +76,18 @@ model LxMember {
   /// DEV-SHIM ONLY — deleted at handoff. Core serves `userProfileImg`.
   avatar      String?
 
+  /// Soft delete, like every other domain row. Revoking someone's LX access
+  /// must not erase who approved what while they held it.
+  deletedAt DateTime?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
+  /// Core `User.userId` of whoever last changed this row. Core stamps this on
+  /// every domain table; it is an Int because core's User PK is an Int, unlike
+  /// the `*ByRef` columns which carry `User.referenceId`.
+  updatedBy Int?
+
+  club LxClub? @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  clan LxClan? @relation(fields: [clanId], references: [id], onDelete: SetNull)
 
   @@index([role])
   @@index([clubId])

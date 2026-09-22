@@ -26,11 +26,11 @@
 // ===========================================================================
 
 model LxRoomBooking {
-  id         String    @id @default(cuid())
-  roomId     String
+  id         String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roomId String @db.Uuid
   /// CACHE — may drift. Denormalised from LxRoom.name for list rendering.
   roomName   String?
-  eventId    String?
+  eventId String? @db.Uuid
   /// CACHE — may drift. Denormalised from LxEvent.title.
   eventTitle String?
 
@@ -55,9 +55,14 @@ model LxRoomBooking {
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
+  /// Core `User.userId` of whoever last changed this row. Core stamps this on
+  /// every domain table; it is an Int because core's User PK is an Int, unlike
+  /// the `*ByRef` columns which carry `User.referenceId`.
+  updatedBy Int?
 
-  room LxRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  room  LxRoom   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  event LxEvent? @relation(fields: [eventId], references: [id], onDelete: SetNull)
 
   @@index([deletedAt])
   @@index([roomId, startTime, endTime])

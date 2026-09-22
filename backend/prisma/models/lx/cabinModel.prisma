@@ -15,7 +15,7 @@
 // ===========================================================================
 
 model LxCabin {
-  id   String @id @default(cuid())
+  id   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   /// Display name, e.g. "Cabin P5".
   name String @unique
   /// Short code shown on the cabin door, e.g. "P5".
@@ -37,7 +37,11 @@ model LxCabin {
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
+  /// Core `User.userId` of whoever last changed this row. Core stamps this on
+  /// every domain table; it is an Int because core's User PK is an Int, unlike
+  /// the `*ByRef` columns which carry `User.referenceId`.
+  updatedBy Int?
 
   bookings LxCabinBooking[]
 
@@ -47,8 +51,8 @@ model LxCabin {
 }
 
 model LxCabinBooking {
-  id        String  @id @default(cuid())
-  cabinId   String
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cabinId String @db.Uuid
   /// CACHE — may drift. Denormalised from LxCabin.name so the desk's record of
   /// which cabin was used survives a later rename.
   cabinName String?
@@ -109,7 +113,7 @@ model LxCabinBooking {
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
 
   cabin LxCabin @relation(fields: [cabinId], references: [id], onDelete: Cascade)
 
@@ -141,7 +145,7 @@ enum LxCabinBookingStatus {
 /// A temporary or permanent bar on booking cabins. Created automatically when a
 /// booking settles as a no-show, or by hand at the library desk.
 model LxCabinBlock {
-  id String @id @default(cuid())
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
   /// Core `User.referenceId` of the blocked person.
   memberRef  String
@@ -157,7 +161,7 @@ model LxCabinBlock {
 
   /// The no-show that caused an automatic block, if any. Also the idempotency
   /// key: one block per booking, so re-settling never stacks penalties.
-  bookingId String? @unique
+  bookingId String? @db.Uuid @unique
 
   /// Core `User.referenceId` of the librarian who applied it (null = automatic).
   createdByRef String?
@@ -167,7 +171,7 @@ model LxCabinBlock {
   liftReason   String?
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@index([memberRef, liftedAt, expiresAt])
   @@map("lx_cabin_blocks")

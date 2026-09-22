@@ -16,7 +16,7 @@
 // ===========================================================================
 
 model LxLostFoundItem {
-  id String @id @default(cuid())
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
 
   /// Whether the reporter LOST this item or FOUND it. Drives the whole
   /// reading of the post: "have you seen this?" vs "is this yours?".
@@ -70,7 +70,11 @@ model LxLostFoundItem {
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
+  /// Core `User.userId` of whoever last changed this row. Core stamps this on
+  /// every domain table; it is an Int because core's User PK is an Int, unlike
+  /// the `*ByRef` columns which carry `User.referenceId`.
+  updatedBy Int?
 
   @@index([deletedAt])
   @@index([status, createdAt])

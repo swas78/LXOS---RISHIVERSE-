@@ -6,7 +6,7 @@
 // ===========================================================================
 
 model LxClan {
-  id          String @id @default(cuid())
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String @unique
   /// Hex brand colour, e.g. "#f97316". Rendered inline (not a design token)
   /// because it is per-clan data, not part of the theme.
@@ -26,9 +26,18 @@ model LxClan {
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
+  /// Core `User.userId` of whoever last changed this row. Core stamps this on
+  /// every domain table; it is an Int because core's User PK is an Int, unlike
+  /// the `*ByRef` columns which carry `User.referenceId`.
+  updatedBy Int?
 
-  pointTxns LxClanPointTxn[]
+  pointTxns      LxClanPointTxn[]
+  events         LxEvent[]
+  achievements   LxAchievement[]
+  initiatives    LxInitiative[]
+  reimbursements LxReimbursement[]
+  members        LxMember[]
 
   @@index([deletedAt])
   @@map("lx_clans")
@@ -38,8 +47,8 @@ model LxClan {
 /// deleted — a mistake is corrected by posting a compensating transaction, so
 /// the history stays auditable. There is deliberately no `deletedAt` here.
 model LxClanPointTxn {
-  id             String @id @default(cuid())
-  clanId         String
+  id             String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clanId String @db.Uuid
   /// Signed movement. Negative deducts.
   delta          Int
   /// Balance AFTER this txn was applied.
@@ -47,7 +56,7 @@ model LxClanPointTxn {
   /// Balance BEFORE this txn was applied.
   previousPoints Int
   reason         String
-  eventId        String?
+  eventId String? @db.Uuid
 
   /// Core `User.referenceId` of the admin who posted the adjustment.
   createdByRef  String?
