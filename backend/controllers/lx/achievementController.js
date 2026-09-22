@@ -1,9 +1,3 @@
-import {
-  createAchievementSchema,
-  getAllAchievementsSchema,
-  reviewAchievementSchema,
-  updateAchievementSchema,
-} from '../../validators/lx/achievementSchema.js';
 import { LX_ACHIEVEMENT_EDITABLE_FIELDS } from '../../constants/lxAchievementConstant.js';
 import { actorSnapshot } from '../../helper/lxHelper.js';
 import {
@@ -18,7 +12,7 @@ import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
 
 export const createAchievementController = async (req, res) => {
   try {
-    const validatedData = createAchievementSchema.parse(req.body);
+    const validatedData = req.body;
     // Snapshot the creator. LxAchievement stores createdByRef/createdByName only
     // (no createdByRole column), so drop the role from the snapshot.
     const { createdByRef, createdByName } = actorSnapshot(req.actor);
@@ -42,7 +36,7 @@ export const createAchievementController = async (req, res) => {
 
 export const getAllAchievementsController = async (req, res) => {
   try {
-    const validatedData = getAllAchievementsSchema.parse(req.query);
+    const validatedData = req.query;
     const result = await getAllAchievementsService(validatedData);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
@@ -93,7 +87,7 @@ export const updateAchievementController = async (req, res) => {
       });
     }
 
-    const validatedData = updateAchievementSchema.parse(req.body);
+    const validatedData = req.body;
     if (Object.keys(validatedData).length === 0) {
       return res.status(400).json({
         success: false,
@@ -158,7 +152,7 @@ export const reviewAchievementController = async (req, res) => {
       });
     }
 
-    const validatedData = reviewAchievementSchema.parse(req.body);
+    const validatedData = req.body;
     const result = await reviewAchievementService(achievementId, validatedData, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });

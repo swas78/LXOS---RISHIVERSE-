@@ -1,8 +1,3 @@
-import {
-  createRoomSchema,
-  getAllRoomsSchema,
-  updateRoomSchema,
-} from '../../validators/lx/roomSchema.js';
 import { LX_ROOM_EDITABLE_FIELDS } from '../../constants/lxRoomConstant.js';
 import {
   createRoomService,
@@ -15,7 +10,7 @@ import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
 
 export const createRoomController = async (req, res) => {
   try {
-    const validatedData = createRoomSchema.parse(req.body);
+    const validatedData = req.body;
     const result = await createRoomService(validatedData);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
@@ -32,7 +27,7 @@ export const createRoomController = async (req, res) => {
 
 export const getAllRoomsController = async (req, res) => {
   try {
-    const validatedData = getAllRoomsSchema.parse(req.query);
+    const validatedData = req.query;
     const result = await getAllRoomsService(validatedData);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
@@ -83,7 +78,7 @@ export const updateRoomController = async (req, res) => {
       });
     }
 
-    const validatedData = updateRoomSchema.parse(req.body);
+    const validatedData = req.body;
     if (Object.keys(validatedData).length === 0) {
       return res.status(400).json({
         success: false,

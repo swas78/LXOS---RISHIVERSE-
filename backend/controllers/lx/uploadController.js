@@ -1,6 +1,5 @@
 // DEV UPLOAD SHIM controller — see services/lx/uploadService.js for why this
 // exists and what replaces it at handoff.
-import { presignedUrlSchema } from '../../validators/lx/uploadSchema.js';
 import {
   createPresignedUrlService,
   getObjectService,
@@ -10,7 +9,7 @@ import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
 
 export const createPresignedUrlController = async (req, res) => {
   try {
-    const validated = presignedUrlSchema.parse(req.body);
+    const validated = req.body;
     const result = await createPresignedUrlService(validated);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });

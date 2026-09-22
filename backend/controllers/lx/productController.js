@@ -1,9 +1,3 @@
-import {
-  createProductSchema,
-  getAllProductsSchema,
-  reviewProductSchema,
-  updateProductSchema,
-} from '../../validators/lx/productSchema.js';
 import { LX_PRODUCT_EDITABLE_FIELDS } from '../../constants/lxProductConstant.js';
 import {
   createProductService,
@@ -17,7 +11,7 @@ import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
 
 export const createProductController = async (req, res) => {
   try {
-    const validatedData = createProductSchema.parse(req.body);
+    const validatedData = req.body;
     // Snapshot the submitting learner from the actor shim.
     const payload = {
       ...validatedData,
@@ -40,7 +34,7 @@ export const createProductController = async (req, res) => {
 
 export const getAllProductsController = async (req, res) => {
   try {
-    const validatedData = getAllProductsSchema.parse(req.query);
+    const validatedData = req.query;
     const result = await getAllProductsService(validatedData);
     return res.status(result.statusCode).json({
       success: true,
@@ -87,7 +81,7 @@ export const updateProductController = async (req, res) => {
         errors: [{ path: ['productId'], message: 'productId is required in the path' }],
       });
     }
-    const validatedData = updateProductSchema.parse(req.body);
+    const validatedData = req.body;
     if (Object.keys(validatedData).length === 0) {
       return res.status(400).json({
         success: false,
@@ -145,7 +139,7 @@ export const reviewProductController = async (req, res) => {
         errors: [{ path: ['productId'], message: 'productId is required in the path' }],
       });
     }
-    const validatedData = reviewProductSchema.parse(req.body);
+    const validatedData = req.body;
     const result = await reviewProductService(productId, validatedData, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });

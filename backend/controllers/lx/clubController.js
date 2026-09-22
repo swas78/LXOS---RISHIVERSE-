@@ -1,8 +1,3 @@
-import {
-  createClubSchema,
-  getAllClubsSchema,
-  updateClubSchema,
-} from '../../validators/lx/clubSchema.js';
 import { LX_CLUB_EDITABLE_FIELDS } from '../../constants/lxClubConstant.js';
 import {
   createClubService,
@@ -15,7 +10,7 @@ import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
 
 export const createClubController = async (req, res) => {
   try {
-    const validatedData = createClubSchema.parse(req.body);
+    const validatedData = req.body;
     const result = await createClubService(validatedData);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
@@ -32,7 +27,7 @@ export const createClubController = async (req, res) => {
 
 export const getAllClubsController = async (req, res) => {
   try {
-    const validatedData = getAllClubsSchema.parse(req.query);
+    const validatedData = req.query;
     const result = await getAllClubsService(validatedData, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
@@ -83,7 +78,7 @@ export const updateClubController = async (req, res) => {
       });
     }
 
-    const validatedData = updateClubSchema.parse(req.body);
+    const validatedData = req.body;
     if (Object.keys(validatedData).length === 0) {
       return res.status(400).json({
         success: false,

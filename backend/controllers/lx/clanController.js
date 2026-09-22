@@ -1,9 +1,3 @@
-import {
-  createClanSchema,
-  getAllClansSchema,
-  manageClanPointsSchema,
-  updateClanSchema,
-} from '../../validators/lx/clanSchema.js';
 import { LX_CLAN_EDITABLE_FIELDS } from '../../constants/lxClanConstant.js';
 import {
   createClanService,
@@ -17,7 +11,7 @@ import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
 
 export const createClanController = async (req, res) => {
   try {
-    const validatedData = createClanSchema.parse(req.body);
+    const validatedData = req.body;
     const result = await createClanService(validatedData);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
@@ -34,7 +28,7 @@ export const createClanController = async (req, res) => {
 
 export const getAllClansController = async (req, res) => {
   try {
-    const validatedData = getAllClansSchema.parse(req.query);
+    const validatedData = req.query;
     const result = await getAllClansService(validatedData, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
@@ -85,7 +79,7 @@ export const updateClanController = async (req, res) => {
       });
     }
 
-    const validatedData = updateClanSchema.parse(req.body);
+    const validatedData = req.body;
     if (Object.keys(validatedData).length === 0) {
       return res.status(400).json({
         success: false,
@@ -145,7 +139,7 @@ export const manageClanPointsController = async (req, res) => {
       });
     }
 
-    const validatedData = manageClanPointsSchema.parse(req.body);
+    const validatedData = req.body;
     const result = await manageClanPointsService(clanId, validatedData, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });

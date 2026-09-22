@@ -1,8 +1,3 @@
-import {
-  createFileSchema,
-  getAllFilesSchema,
-  updateFileSchema,
-} from '../../validators/lx/fileSchema.js';
 import { LX_FILE_EDITABLE_FIELDS } from '../../constants/lxFileConstant.js';
 import {
   createFileService,
@@ -15,7 +10,7 @@ import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
 
 export const createFileController = async (req, res) => {
   try {
-    const validatedData = createFileSchema.parse(req.body);
+    const validatedData = req.body;
     const payload = {
       ...validatedData,
       uploadedByRef: req.actor?.referenceId ?? 'unknown',
@@ -37,7 +32,7 @@ export const createFileController = async (req, res) => {
 
 export const getAllFilesController = async (req, res) => {
   try {
-    const validatedData = getAllFilesSchema.parse(req.query);
+    const validatedData = req.query;
     const result = await getAllFilesService(validatedData);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
@@ -88,7 +83,7 @@ export const updateFileController = async (req, res) => {
       });
     }
 
-    const validatedData = updateFileSchema.parse(req.body);
+    const validatedData = req.body;
     if (Object.keys(validatedData).length === 0) {
       return res.status(400).json({
         success: false,

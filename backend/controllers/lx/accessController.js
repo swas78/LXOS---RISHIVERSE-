@@ -1,4 +1,3 @@
-import { assignAccessSchema, removeAccessSchema } from '../../validators/lx/accessSchema.js';
 import {
   assignAccessService,
   getAccessOverviewService,
@@ -21,7 +20,7 @@ export const getAccessController = async (req, res) => {
 
 export const assignAccessController = async (req, res) => {
   try {
-    const validated = assignAccessSchema.parse(req.body);
+    const validated = req.body;
     const result = await assignAccessService(validated);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
@@ -38,7 +37,7 @@ export const assignAccessController = async (req, res) => {
 
 export const removeAccessController = async (req, res) => {
   try {
-    const validated = removeAccessSchema.parse(req.body);
+    const validated = req.body;
     const result = await removeAccessService(validated);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });

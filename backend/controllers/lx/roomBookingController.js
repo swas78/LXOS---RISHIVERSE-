@@ -1,10 +1,4 @@
 import {
-  createRoomBookingSchema,
-  getAllRoomBookingsSchema,
-  reviewRoomBookingSchema,
-  roomBookingAvailabilitySchema,
-} from '../../validators/lx/roomBookingSchema.js';
-import {
   cancelRoomBookingService,
   checkRoomAvailabilityService,
   createRoomBookingService,
@@ -17,7 +11,7 @@ import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
 
 export const createRoomBookingController = async (req, res) => {
   try {
-    const validatedData = createRoomBookingSchema.parse(req.body);
+    const validatedData = req.body;
     const result = await createRoomBookingService(validatedData, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({
@@ -38,7 +32,7 @@ export const createRoomBookingController = async (req, res) => {
 
 export const getAllRoomBookingsController = async (req, res) => {
   try {
-    const validatedData = getAllRoomBookingsSchema.parse(req.query);
+    const validatedData = req.query;
     const result = await getAllRoomBookingsService(validatedData);
     return res.status(result.statusCode).json({
       success: true,
@@ -77,7 +71,7 @@ export const getRoomBookingByIdController = async (req, res) => {
 
 export const checkRoomAvailabilityController = async (req, res) => {
   try {
-    const validatedData = roomBookingAvailabilitySchema.parse(req.body);
+    const validatedData = req.body;
     const result = await checkRoomAvailabilityService(validatedData);
     return res.status(result.statusCode).json({
       success: true,
@@ -101,7 +95,7 @@ export const reviewRoomBookingController = async (req, res) => {
         errors: [{ path: ['bookingId'], message: 'bookingId is required in the path' }],
       });
     }
-    const validatedData = reviewRoomBookingSchema.parse(req.body);
+    const validatedData = req.body;
     const result = await reviewRoomBookingService(bookingId, validatedData, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({

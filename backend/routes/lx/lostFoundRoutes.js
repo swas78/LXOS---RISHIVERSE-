@@ -11,6 +11,14 @@ import {
 } from '../../controllers/lx/lostFoundController.js';
 import { requirePermission } from '../../middleware/lxRequirePermission.js';
 import { PERMISSIONS } from '../../helper/lxPermissions.js';
+import { validateBody, validateQuery } from '../../middleware/lxValidate.js';
+import {
+  createLostFoundSchema,
+  getAllLostFoundSchema,
+  resolveLostFoundSchema,
+  reviewLostFoundSchema,
+  updateLostFoundSchema,
+} from '../../validations/lx/lostFound.validation.js';
 
 const router = express.Router();
 const logger = createContextLogger('lostFoundRoutes');
@@ -23,16 +31,16 @@ router.use((req, res, next) => {
 // Anyone may report and browse. WHICH rows a read returns is a row-level
 // question — pending posts are invisible to everyone but their author and the
 // reviewers — so it is answered in the service, not by this middleware.
-router.get('/all', requirePermission(PERMISSIONS.REPORT_LOST_FOUND), getAllLostFoundController);
-router.post('/new', requirePermission(PERMISSIONS.REPORT_LOST_FOUND), createLostFoundController);
+router.get('/all', requirePermission(PERMISSIONS.REPORT_LOST_FOUND), validateQuery(getAllLostFoundSchema), getAllLostFoundController);
+router.post('/new', requirePermission(PERMISSIONS.REPORT_LOST_FOUND), validateBody(createLostFoundSchema), createLostFoundController);
 router.get('/:itemId', requirePermission(PERMISSIONS.REPORT_LOST_FOUND), getLostFoundByIdController);
 
 // Author-or-reviewer; the ownership half is enforced in the service.
-router.patch('/:itemId', requirePermission(PERMISSIONS.REPORT_LOST_FOUND), updateLostFoundController);
+router.patch('/:itemId', requirePermission(PERMISSIONS.REPORT_LOST_FOUND), validateBody(updateLostFoundSchema), updateLostFoundController);
 router.delete('/:itemId', requirePermission(PERMISSIONS.REPORT_LOST_FOUND), deleteLostFoundController);
-router.post('/:itemId/resolve', requirePermission(PERMISSIONS.REPORT_LOST_FOUND), resolveLostFoundController);
+router.post('/:itemId/resolve', requirePermission(PERMISSIONS.REPORT_LOST_FOUND), validateBody(resolveLostFoundSchema), resolveLostFoundController);
 
 // The approval gate itself.
-router.post('/:itemId/review', requirePermission(PERMISSIONS.APPROVE_LOST_FOUND), reviewLostFoundController);
+router.post('/:itemId/review', requirePermission(PERMISSIONS.APPROVE_LOST_FOUND), validateBody(reviewLostFoundSchema), reviewLostFoundController);
 
 export default router;

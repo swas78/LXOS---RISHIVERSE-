@@ -1,10 +1,3 @@
-import {
-  createReimbursementSchema,
-  getAllReimbursementsSchema,
-  updateReimbursementSchema,
-  reviewReimbursementSchema,
-  processReimbursementSchema,
-} from '../../validators/lx/reimbursementSchema.js';
 import { LX_REIMBURSEMENT_EDITABLE_FIELDS } from '../../constants/lxReimbursementConstant.js';
 import {
   createReimbursementService,
@@ -19,7 +12,7 @@ import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
 
 export const createReimbursementController = async (req, res) => {
   try {
-    const validatedData = createReimbursementSchema.parse(req.body);
+    const validatedData = req.body;
     // Snapshot the submitter from the acting user.
     const payload = {
       ...validatedData,
@@ -43,7 +36,7 @@ export const createReimbursementController = async (req, res) => {
 
 export const getAllReimbursementsController = async (req, res) => {
   try {
-    const validatedData = getAllReimbursementsSchema.parse(req.query);
+    const validatedData = req.query;
     const result = await getAllReimbursementsService(validatedData, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
@@ -94,7 +87,7 @@ export const updateReimbursementController = async (req, res) => {
       });
     }
 
-    const validatedData = updateReimbursementSchema.parse(req.body);
+    const validatedData = req.body;
     if (Object.keys(validatedData).length === 0) {
       return res.status(400).json({
         success: false,
@@ -157,7 +150,7 @@ export const reviewReimbursementController = async (req, res) => {
         errors: [{ path: ['reimbursementId'], message: 'reimbursementId is required in the path' }],
       });
     }
-    const { action, rejectionReason } = reviewReimbursementSchema.parse(req.body);
+    const { action, rejectionReason } = req.body;
     const result = await reviewReimbursementService(reimbursementId, {
       action,
       rejectionReason,
@@ -187,7 +180,7 @@ export const processReimbursementController = async (req, res) => {
         errors: [{ path: ['reimbursementId'], message: 'reimbursementId is required in the path' }],
       });
     }
-    const { payoutTxnRef } = processReimbursementSchema.parse(req.body ?? {});
+    const { payoutTxnRef } = req.body;
     const result = await processReimbursementService(reimbursementId, req.actor, payoutTxnRef);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });

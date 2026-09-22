@@ -5,7 +5,7 @@ import {
   LX_REIMBURSEMENT_STATUSES,
   LX_REIMBURSEMENT_SORT_BY,
 } from '../../constants/lxReimbursementConstant.js';
-import { attachmentSchema } from './uploadSchema.js';
+import { attachmentSchema } from './upload.validation.js';
 
 // Bills are plain attachment pointers — the canonical shape shared with
 // LxExpense.bills and produced by the frontend uploader.

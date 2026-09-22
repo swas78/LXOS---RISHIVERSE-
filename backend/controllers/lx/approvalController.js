@@ -1,4 +1,3 @@
-import { actOnApprovalSchema } from '../../validators/lx/approvalSchema.js';
 import { actOnApprovalService, getApprovalsService } from '../../services/lx/approvalService.js';
 import { hasPermission, PERMISSIONS } from '../../helper/lxPermissions.js';
 import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
@@ -44,7 +43,7 @@ export const getApprovalsController = async (req, res) => {
 
 export const actOnApprovalController = async (req, res) => {
   try {
-    const validated = actOnApprovalSchema.parse(req.body);
+    const validated = req.body;
 
     // Enforce the correct permission for this approval type + action.
     const needed = permissionFor(validated.type, validated.action);

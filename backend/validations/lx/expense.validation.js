@@ -4,7 +4,7 @@ import {
   LX_EXPENSE_STATUSES,
   LX_EXPENSE_SORT_BY,
 } from '../../constants/lxExpenseConstant.js';
-import { attachmentSchema } from './uploadSchema.js';
+import { attachmentSchema } from './upload.validation.js';
 
 // Receipts for one expense. `attachmentSchema` is the canonical shape shared
 // with every other file-bearing row, so a bill looks the same everywhere.

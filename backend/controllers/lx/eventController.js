@@ -1,10 +1,3 @@
-import {
-  approveEventSchema,
-  availabilitySchema,
-  createEventSchema,
-  getAllEventsSchema,
-  updateEventSchema,
-} from '../../validators/lx/eventSchema.js';
 import { LX_EVENT_EDITABLE_FIELDS } from '../../constants/lxEventConstant.js';
 import { actorSnapshot } from '../../helper/lxHelper.js';
 import {
@@ -21,7 +14,7 @@ import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
 
 export const createEventController = async (req, res) => {
   try {
-    const validatedData = createEventSchema.parse(req.body);
+    const validatedData = req.body;
 
     // Type-driven ownership: CLUB events belong to a club, CLAN events to a clan.
     if (validatedData.type === 'CLUB' && !validatedData.clubId) {
@@ -75,7 +68,7 @@ export const createEventController = async (req, res) => {
 
 export const getAllEventsController = async (req, res) => {
   try {
-    const validatedData = getAllEventsSchema.parse(req.query);
+    const validatedData = req.query;
     const result = await getAllEventsService(validatedData, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
@@ -126,7 +119,7 @@ export const updateEventController = async (req, res) => {
       });
     }
 
-    const validatedData = updateEventSchema.parse(req.body);
+    const validatedData = req.body;
     if (Object.keys(validatedData).length === 0) {
       return res.status(400).json({
         success: false,
@@ -197,7 +190,7 @@ export const deleteEventController = async (req, res) => {
 
 export const checkAvailabilityController = async (req, res) => {
   try {
-    const validatedData = availabilitySchema.parse(req.body);
+    const validatedData = req.body;
 
     if (validatedData.endDate < validatedData.startDate) {
       return res.status(400).json({
@@ -236,7 +229,7 @@ export const approveEventController = async (req, res) => {
       });
     }
 
-    const { action, rejectionReason } = approveEventSchema.parse(req.body);
+    const { action, rejectionReason } = req.body;
 
     if (action === 'reject' && !rejectionReason) {
       return res.status(400).json({

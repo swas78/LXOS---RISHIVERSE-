@@ -1,8 +1,3 @@
-import {
-  createInitiativeSchema,
-  getAllInitiativesSchema,
-  updateInitiativeSchema,
-} from '../../validators/lx/initiativeSchema.js';
 import { LX_INITIATIVE_EDITABLE_FIELDS } from '../../constants/lxInitiativeConstant.js';
 import {
   createInitiativeService,
@@ -16,7 +11,7 @@ import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
 
 export const createInitiativeController = async (req, res) => {
   try {
-    const validatedData = createInitiativeSchema.parse(req.body);
+    const validatedData = req.body;
     // Snapshot the creator (initiative only stores createdByRef/createdByName).
     const { createdByRef, createdByName } = actorSnapshot(req.actor);
     const result = await createInitiativeService(
@@ -38,7 +33,7 @@ export const createInitiativeController = async (req, res) => {
 
 export const getAllInitiativesController = async (req, res) => {
   try {
-    const validatedData = getAllInitiativesSchema.parse(req.query);
+    const validatedData = req.query;
     const result = await getAllInitiativesService(validatedData);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
@@ -89,7 +84,7 @@ export const updateInitiativeController = async (req, res) => {
       });
     }
 
-    const validatedData = updateInitiativeSchema.parse(req.body);
+    const validatedData = req.body;
     if (Object.keys(validatedData).length === 0) {
       return res.status(400).json({
         success: false,

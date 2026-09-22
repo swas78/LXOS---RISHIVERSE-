@@ -1,9 +1,3 @@
-import {
-  createExpenseSchema,
-  getAllExpensesSchema,
-  updateExpenseSchema,
-  verifyExpenseSchema,
-} from '../../validators/lx/expenseSchema.js';
 import { LX_EXPENSE_EDITABLE_FIELDS } from '../../constants/lxExpenseConstant.js';
 import {
   createExpenseService,
@@ -17,7 +11,7 @@ import { handleControllerErrorResponse } from '../../utils/responseUtils.js';
 
 export const createExpenseController = async (req, res) => {
   try {
-    const validatedData = createExpenseSchema.parse(req.body);
+    const validatedData = req.body;
     // Snapshot the submitter from the acting user.
     const payload = {
       ...validatedData,
@@ -42,7 +36,7 @@ export const createExpenseController = async (req, res) => {
 
 export const getAllExpensesController = async (req, res) => {
   try {
-    const validatedData = getAllExpensesSchema.parse(req.query);
+    const validatedData = req.query;
     const result = await getAllExpensesService(validatedData, req.actor);
     if (!result.success) {
       return res.status(result.statusCode).json({ success: false, message: result.message });
@@ -93,7 +87,7 @@ export const updateExpenseController = async (req, res) => {
       });
     }
 
-    const validatedData = updateExpenseSchema.parse(req.body);
+    const validatedData = req.body;
     if (Object.keys(validatedData).length === 0) {
       return res.status(400).json({
         success: false,
@@ -153,7 +147,7 @@ export const verifyExpenseController = async (req, res) => {
         errors: [{ path: ['expenseId'], message: 'expenseId is required in the path' }],
       });
     }
-    const { action, rejectionReason } = verifyExpenseSchema.parse(req.body);
+    const { action, rejectionReason } = req.body;
     const result = await verifyExpenseService(expenseId, {
       action,
       rejectionReason,

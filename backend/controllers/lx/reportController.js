@@ -1,4 +1,3 @@
-import { rolloverSchema } from '../../validators/lx/reportSchema.js';
 import {
   buildReportCsv,
   getReportService,
@@ -50,7 +49,7 @@ export const getSemestersController = async (req, res) => {
 
 export const rolloverController = async (req, res) => {
   try {
-    const validated = rolloverSchema.parse(req.body);
+    const validated = req.body;
     const result = await rolloverSemesterService(validated);
     return res.status(result.statusCode).json({
       success: true,

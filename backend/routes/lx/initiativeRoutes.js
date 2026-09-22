@@ -9,6 +9,12 @@ import {
 } from '../../controllers/lx/initiativeController.js';
 import { requirePermission } from '../../middleware/lxRequirePermission.js';
 import { PERMISSIONS } from '../../helper/lxPermissions.js';
+import { validateBody, validateQuery } from '../../middleware/lxValidate.js';
+import {
+  createInitiativeSchema,
+  getAllInitiativesSchema,
+  updateInitiativeSchema,
+} from '../../validations/lx/initiative.validation.js';
 
 const router = express.Router();
 const logger = createContextLogger('initiativeRoutes');
@@ -23,10 +29,10 @@ router.use((req, res, next) => {
 // check is necessary but NOT sufficient: it lets a clan head write *an*
 // initiative, not one belonging to *another* clan. Which clan they may touch is
 // a row-level question, enforced in the service via assertClanWrite().
-router.post('/new', requirePermission(PERMISSIONS.MANAGE_CLAN_INITIATIVES), createInitiativeController);
-router.get('/all', requirePermission(PERMISSIONS.VIEW_LX), getAllInitiativesController);
+router.post('/new', requirePermission(PERMISSIONS.MANAGE_CLAN_INITIATIVES), validateBody(createInitiativeSchema), createInitiativeController);
+router.get('/all', requirePermission(PERMISSIONS.VIEW_LX), validateQuery(getAllInitiativesSchema), getAllInitiativesController);
 router.get('/:initiativeId', requirePermission(PERMISSIONS.VIEW_LX), getInitiativeByIdController);
-router.patch('/:initiativeId', requirePermission(PERMISSIONS.MANAGE_CLAN_INITIATIVES), updateInitiativeController);
+router.patch('/:initiativeId', requirePermission(PERMISSIONS.MANAGE_CLAN_INITIATIVES), validateBody(updateInitiativeSchema), updateInitiativeController);
 router.delete('/:initiativeId', requirePermission(PERMISSIONS.MANAGE_CLAN_INITIATIVES), deleteInitiativeController);
 
 export default router;
