@@ -103,23 +103,17 @@ records _which person_ to pay, not their credentials.
 `payoutTxnRef` (new) holds the bank/UPI reference Finance captures once an
 approved claim is actually paid.
 
-### The `bankDetails` column — read this
+### The `bankDetails` column — removed
 
-`LxReimbursement.bankDetails` still exists and is **a known D3 violation**. It
-is gated behind `LX_COLLECT_BANK`, which is **`false` by default** and must
-stay false at handoff.
+`LxReimbursement.bankDetails` and the `LX_COLLECT_BANK` flag that gated it have
+been **deleted outright** — column, validator branch, DAL write, constants, both
+`.env` files, and the frontend form fields. The column held only `{}` in every
+row, which was verified before dropping it.
 
-| Flag                       | Behaviour                                                                                                                                                         |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `false` (default, shipped) | Validator strips `bankDetails`; DAL writes `{}` unconditionally; form shows "Payouts go to the bank account on your student profile."; only `payoutRef` is stored |
-| `true` (local demo only)   | Collects account holder / number / IFSC so the standalone kit is demoable with no core `Student` table to read from                                               |
-
-Verified: posting `bankDetails` in the request body with the flag off stores
-`{}` and still derives `payoutRef` correctly. No log statement touches the
-column.
-
-**Recommended endgame:** delete the column. It survives only so the kit demos
-standalone.
+D3 is therefore satisfied without a flag to get wrong: the only payout data LX
+stores is `payoutRef` (**who** to pay) and `payoutTxnRef` (the reference Finance
+captures once a claim is actually paid). Neither is a credential. `Student.bank*`
+in core remains the single store of account details.
 
 **Open gap:** `Employee` has no bank columns in core. If club heads are
 employees, D3 is unresolved for them — core needs a payout record. Flagged, not
@@ -182,15 +176,18 @@ Pagination on **every** list endpoint now matches core's `buildPaginationMeta`:
     "page": 1,
     "limit": 10,
     "totalCount": 42,
-    "totalPages": 5,
-    "hasNextPage": true,
-    "hasPreviousPage": false
+    "totalPages": 5
 }
 ```
 
-`totalRecords` (the kit's old key) is gone from LX code. `hasNextPage` /
-`hasPreviousPage` are additive extras and can be dropped without breaking core
-clients.
+Exactly those four keys — nothing more. `totalRecords` (the kit's old key) is
+gone from LX code, and `hasNextPage` / `hasPreviousPage` have been **removed**:
+clients had begun reading them, which made the kit's response a superset of
+core's and guaranteed a break at integration. Both are derivable from `page`
+and `totalPages`.
+
+The default page size is core's **10** (the kit used 12, and 24/50/60 in
+places), capped at 100.
 
 Verified across all 12 list endpoints.
 
