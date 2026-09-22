@@ -10,7 +10,7 @@
 // ===========================================================================
 
 model LxRoom {
-  id        String     @id @default(cuid())
+  id        String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String
   building  String?
   floor     String?
@@ -20,7 +20,11 @@ model LxRoom {
   isActive  Boolean    @default(true)
   deletedAt DateTime?
   createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  updatedAt DateTime   @default(now()) @updatedAt
+  /// Core `User.userId` of whoever last changed this row. Core stamps this on
+  /// every domain table; it is an Int because core's User PK is an Int, unlike
+  /// the `*ByRef` columns which carry `User.referenceId`.
+  updatedBy Int?
 
   bookings LxRoomBooking[]
 

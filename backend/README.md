@@ -43,20 +43,20 @@ You never get write access to RishiVerse `Master` or production secrets from thi
 
 ## Docs
 
-| Doc | Purpose |
-|-----|---------|
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | Layers, request flow, directory map |
-| [DESIGN.md](./DESIGN.md) | API/data design principles |
-| [RULES.md](./RULES.md) | Hard do/don't rules |
-| [CONTRIBUTING.md](./CONTRIBUTING.md) | Day-to-day workflow |
-| [ACCEPTANCE_CHECKLIST.md](./ACCEPTANCE_CHECKLIST.md) | Required before handoff |
-| [docs/MULTI_TEAM.md](./docs/MULTI_TEAM.md) | Shared kit for multiple outsourcing teams |
-| [docs/CONTRACTS.md](./docs/CONTRACTS.md) | Shared entities you may reference |
-| [docs/HANDOFF.md](./docs/HANDOFF.md) | How code enters RishiVerse |
-| [docs/SKILLS.md](./docs/SKILLS.md) | Cursor project skills index |
-| [templates/NEW_MODULE.md](./templates/NEW_MODULE.md) | File checklist for a new module |
-| `.cursor/rules/` | Always-on Cursor rules |
-| `.cursor/skills/` | Agent skills (new module / review / handoff) |
+| Doc                                                  | Purpose                                      |
+| ---------------------------------------------------- | -------------------------------------------- |
+| [ARCHITECTURE.md](./ARCHITECTURE.md)                 | Layers, request flow, directory map          |
+| [DESIGN.md](./DESIGN.md)                             | API/data design principles                   |
+| [RULES.md](./RULES.md)                               | Hard do/don't rules                          |
+| [CONTRIBUTING.md](./CONTRIBUTING.md)                 | Day-to-day workflow                          |
+| [ACCEPTANCE_CHECKLIST.md](./ACCEPTANCE_CHECKLIST.md) | Required before handoff                      |
+| [docs/MULTI_TEAM.md](./docs/MULTI_TEAM.md)           | Shared kit for multiple outsourcing teams    |
+| [docs/CONTRACTS.md](./docs/CONTRACTS.md)             | Shared entities you may reference            |
+| [docs/HANDOFF.md](./docs/HANDOFF.md)                 | How code enters RishiVerse                   |
+| [docs/SKILLS.md](./docs/SKILLS.md)                   | Cursor project skills index                  |
+| [templates/NEW_MODULE.md](./templates/NEW_MODULE.md) | File checklist for a new module              |
+| `.cursor/rules/`                                     | Always-on Cursor rules                       |
+| `.cursor/skills/`                                    | Agent skills (new module / review / handoff) |
 
 ## Golden example
 

@@ -1,10 +1,10 @@
 ---
 name: rishiverse-api-layer-review
 description: >-
-  Reviews module code against RishiVerse layered API rules (no Prisma in
-  controllers, no res.json in services, Zod in controllers, soft-delete, file
-  placement). Use when reviewing a PR, auditing a module, or checking handoff
-  readiness.
+    Reviews module code against RishiVerse layered API rules (no Prisma in
+    controllers, no res.json in services, Zod in controllers, soft-delete, file
+    placement). Use when reviewing a PR, auditing a module, or checking handoff
+    readiness.
 ---
 
 # RishiVerse API layer review
@@ -52,12 +52,15 @@ Walk the changed module and report **pass / fail** per item with file references
 ## Verdict: PASS | FAIL | PASS WITH NOTES
 
 ### Failures
+
 - ...
 
 ### Notes
+
 - ...
 
 ### Suggested fixes
+
 - ...
 ```
 

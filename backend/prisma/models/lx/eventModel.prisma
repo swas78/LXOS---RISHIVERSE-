@@ -10,15 +10,15 @@
 // ===========================================================================
 
 model LxEvent {
-  id          String      @id @default(cuid())
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title       String
   description String
   type        LxEventType
 
-  clubId   String?
+  clubId String? @db.Uuid
   /// CACHE — may drift. Denormalised from LxClub.name.
   clubName String?
-  clanId   String?
+  clanId String? @db.Uuid
   /// CACHE — may drift. Denormalised from LxClan.name.
   clanName String?
 
@@ -27,7 +27,7 @@ model LxEvent {
 
   /// LxRoom ids reserved for this event. The authoritative reservations live in
   /// LxRoomBooking (one row per room); this array is the read-side convenience.
-  roomIds   String[] @default([])
+  roomIds   String[] @default([]) @db.Uuid
   /// CACHE — may drift. Denormalised from LxRoom.name.
   roomNames String[] @default([])
   /// Free-text venue for events that do not occupy a bookable LX room.
@@ -69,7 +69,22 @@ model LxEvent {
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
+  /// Core `User.userId` of whoever last changed this row. Core stamps this on
+  /// every domain table; it is an Int because core's User PK is an Int, unlike
+  /// the `*ByRef` columns which carry `User.referenceId`.
+  updatedBy Int?
+
+  /// D1 DEPENDENCY: this FK assumes clubs COEXIST (LxClub is the LX club
+  /// directory). If maintainers pick "defer to core clubs", LxClub is deleted
+  /// and this becomes `coreClubId Int?` referencing core `Club.id` — at which
+  /// point every LX surface that reads a club changes too, so the FK is not
+  /// the expensive part of that decision.
+  club LxClub? @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  clan LxClan? @relation(fields: [clanId], references: [id], onDelete: SetNull)
+
+  expenses     LxExpense[]
+  roomBookings LxRoomBooking[]
 
   @@index([deletedAt])
   @@index([startDate, endDate])

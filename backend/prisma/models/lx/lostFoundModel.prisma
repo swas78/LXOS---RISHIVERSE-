@@ -1,0 +1,112 @@
+// ===========================================================================
+// LX MODULE — Lost & Found
+//
+// A campus noticeboard for misplaced property. Anyone may report an item they
+// lost or found; nothing appears publicly until an admin approves it.
+//
+// WHY MODERATION IS NOT OPTIONAL HERE
+// -----------------------------------
+// Unlike an event or a product, a lost-and-found post is a photograph plus a
+// location plus a contact number, submitted by anyone, about property that is
+// not theirs. Publishing that unreviewed invites both accidental harm (a photo
+// of an ID card showing someone's enrolment number) and deliberate abuse
+// (claiming to have found a laptop in order to harvest calls). The approval
+// gate is the product, not a formality — so PENDING rows are invisible to
+// everyone except their author and the people who review them.
+// ===========================================================================
+
+model LxLostFoundItem {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  /// Whether the reporter LOST this item or FOUND it. Drives the whole
+  /// reading of the post: "have you seen this?" vs "is this yours?".
+  kind LxLostFoundKind
+
+  title       String
+  description String
+  category    LxLostFoundCategory @default(OTHER)
+
+  /// Photographs, in display order — `images[0]` is the card thumbnail. Each
+  /// entry is a core S3 pointer, e.g. "s3:<bucket>:img/<uuid>-wallet.jpg",
+  /// uploaded through the presign flow. Store the pointer only; core's
+  /// s3UrlMiddleware signs a short-lived GET URL at read time.
+  ///
+  /// A photo is how anyone actually recognises their property, so the create
+  /// path requires at least one.
+  images String[] @default([])
+
+  /// Where it was lost or found, in the reporter's own words
+  /// ("A-Block third floor washroom", "near the Mini Audi steps").
+  location String
+
+  /// When it was lost or found — often days before the report is filed.
+  occurredOn DateTime
+
+  /// How to reach the reporter. OPTIONAL and published only on an APPROVED
+  /// item: the reporter chooses whether to expose it, and a rejected or
+  /// pending post never shows it to anyone.
+  contactPhone String?
+
+  /// Core `User.referenceId` of the reporter.
+  reportedByRef  String
+  /// CACHE — may drift. Resolve from core User/Student/Employee at read.
+  reportedByName String?
+
+  status LxLostFoundStatus @default(PENDING)
+
+  /// Core `User.referenceId` of the reviewing admin.
+  approvedByRef   String?
+  /// CACHE — may drift. See `reportedByName`.
+  approvedByName  String?
+  approvedAt      DateTime?
+  rejectionReason String?
+
+  /// Closing the loop. An item reunited with its owner leaves the public board
+  /// but stays on record, so the noticeboard shows only what is still open.
+  resolvedAt     DateTime?
+  /// Core `User.referenceId` of whoever marked it returned.
+  resolvedByRef  String?
+  resolutionNote String?
+
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @default(now()) @updatedAt
+  /// Core `User.userId` of whoever last changed this row. Core stamps this on
+  /// every domain table; it is an Int because core's User PK is an Int, unlike
+  /// the `*ByRef` columns which carry `User.referenceId`.
+  updatedBy Int?
+
+  @@index([deletedAt])
+  @@index([status, createdAt])
+  @@index([kind, category])
+  @@index([reportedByRef])
+  @@map("lx_lost_found_items")
+}
+
+enum LxLostFoundKind {
+  LOST
+  FOUND
+}
+
+enum LxLostFoundStatus {
+  /// Submitted, invisible to everyone but the author and the reviewers.
+  PENDING
+  /// Live on the public board.
+  APPROVED
+  /// Turned down, with a reason the author can read.
+  REJECTED
+  /// Reunited with its owner. Off the public board, still on record.
+  RESOLVED
+}
+
+enum LxLostFoundCategory {
+  ELECTRONICS
+  ID_CARD
+  KEYS
+  WALLET
+  CLOTHING
+  BOOK
+  STATIONERY
+  ACCESSORY
+  OTHER
+}

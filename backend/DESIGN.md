@@ -31,10 +31,10 @@ Always return a consistent JSON envelope:
 
 ```json
 {
-  "success": true,
-  "message": "Item created successfully",
-  "data": {},
-  "pagination": { "page": 1, "limit": 10, "totalRecords": 0 }
+    "success": true,
+    "message": "Item created successfully",
+    "data": {},
+    "pagination": { "page": 1, "limit": 10, "totalRecords": 0 }
 }
 ```
 
@@ -44,9 +44,9 @@ Always return a consistent JSON envelope:
 
 ```json
 {
-  "success": false,
-  "message": "Validation failed",
-  "errors": [{ "path": ["title"], "message": "title is required" }]
+    "success": false,
+    "message": "Validation failed",
+    "errors": [{ "path": ["title"], "message": "title is required" }]
 }
 ```
 
@@ -78,12 +78,12 @@ Clients (and QA) should not need per-endpoint response shapes.
 
 ## Local kit vs production
 
-| Concern | Kit | RishiVerse |
-|---------|-----|------------|
-| Auth / permissions | Stub / open | JWT + `checkPermission` |
-| Migrations | Local `db push` OK | Maintainers run migrate |
-| Logging | Console stub | Shared context logger |
-| Secrets | `.env.example` only | Org secrets / vault |
+| Concern            | Kit                 | RishiVerse              |
+| ------------------ | ------------------- | ----------------------- |
+| Auth / permissions | Stub / open         | JWT + `checkPermission` |
+| Migrations         | Local `db push` OK  | Maintainers run migrate |
+| Logging            | Console stub        | Shared context logger   |
+| Secrets            | `.env.example` only | Org secrets / vault     |
 
 Design your module as if auth will wrap it later: keep controllers thin and free of “fake admin” shortcuts.
 

@@ -21,8 +21,8 @@
 // ===========================================================================
 
 model LxExpense {
-  id         String  @id @default(cuid())
-  eventId    String
+  id         String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  eventId String @db.Uuid
   /// CACHE — may drift. Denormalised from LxEvent.title.
   eventTitle String?
 
@@ -60,7 +60,13 @@ model LxExpense {
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
+  /// Core `User.userId` of whoever last changed this row. Core stamps this on
+  /// every domain table; it is an Int because core's User PK is an Int, unlike
+  /// the `*ByRef` columns which carry `User.referenceId`.
+  updatedBy Int?
+
+  event LxEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
 
   @@index([deletedAt])
   @@index([eventId, status])

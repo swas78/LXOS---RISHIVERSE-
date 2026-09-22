@@ -4,12 +4,12 @@ This repository is the **shared scaffold for all external teams**. Keep one kit;
 
 ## Why one scaffold
 
-| Benefit | Detail |
-|---------|--------|
+| Benefit             | Detail                                                             |
+| ------------------- | ------------------------------------------------------------------ |
 | One source of truth | Same `ARCHITECTURE` / `DESIGN` / `RULES` / skills for every vendor |
-| Easier reviews | Maintainers always know the layout |
-| Cheaper onboarding | Invite → clone → copy `demo/item` |
-| Controlled upgrades | When RishiVerse patterns change, update this kit once |
+| Easier reviews      | Maintainers always know the layout                                 |
+| Cheaper onboarding  | Invite → clone → copy `demo/item`                                  |
+| Controlled upgrades | When RishiVerse patterns change, update this kit once              |
 
 ## Recommended operating model
 
@@ -33,9 +33,9 @@ This repository is the **shared scaffold for all external teams**. Keep one kit;
 
 ### Branch naming (avoid collisions)
 
-| Team work | Branch pattern |
-|-----------|----------------|
-| Feature | `feature/<vendor>-<module>-<short-desc>` |
+| Team work   | Branch pattern                                            |
+| ----------- | --------------------------------------------------------- |
+| Feature     | `feature/<vendor>-<module>-<short-desc>`                  |
 | Release tag | `<module>-vX.Y.Z` (module name should be globally unique) |
 
 Examples: `feature/acme-inventory-crud`, tag `inventory-v1.0.0`.
@@ -48,11 +48,11 @@ Examples: `feature/acme-inventory-crud`, tag `inventory-v1.0.0`.
 
 ### Isolation options (when needed)
 
-| Situation | Approach |
-|-----------|----------|
-| Normal multi-vendor | Shared kit (this repo) + strict module folder ownership |
+| Situation                  | Approach                                                                                                        |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Normal multi-vendor        | Shared kit (this repo) + strict module folder ownership                                                         |
 | Strong IP / NDA separation | Vendor forks this kit **or** gets a private copy repo seeded from this scaffold; standards still sync from here |
-| Temporary contractor | Read access to kit + PR-only via fork |
+| Temporary contractor       | Read access to kit + PR-only via fork                                                                           |
 
 Prefer **shared kit + module boundaries** first. Split repos only when legal/IP requires it.
 

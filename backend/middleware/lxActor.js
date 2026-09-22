@@ -35,66 +35,61 @@
 // frontend RoleSwitcher. That header is trusted ONLY because nothing here is
 // authenticated — it must never survive into production.
 // ---------------------------------------------------------------------------
-import prisma from '../services/prismaClient.js';
-import createContextLogger from '../logger/contextLogger.js';
+import { findFallbackAdminDal, findMemberByReferenceIdDal } from "../dals/lx/memberDal.js";
+import createContextLogger from "../logger/contextLogger.js";
 
-const logger = createContextLogger('lxActor');
+const logger = createContextLogger("lxActor");
 
 // Header carrying the impersonated core `User.referenceId`. Dev-only.
-export const ACTOR_HEADER = 'x-lx-actor-ref';
+export const ACTOR_HEADER = "x-lx-actor-ref";
 
 // A safe fallback so endpoints never crash for lack of an actor locally.
 const FALLBACK_ACTOR = {
-  referenceId: 'DEV-ADMIN',
-  coreUserId: null,
-  coreRole: null,
-  role: 'ADMIN',
-  clubId: null,
-  clanId: null,
-  displayName: 'Dev Admin',
+    referenceId: "DEV-ADMIN",
+    coreUserId: null,
+    coreRole: null,
+    role: "ADMIN",
+    clubId: null,
+    clanId: null,
+    displayName: "Dev Admin",
 };
 
 const toActor = (member) => ({
-  referenceId: member.referenceId,
-  // Null in the kit: core owns User.userId and User.userType. Production fills
-  // both from req.user so downstream code can tell core identity from LX role.
-  coreUserId: null,
-  coreRole: null,
-  role: member.role,
-  clubId: member.clubId,
-  clanId: member.clanId,
-  // DEV-SHIM ONLY — production resolves names via services/lx/identityService.js.
-  displayName: member.displayName ?? member.referenceId,
+    referenceId: member.referenceId,
+    // Null in the kit: core owns User.userId and User.userType. Production fills
+    // both from req.user so downstream code can tell core identity from LX role.
+    coreUserId: null,
+    coreRole: null,
+    role: member.role,
+    clubId: member.clubId,
+    clanId: member.clanId,
+    // DEV-SHIM ONLY — production resolves names via services/lx/identityService.js.
+    displayName: member.displayName ?? member.referenceId,
 });
 
 export const resolveActor = async (req, _res, next) => {
-  try {
-    const ref = req.header(ACTOR_HEADER);
-    if (ref) {
-      const member = await prisma.lxMember.findFirst({
-        where: { referenceId: ref, isActive: true },
-      });
-      if (member) {
-        req.actor = toActor(member);
-        return next();
-      }
-    }
+    try {
+        const ref = req.header(ACTOR_HEADER);
+        if (ref) {
+            const member = await findMemberByReferenceIdDal(ref);
+            if (member) {
+                req.actor = toActor(member);
+                return next();
+            }
+        }
 
-    // No/unknown header: fall back to the first seeded ADMIN so the kit is
-    // usable straight after `npm run seed`.
-    const admin = await prisma.lxMember.findFirst({
-      where: { role: 'ADMIN', isActive: true },
-      orderBy: { createdAt: 'asc' },
-    });
-    req.actor = admin ? toActor(admin) : FALLBACK_ACTOR;
-    return next();
-  } catch (error) {
-    logger.warn('resolveActor failed; using fallback actor', {
-      error: { message: error.message },
-    });
-    req.actor = FALLBACK_ACTOR;
-    return next();
-  }
+        // No/unknown header: fall back to the first seeded ADMIN so the kit is
+        // usable straight after `npm run seed`.
+        const admin = await findFallbackAdminDal();
+        req.actor = admin ? toActor(admin) : FALLBACK_ACTOR;
+        return next();
+    } catch (error) {
+        logger.warn("resolveActor failed; using fallback actor", {
+            error: { message: error.message },
+        });
+        req.actor = FALLBACK_ACTOR;
+        return next();
+    }
 };
 
 export default resolveActor;

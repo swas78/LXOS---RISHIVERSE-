@@ -6,21 +6,21 @@ If you need a column that does not exist, **request it** in handoff notes — do
 
 ## Student (summary)
 
-| Field | Notes |
-|-------|--------|
-| `enrollmentNo` | String PK used across the system |
-| `firstName`, `lastName`, `fullName` | Identity |
-| `emailId`, `mobileNumber` | Contact |
-| `profileStatus` | Onboarding-related; treat as opaque unless your module owns it |
+| Field                               | Notes                                                          |
+| ----------------------------------- | -------------------------------------------------------------- |
+| `enrollmentNo`                      | String PK used across the system                               |
+| `firstName`, `lastName`, `fullName` | Identity                                                       |
+| `emailId`, `mobileNumber`           | Contact                                                        |
+| `profileStatus`                     | Onboarding-related; treat as opaque unless your module owns it |
 
 Kit does **not** ship the full Student model.
 
 ## User
 
-| Field | Notes |
-|-------|--------|
-| `userId` | Int PK |
-| `referenceId` | Often enrollment / employee id |
+| Field               | Notes                                    |
+| ------------------- | ---------------------------------------- |
+| `userId`            | Int PK                                   |
+| `referenceId`       | Often enrollment / employee id           |
 | Roles / permissions | Enforced in core; document what you need |
 
 ## Response envelope

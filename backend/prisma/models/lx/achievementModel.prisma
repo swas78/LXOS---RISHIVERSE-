@@ -16,15 +16,15 @@
 // ===========================================================================
 
 model LxAchievement {
-  id          String @id @default(cuid())
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   title       String
   description String
 
-  eventId  String?
-  clubId   String?
+  eventId String? @db.Uuid
+  clubId String? @db.Uuid
   /// CACHE — may drift. Denormalised from LxClub.name.
   clubName String?
-  clanId   String?
+  clanId String? @db.Uuid
   /// CACHE — may drift. Denormalised from LxClan.name.
   clanName String?
 
@@ -56,7 +56,14 @@ model LxAchievement {
 
   deletedAt DateTime?
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime  @default(now()) @updatedAt
+  /// Core `User.userId` of whoever last changed this row. Core stamps this on
+  /// every domain table; it is an Int because core's User PK is an Int, unlike
+  /// the `*ByRef` columns which carry `User.referenceId`.
+  updatedBy Int?
+
+  club LxClub? @relation(fields: [clubId], references: [id], onDelete: SetNull)
+  clan LxClan? @relation(fields: [clanId], references: [id], onDelete: SetNull)
 
   @@index([deletedAt])
   @@index([status, achievedDate])

@@ -1,9 +1,9 @@
 ---
 name: rishiverse-module-handoff
 description: >-
-  Prepares a vendor module for integration into RishiVerse-Backend: release tag
-  notes, paths to copy, env vars, Prisma models, and acceptance checklist.
-  Use when the user asks to hand off, release, or integrate a module.
+    Prepares a vendor module for integration into RishiVerse-Backend: release tag
+    notes, paths to copy, env vars, Prisma models, and acceptance checklist.
+    Use when the user asks to hand off, release, or integrate a module.
 ---
 
 # RishiVerse module handoff
@@ -19,11 +19,13 @@ Module is feature-complete in this kit and ready for maintainers to copy into Ri
 
 ```markdown
 ## Module
+
 - Name: `{module}`
 - Entities: ...
 - Suggested tag: `{module}-vX.Y.Z`
 
 ## Paths to copy into RishiVerse-Backend
+
 - routes/{module}/
 - routes/{module}Routes.js
 - controllers/{module}/
@@ -31,28 +33,34 @@ Module is feature-complete in this kit and ready for maintainers to copy into Ri
 - dals/{module}/
 - validators/{module}/
 - constants/{module}Constant.js
-- helper/{module}Helper.js   # if any
+- helper/{module}Helper.js # if any
 - prisma/models/{module}/
 - docs/...
 
 ## Prisma
+
 - Models / enums added:
 - Indexes / uniques:
 
 ## Env vars (names only)
+
 - FOO_BAR=
 
 ## Permissions (if any)
+
 - model / actions expected
 
 ## Endpoints
+
 | Method | Path | Notes |
-|--------|------|-------|
+| ------ | ---- | ----- |
 
 ## Dependencies beyond Express/Prisma/Zod
+
 - ...
 
 ## Test notes
+
 - How to smoke-test locally
 - Known limitations (auth not in kit, etc.)
 ```

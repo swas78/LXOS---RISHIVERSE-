@@ -28,31 +28,28 @@
 // Never select `Student.bank*` here — that is PII and belongs to finance flows
 // only (lxos-core-pack/payouts.md).
 // ---------------------------------------------------------------------------
-import prisma from '../prismaClient.js';
+import { findDisplayNamesByRefsDal } from "../../dals/lx/memberDal.js";
 
 // Fields on LX rows that hold a referenceId, paired with the cache column the
 // resolved name should be written back onto.
 export const REF_NAME_PAIRS = [
-  ['createdByRef', 'createdByName'],
-  ['approvedByRef', 'approvedByName'],
-  ['submittedByRef', 'submittedByName'],
-  ['verifiedByRef', 'verifiedByName'],
-  ['reviewedByRef', 'reviewedByName'],
-  ['processedByRef', 'processedByName'],
-  ['uploadedByRef', 'uploadedByName'],
-  ['requestedByRef', 'requestedByName'],
-  ['completedByRef', 'completedByName'],
+    ["createdByRef", "createdByName"],
+    ["approvedByRef", "approvedByName"],
+    ["submittedByRef", "submittedByName"],
+    ["verifiedByRef", "verifiedByName"],
+    ["reviewedByRef", "reviewedByName"],
+    ["processedByRef", "processedByName"],
+    ["uploadedByRef", "uploadedByName"],
+    ["requestedByRef", "requestedByName"],
+    ["completedByRef", "completedByName"],
 ];
 
-// KIT IMPLEMENTATION — replace this one function at handoff (see header).
+// The query lives in dals/lx/memberDal.js — a service never touches Prisma.
+// At handoff that DAL swaps to the batched core User+Student+Employee lookup
+// and this function is untouched.
 const fetchNames = async (refs) => {
-  const members = await prisma.lxMember.findMany({
-    where: { referenceId: { in: refs } },
-    select: { referenceId: true, displayName: true },
-  });
-  return new Map(
-    members.map((m) => [m.referenceId, m.displayName ?? m.referenceId]),
-  );
+    const rows = await findDisplayNamesByRefsDal(refs);
+    return new Map(rows.map((r) => [r.referenceId, r.displayName ?? r.referenceId]));
 };
 
 /**
@@ -61,9 +58,9 @@ const fetchNames = async (refs) => {
  * @returns {Promise<Map<string, string>>} referenceId -> display name
  */
 export const resolveNames = async (refs) => {
-  const unique = [...new Set((refs ?? []).filter(Boolean))];
-  if (unique.length === 0) return new Map();
-  return fetchNames(unique);
+    const unique = [...new Set((refs ?? []).filter(Boolean))];
+    if (unique.length === 0) return new Map();
+    return fetchNames(unique);
 };
 
 /**
@@ -76,33 +73,33 @@ export const resolveNames = async (refs) => {
  * @returns {Promise<T[]>}
  */
 export const hydrateNames = async (rows) => {
-  if (!Array.isArray(rows) || rows.length === 0) return rows;
+    if (!Array.isArray(rows) || rows.length === 0) return rows;
 
-  const refs = [];
-  for (const row of rows) {
-    for (const [refKey] of REF_NAME_PAIRS) {
-      if (row?.[refKey]) refs.push(row[refKey]);
+    const refs = [];
+    for (const row of rows) {
+        for (const [refKey] of REF_NAME_PAIRS) {
+            if (row?.[refKey]) refs.push(row[refKey]);
+        }
     }
-  }
 
-  const names = await resolveNames(refs);
-  if (names.size === 0) return rows;
+    const names = await resolveNames(refs);
+    if (names.size === 0) return rows;
 
-  return rows.map((row) => {
-    const patch = {};
-    for (const [refKey, nameKey] of REF_NAME_PAIRS) {
-      const ref = row?.[refKey];
-      if (ref && names.has(ref)) patch[nameKey] = names.get(ref);
-    }
-    return Object.keys(patch).length > 0 ? { ...row, ...patch } : row;
-  });
+    return rows.map((row) => {
+        const patch = {};
+        for (const [refKey, nameKey] of REF_NAME_PAIRS) {
+            const ref = row?.[refKey];
+            if (ref && names.has(ref)) patch[nameKey] = names.get(ref);
+        }
+        return Object.keys(patch).length > 0 ? { ...row, ...patch } : row;
+    });
 };
 
 /** Single-row convenience wrapper around {@link hydrateNames}. */
 export const hydrateRowNames = async (row) => {
-  if (!row) return row;
-  const [hydrated] = await hydrateNames([row]);
-  return hydrated;
+    if (!row) return row;
+    const [hydrated] = await hydrateNames([row]);
+    return hydrated;
 };
 
 export default { resolveNames, hydrateNames, hydrateRowNames, REF_NAME_PAIRS };
