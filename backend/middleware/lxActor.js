@@ -35,7 +35,7 @@
 // frontend RoleSwitcher. That header is trusted ONLY because nothing here is
 // authenticated — it must never survive into production.
 // ---------------------------------------------------------------------------
-import prisma from '../services/prismaClient.js';
+import { findFallbackAdminDal, findMemberByReferenceIdDal } from '../dals/lx/memberDal.js';
 import createContextLogger from '../logger/contextLogger.js';
 
 const logger = createContextLogger('lxActor');
@@ -71,9 +71,7 @@ export const resolveActor = async (req, _res, next) => {
   try {
     const ref = req.header(ACTOR_HEADER);
     if (ref) {
-      const member = await prisma.lxMember.findFirst({
-        where: { referenceId: ref, isActive: true },
-      });
+      const member = await findMemberByReferenceIdDal(ref);
       if (member) {
         req.actor = toActor(member);
         return next();
@@ -82,10 +80,7 @@ export const resolveActor = async (req, _res, next) => {
 
     // No/unknown header: fall back to the first seeded ADMIN so the kit is
     // usable straight after `npm run seed`.
-    const admin = await prisma.lxMember.findFirst({
-      where: { role: 'ADMIN', isActive: true },
-      orderBy: { createdAt: 'asc' },
-    });
+    const admin = await findFallbackAdminDal();
     req.actor = admin ? toActor(admin) : FALLBACK_ACTOR;
     return next();
   } catch (error) {

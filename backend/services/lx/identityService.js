@@ -28,7 +28,7 @@
 // Never select `Student.bank*` here — that is PII and belongs to finance flows
 // only (lxos-core-pack/payouts.md).
 // ---------------------------------------------------------------------------
-import prisma from '../prismaClient.js';
+import { findDisplayNamesByRefsDal } from '../../dals/lx/memberDal.js';
 
 // Fields on LX rows that hold a referenceId, paired with the cache column the
 // resolved name should be written back onto.
@@ -44,15 +44,12 @@ export const REF_NAME_PAIRS = [
   ['completedByRef', 'completedByName'],
 ];
 
-// KIT IMPLEMENTATION — replace this one function at handoff (see header).
+// The query lives in dals/lx/memberDal.js — a service never touches Prisma.
+// At handoff that DAL swaps to the batched core User+Student+Employee lookup
+// and this function is untouched.
 const fetchNames = async (refs) => {
-  const members = await prisma.lxMember.findMany({
-    where: { referenceId: { in: refs } },
-    select: { referenceId: true, displayName: true },
-  });
-  return new Map(
-    members.map((m) => [m.referenceId, m.displayName ?? m.referenceId]),
-  );
+  const rows = await findDisplayNamesByRefsDal(refs);
+  return new Map(rows.map((r) => [r.referenceId, r.displayName ?? r.referenceId]));
 };
 
 /**
