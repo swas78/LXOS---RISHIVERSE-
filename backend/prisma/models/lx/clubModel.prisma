@@ -1,13 +1,13 @@
 // ===========================================================================
 // LX MODULE — Clubs
 //
-// COLLISION NOTE — DECISION D1 IS UNRESOLVED (lxos-core-pack/collisions.md)
+// COLLISION NOTE — DECISION D1 IS SETTLED: COEXIST (confirmed by maintainers)
 // ------------------------------------------------------------------------
 // Core already ships a student Clubs product: models `Club` / `ClubEvent` /
 // `ClubMember`, routes `/api/v1/club`, UI at `/clubs`. Core `Club.id` is an
-// autoincrement Int; LX ids are cuids.
+// autoincrement Int; LX ids are uuids (`gen_random_uuid()`, `@db.Uuid`).
 //
-// This module currently takes option 2, COEXIST: `LxClub` models Learner
+// This module takes option 2, COEXIST: `LxClub` models Learner
 // Experience orgs with budgets and semesters — a different product from core's
 // club directory and membership requests. Routes stay under `/api/v1/lx/club`
 // (never `/club`) and the Redux key is `lxClub` (never `clubs`).

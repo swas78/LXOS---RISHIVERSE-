@@ -108,7 +108,40 @@ sample still matches its own rules.
 
 ---
 
-## Still blocked on a maintainer decision
+## Maintainer decisions — SETTLED
+
+Confirmed by Sarthak Joshi on 23 Sep 2026. Recorded here so the assumptions
+below are no longer assumptions:
+
+| Decision         | Ruling                                                                                                                                                                                                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **D1 — clubs**   | **Coexist.** Keep `LxClub`; not core `/clubs`.                                                                                                                                                                                                                      |
+| Rooms            | Stay separate from Book Venue. Keep `LxRoom` / `LxRoomBooking`.                                                                                                                                                                                                     |
+| Achievements     | `LxAchievement` is not OAA `Achievement`. Routes stay under `/lx`.                                                                                                                                                                                                  |
+| Permission grain | One `Model.Lx` with CRUD. Core adds `ModelName.Lx`; `VIEW_LX` maps to `READ` at copy time. Row-scope stays in these DALs.                                                                                                                                           |
+| `APPROVE`        | **Not** being added. Approve/reject maps to `UPDATE`.                                                                                                                                                                                                               |
+| Audit log        | An `LxAuditLog` will be added **in this module** during integration, for finance and approval transitions. No shared core table.                                                                                                                                    |
+| Employee payouts | Stay blocked until core has a payout record. Student `payoutRef` unchanged.                                                                                                                                                                                         |
+| `btree_gist`     | Application-level overlap check accepted for v1. Maintainers add the constraint in their migration.                                                                                                                                                                 |
+| Kit rules        | `validations/` + middleware is correct and stays. Maintainers are updating the shared `RULES.md` / checklist so other vendors follow it. `demo/` stays on the old layout until that lands.                                                                          |
+| Brand / UI       | Kit demo stays aligned with the live app (crimson `#b61d45` titles and primary buttons, orange sidebar active). Kit `globals.css`, header and rail are **not** copied — v2 has `ERPLayout`. Colour Guide vs live app is a Design/v2 decision, outside this handoff. |
+
+---
+
+## Carry these into v1 when copying
+
+Flagged at the maintainers' request — these are part of v1 and easy to miss
+because they arrived after the original plan was written:
+
+| Surface                   | What to copy                                                                                                                                                                                                                                                                                       |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Lost & Found**          | `LxLostFoundItem`; `routes/lx/lostFoundRoutes.js` + its controller / service / DAL. Posts are approval-gated, so they ride on the same approvals surface.                                                                                                                                          |
+| **Library cabin booking** | `LxCabin`, `LxCabinBooking`, `LxCabinBlock`; `routes/lx/cabinRoutes.js` and the cabin admin/booking services. Note `LxCabinBooking.slotKey` is a nullable unique — claiming a slot IS the unique insert, so this one already has database-level double-booking prevention, unlike `LxRoomBooking`. |
+| **`LIBRARIAN` role**      | In the `LxMemberRole` enum and in `helper/lxPermissions.js`. It is a seventh role alongside ADMIN / LX_TEAM / CLUB_HEAD / CLAN_HEAD / FINANCE / GUEST, and the cabin desk screens depend on it.                                                                                                    |
+
+---
+
+## Decisions as they stood before the ruling above (kept for context)
 
 | Decision                           | Current assumption                                                                                                                                                                                                                                                                                                                                                                                                | If it flips                                                                                                                                       |
 | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
