@@ -3,6 +3,7 @@ import prisma from "../../services/prismaClient.js";
 import { buildPagination, normalizeSortOrder, pageSkip } from "../../helper/lxHelper.js";
 import { LX_ROOM_BOOKING_ACTIVE_STATUSES } from "../../constants/lxRoomBookingConstant.js";
 import { withSerializableRetry } from "./serializableRetry.js";
+import { LX_EVENT_ACTIVE_STATUSES } from "../../constants/lxEventConstant.js";
 
 const logger = createContextLogger("roomBookingDal");
 
@@ -162,6 +163,143 @@ export const deleteRoomBookingDal = async (bookingId) => {
         logger.error("Error in deleteRoomBookingDal", {
             error: { message: error.message, stack: error.stack },
             bookingId,
+        });
+        throw error;
+    }
+};
+
+/** Live rooms by id, for validating a multi-room request. */
+export const getRoomsByIdsDal = async (roomIds) => {
+    try {
+        return await prisma.lxRoom.findMany({
+            where: { id: { in: roomIds }, deletedAt: null, isActive: true },
+            select: { id: true, name: true },
+        });
+    } catch (error) {
+        logger.error("Error in getRoomsByIdsDal", {
+            error: { message: error.message, stack: error.stack },
+        });
+        throw error;
+    }
+};
+
+/**
+ * Claim several rooms for one purpose in a single Serializable transaction.
+ *
+ * All or nothing. Every room is re-checked against BOTH overlapping bookings
+ * and overlapping events inside the transaction, so nothing can slip in between
+ * the availability screen and the submit. If any room is gone, the transaction
+ * returns the list and creates nothing.
+ *
+ * Checking events here matters: the single-room path only ever looked at other
+ * bookings, so a room already held by an approved event accepted a second
+ * claim. This closes that for the multi-room flow.
+ *
+ * @returns { bookings } on success, or { unavailable: [{ roomId, roomName, conflicts }] }
+ */
+export const createRoomBookingsAtomicDal = async ({
+    rooms,
+    title,
+    purpose,
+    startTime,
+    endTime,
+    eventId,
+    eventTitle,
+    requestedByRef,
+    requestedByName,
+}) => {
+    try {
+        return await withSerializableRetry(() =>
+            prisma.$transaction(
+                async (tx) => {
+                    const roomIds = rooms.map((r) => r.id);
+
+                    const [bookingClashes, eventClashes] = await Promise.all([
+                        tx.lxRoomBooking.findMany({
+                            where: {
+                                deletedAt: null,
+                                roomId: { in: roomIds },
+                                status: { in: LX_ROOM_BOOKING_ACTIVE_STATUSES },
+                                startTime: { lt: endTime },
+                                endTime: { gt: startTime },
+                            },
+                            select: { roomId: true, title: true, startTime: true, endTime: true },
+                        }),
+                        tx.lxEvent.findMany({
+                            where: {
+                                deletedAt: null,
+                                roomIds: { hasSome: roomIds },
+                                status: { in: LX_EVENT_ACTIVE_STATUSES },
+                                startDate: { lt: endTime },
+                                endDate: { gt: startTime },
+                            },
+                            select: { roomIds: true, title: true, startDate: true, endDate: true },
+                        }),
+                    ]);
+
+                    const taken = new Map();
+                    const mark = (roomId, entry) => {
+                        if (!taken.has(roomId)) taken.set(roomId, []);
+                        taken.get(roomId).push(entry);
+                    };
+                    for (const b of bookingClashes) {
+                        mark(b.roomId, {
+                            source: "BOOKING",
+                            title: b.title,
+                            startTime: b.startTime,
+                            endTime: b.endTime,
+                        });
+                    }
+                    for (const e of eventClashes) {
+                        for (const roomId of e.roomIds.filter((id) => roomIds.includes(id))) {
+                            mark(roomId, {
+                                source: "EVENT",
+                                title: e.title,
+                                startTime: e.startDate,
+                                endTime: e.endDate,
+                            });
+                        }
+                    }
+
+                    if (taken.size > 0) {
+                        return {
+                            unavailable: rooms
+                                .filter((r) => taken.has(r.id))
+                                .map((r) => ({
+                                    roomId: r.id,
+                                    roomName: r.name,
+                                    conflicts: taken.get(r.id),
+                                })),
+                        };
+                    }
+
+                    const bookings = [];
+                    for (const room of rooms) {
+                        bookings.push(
+                            await tx.lxRoomBooking.create({
+                                data: {
+                                    roomId: room.id,
+                                    roomName: room.name,
+                                    title,
+                                    purpose,
+                                    startTime,
+                                    endTime,
+                                    eventId,
+                                    eventTitle,
+                                    requestedByRef,
+                                    requestedByName,
+                                },
+                            }),
+                        );
+                    }
+                    return { bookings };
+                },
+                { isolationLevel: "Serializable" },
+            ),
+        );
+    } catch (error) {
+        logger.error("Error in createRoomBookingsAtomicDal", {
+            error: { message: error.message, stack: error.stack },
         });
         throw error;
     }

@@ -4,6 +4,8 @@ import {
     cancelRoomBookingController,
     checkRoomAvailabilityController,
     createRoomBookingController,
+    createRoomBookingsController,
+    getRoomAvailabilityController,
     deleteRoomBookingController,
     getAllRoomBookingsController,
     getRoomBookingByIdController,
@@ -16,6 +18,8 @@ import {
     createRoomBookingSchema,
     getAllRoomBookingsSchema,
     reviewRoomBookingSchema,
+    createRoomBookingsSchema,
+    roomAvailabilityQuerySchema,
     roomBookingAvailabilitySchema,
 } from "../../validations/lx/roomBooking.validation.js";
 
@@ -26,6 +30,25 @@ router.use((req, res, next) => {
     logger.debug("LX room-booking route accessed", { method: req.method, path: req.path });
     next();
 });
+
+// Availability-first booking.
+//
+// GET /availability answers "what is free between X and Y" across every
+// bookable room, counting BOTH existing bookings and scheduled events.
+// POST /bulk claims one or several of them for a single purpose, atomically.
+router.get(
+    "/availability",
+    requirePermission(PERMISSIONS.VIEW_LX),
+    validateQuery(roomAvailabilityQuerySchema),
+    getRoomAvailabilityController,
+);
+
+router.post(
+    "/bulk",
+    requirePermission(PERMISSIONS.BOOK_ROOM),
+    validateBody(createRoomBookingsSchema),
+    createRoomBookingsController,
+);
 
 router.post(
     "/availability",

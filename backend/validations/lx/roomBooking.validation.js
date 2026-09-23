@@ -73,3 +73,29 @@ export const getAllRoomBookingsSchema = z.object({
     sortBy: z.enum(LX_ROOM_BOOKING_SORT_BY).optional().default("startTime"),
     sortOrder: z.enum(["asc", "desc"]).optional().default("asc"),
 });
+
+// Availability screen: a window, plus the usual room list filters.
+export const roomAvailabilityQuerySchema = z.object({
+    startTime: z.string().min(1, "startTime is required"),
+    endTime: z.string().min(1, "endTime is required"),
+    search: z.string().optional(),
+    type: z
+        .union([z.string(), z.array(z.string())])
+        .optional()
+        .transform((v) => (v === undefined ? undefined : Array.isArray(v) ? v : [v])),
+});
+
+// Claiming several rooms for one purpose. Capped so a stray request cannot ask
+// for the whole campus in one transaction.
+export const createRoomBookingsSchema = z.object({
+    roomIds: z
+        .array(z.string().uuid("roomIds must be uuids"))
+        .min(1, "Select at least one room")
+        .max(20, "At most 20 rooms in one request"),
+    title: z.string().min(1, "title is required"),
+    purpose: z.string().optional(),
+    startTime: z.string().min(1, "startTime is required"),
+    endTime: z.string().min(1, "endTime is required"),
+    eventId: z.string().uuid().optional(),
+    eventTitle: z.string().optional(),
+});

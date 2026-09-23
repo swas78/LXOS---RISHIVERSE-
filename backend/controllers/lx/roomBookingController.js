@@ -3,7 +3,9 @@ import {
     checkRoomAvailabilityService,
     createRoomBookingService,
     deleteRoomBookingService,
+    createRoomBookingsService,
     getAllRoomBookingsService,
+    getRoomAvailabilityService,
     getRoomBookingByIdService,
     reviewRoomBookingService,
 } from "../../services/lx/roomBookingService.js";
@@ -159,5 +161,44 @@ export const deleteRoomBookingController = async (req, res) => {
         });
     } catch (error) {
         handleControllerErrorResponse(error, "deleteRoomBookingController", req, res);
+    }
+};
+
+// Availability-first flow: pick a window, see what is actually free, claim one
+// or several in one request.
+export const getRoomAvailabilityController = async (req, res) => {
+    try {
+        const result = await getRoomAvailabilityService(req.query);
+        if (!result.success) {
+            return res.status(result.statusCode).json({ success: false, message: result.message });
+        }
+        return res.status(result.statusCode).json({
+            success: true,
+            message: result.message,
+            data: result.data,
+            meta: result.meta,
+        });
+    } catch (error) {
+        handleControllerErrorResponse(error, "getRoomAvailabilityController", req, res);
+    }
+};
+
+export const createRoomBookingsController = async (req, res) => {
+    try {
+        const result = await createRoomBookingsService(req.body, req.actor);
+        if (!result.success) {
+            return res.status(result.statusCode).json({
+                success: false,
+                message: result.message,
+                ...(result.unavailable ? { unavailable: result.unavailable } : {}),
+            });
+        }
+        return res.status(result.statusCode).json({
+            success: true,
+            message: result.message,
+            data: result.data,
+        });
+    } catch (error) {
+        handleControllerErrorResponse(error, "createRoomBookingsController", req, res);
     }
 };

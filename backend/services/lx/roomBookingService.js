@@ -7,6 +7,8 @@ import {
     getRoomBookingByIdDal,
     updateRoomBookingDal,
 } from "../../dals/lx/roomBookingDal.js";
+import { findBookableRoomsDal, findRoomOccupancyDal } from "../../dals/lx/roomAvailabilityDal.js";
+import { createRoomBookingsAtomicDal, getRoomsByIdsDal } from "../../dals/lx/roomBookingDal.js";
 
 const logger = createContextLogger("roomBookingService");
 
@@ -189,6 +191,133 @@ export const deleteRoomBookingService = async (bookingId) => {
         return { success: true, message: "Booking deleted", statusCode: 200, data: booking };
     } catch (error) {
         logger.error("Error in deleteRoomBookingService", {
+            error: { message: error.message, stack: error.stack },
+        });
+        throw error;
+    }
+};
+
+// ---------------------------------------------------------------------------
+// Availability-first booking.
+//
+// The old flow was "pick a room, then discover it is taken". These two power
+// the reverse: say when you need a space, see only what is actually free, and
+// claim one or several in a single request.
+//
+// "Free" means free of BOTH an overlapping room booking and an overlapping
+// event. Those two were previously blind to each other, so a room held by an
+// approved event still advertised itself as bookable.
+// ---------------------------------------------------------------------------
+
+/** Every bookable room for a time window, each marked available or not. */
+export const getRoomAvailabilityService = async ({ startTime, endTime, search, type }) => {
+    try {
+        const start = new Date(startTime);
+        const end = new Date(endTime);
+        if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+            return { success: false, message: "Invalid start or end time", statusCode: 400 };
+        }
+        if (end <= start) {
+            return {
+                success: false,
+                message: "End time must be after start time",
+                statusCode: 400,
+            };
+        }
+
+        const rooms = await findBookableRoomsDal({ search, type });
+        const occupancy = await findRoomOccupancyDal({
+            roomIds: rooms.map((r) => r.id),
+            startTime: start,
+            endTime: end,
+        });
+
+        const data = rooms.map((room) => {
+            const conflicts = occupancy.get(room.id) ?? [];
+            return { ...room, available: conflicts.length === 0, conflicts };
+        });
+
+        const availableCount = data.filter((r) => r.available).length;
+        return {
+            success: true,
+            message: `${availableCount} of ${data.length} rooms are free for that window`,
+            statusCode: 200,
+            data,
+            meta: { startTime: start, endTime: end, total: data.length, availableCount },
+        };
+    } catch (error) {
+        logger.error("Error in getRoomAvailabilityService", {
+            error: { message: error.message, stack: error.stack },
+        });
+        throw error;
+    }
+};
+
+/**
+ * Book several rooms for one purpose, all or nothing.
+ *
+ * All-or-nothing is deliberate: someone booking three rooms for one session
+ * does not want two of them. If any room is taken between choosing and
+ * submitting, the whole request comes back 409 naming the rooms that went, and
+ * nothing is created.
+ */
+export const createRoomBookingsService = async (payload, actor) => {
+    const { roomIds, title, purpose, startTime, endTime, eventId, eventTitle } = payload;
+    try {
+        const start = new Date(startTime);
+        const end = new Date(endTime);
+        if (end <= start) {
+            return {
+                success: false,
+                message: "End time must be after start time",
+                statusCode: 400,
+            };
+        }
+
+        const rooms = await getRoomsByIdsDal(roomIds);
+        if (rooms.length !== roomIds.length) {
+            return {
+                success: false,
+                message: "One or more rooms no longer exist",
+                statusCode: 404,
+            };
+        }
+
+        const result = await createRoomBookingsAtomicDal({
+            rooms,
+            title,
+            purpose: purpose ?? "",
+            startTime: start,
+            endTime: end,
+            eventId: eventId ?? null,
+            eventTitle: eventTitle ?? null,
+            requestedByRef: actor?.referenceId ?? "unknown",
+            requestedByName: actor?.displayName ?? null,
+        });
+
+        if (result.unavailable) {
+            return {
+                success: false,
+                message:
+                    result.unavailable.length === 1
+                        ? `${result.unavailable[0].roomName} was taken while you were choosing`
+                        : `${result.unavailable.length} rooms were taken while you were choosing`,
+                statusCode: 409,
+                unavailable: result.unavailable,
+            };
+        }
+
+        return {
+            success: true,
+            message:
+                result.bookings.length === 1
+                    ? "Booking requested — an admin will approve it"
+                    : `${result.bookings.length} bookings requested — an admin will approve them`,
+            statusCode: 201,
+            data: result.bookings,
+        };
+    } catch (error) {
+        logger.error("Error in createRoomBookingsService", {
             error: { message: error.message, stack: error.stack },
         });
         throw error;
