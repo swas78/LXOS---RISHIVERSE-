@@ -7,7 +7,14 @@
 
 model LxClan {
   id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String @unique
+  /// Unique among LIVE rows only. Postgres cannot express that as a column
+  /// constraint, so this is NOT `@unique`: a plain unique index would keep a
+  /// soft-deleted row's name reserved for ever, and a new row could never
+  /// reuse it. The maintainer migration must add the partial index:
+  ///   CREATE UNIQUE INDEX lx_rows_name_live_key
+  ///     ON lx_rows (name) WHERE deleted_at IS NULL;
+  /// Until then the guarantee is enforced in the DAL inside a transaction.
+  name        String
   /// Hex brand colour, e.g. "#f97316". Rendered inline (not a design token)
   /// because it is per-clan data, not part of the theme.
   color       String
@@ -18,8 +25,8 @@ model LxClan {
   /// inside the same transaction that writes the txn.
   points Int @default(0)
 
-  budgetAllocated Float  @default(0)
-  budgetSpent     Float  @default(0)
+  budgetAllocated Decimal  @default(0) @db.Decimal(12, 2)
+  budgetSpent     Decimal  @default(0) @db.Decimal(12, 2)
   semester        String @default("Spring 2026")
   /// Array of { semester, budgetAllocated, budgetSpent, points, closedAt }.
   budgetHistory   Json   @default("[]")
@@ -40,6 +47,7 @@ model LxClan {
   members        LxMember[]
 
   @@index([deletedAt])
+  @@index([name])
   @@map("lx_clans")
 }
 

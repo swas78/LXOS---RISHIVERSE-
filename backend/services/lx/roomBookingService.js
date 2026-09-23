@@ -39,22 +39,9 @@ export const checkRoomAvailabilityService = async ({
 
 export const createRoomBookingService = async (payload, actor) => {
     try {
-        // Prevent double-booking: no overlapping active booking may exist.
-        const conflicts = await findConflictingBookingsDal({
-            roomId: payload.roomId,
-            startTime: payload.startTime,
-            endTime: payload.endTime,
-        });
-        if (conflicts.length > 0) {
-            return {
-                success: false,
-                message: "Room is not available for the selected time",
-                statusCode: 409,
-                conflicts,
-            };
-        }
-
-        const booking = await createRoomBookingDal({
+        // The overlap check lives inside the DAL's Serializable transaction.
+        // Checking here first would reopen the race it closes.
+        const result = await createRoomBookingDal({
             roomId: payload.roomId,
             roomName: payload.roomName ?? null,
             eventId: payload.eventId ?? null,
@@ -67,11 +54,20 @@ export const createRoomBookingService = async (payload, actor) => {
             requestedByName: actor?.displayName ?? null,
         });
 
+        if (result.conflicts) {
+            return {
+                success: false,
+                message: "Room is not available for the selected time",
+                statusCode: 409,
+                conflicts: result.conflicts,
+            };
+        }
+
         return {
             success: true,
             message: "Room booking requested successfully",
             statusCode: 201,
-            data: booking,
+            data: result.booking,
         };
     } catch (error) {
         logger.error("Error in createRoomBookingService", {

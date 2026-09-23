@@ -20,15 +20,22 @@
 
 model LxClub {
   id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String         @unique
+  /// Unique among LIVE rows only. Postgres cannot express that as a column
+  /// constraint, so this is NOT `@unique`: a plain unique index would keep a
+  /// soft-deleted row's name reserved for ever, and a new row could never
+  /// reuse it. The maintainer migration must add the partial index:
+  ///   CREATE UNIQUE INDEX lx_rows_name_live_key
+  ///     ON lx_rows (name) WHERE deleted_at IS NULL;
+  /// Until then the guarantee is enforced in the DAL inside a transaction.
+  name        String
   description String
   logo        String?
   category    LxClubCategory @default(OTHER)
 
   /// Per-semester budget. Rolled over by `services/lx/reportService.js`, which
   /// archives the closing figures into `budgetHistory` and resets `budgetSpent`.
-  budgetAllocated Float  @default(0)
-  budgetSpent     Float  @default(0)
+  budgetAllocated Decimal  @default(0) @db.Decimal(12, 2)
+  budgetSpent     Decimal  @default(0) @db.Decimal(12, 2)
   semester        String @default("Spring 2026")
   /// Array of { semester, budgetAllocated, budgetSpent, closedAt } snapshots.
   budgetHistory   Json   @default("[]")
@@ -58,6 +65,7 @@ model LxClub {
 
   @@index([deletedAt])
   @@index([category])
+  @@index([name])
   @@map("lx_clubs")
 }
 

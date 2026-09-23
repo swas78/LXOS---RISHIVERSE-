@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isPaiseExact } from "../../helper/lxMoney.js";
 import {
     LX_EVENT_TYPES,
     LX_EVENT_STATUSES,
@@ -40,7 +41,14 @@ export const createEventSchema = z.object({
     roomNames: stringArrayField,
     location: z.string().trim().max(300).optional(),
     requirements: requirementField,
-    budgetAllocated: z.number().min(0).optional(),
+    budgetAllocated: z
+        .number()
+        .min(0)
+        .optional()
+        .refine(
+            (v) => v === undefined || v === null || isPaiseExact(v),
+            "amount cannot be finer than paise (2 decimal places)",
+        ),
     attendees: z.number().int().min(0).optional(),
     poster: z.string().trim().max(2000).optional().nullable(),
 });
@@ -63,8 +71,22 @@ export const updateEventSchema = z.object({
     roomNames: stringArrayField,
     location: z.string().trim().max(300).optional(),
     requirements: requirementField,
-    budgetAllocated: z.number().min(0).optional(),
-    budgetSpent: z.number().min(0).optional(),
+    budgetAllocated: z
+        .number()
+        .min(0)
+        .optional()
+        .refine(
+            (v) => v === undefined || v === null || isPaiseExact(v),
+            "amount cannot be finer than paise (2 decimal places)",
+        ),
+    budgetSpent: z
+        .number()
+        .min(0)
+        .optional()
+        .refine(
+            (v) => v === undefined || v === null || isPaiseExact(v),
+            "amount cannot be finer than paise (2 decimal places)",
+        ),
     attendees: z.number().int().min(0).optional(),
     poster: z.string().trim().max(2000).optional().nullable(),
 });

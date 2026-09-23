@@ -28,7 +28,7 @@ model LxExpense {
 
   title       String
   description String            @default("")
-  amount      Float
+  amount      Decimal @db.Decimal(12, 2)
   category    LxExpenseCategory @default(OTHER)
 
   /// Array of attachment pointers — see the shape documented above.

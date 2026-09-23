@@ -1,4 +1,5 @@
 import createContextLogger from "../../logger/contextLogger.js";
+import { toMoney } from "../../helper/lxMoney.js";
 import { expenseScope } from "../../helper/lxPermissions.js";
 import { objectExists, withResolvedUrls } from "./uploadService.js";
 import {
@@ -27,7 +28,15 @@ const findMissingBill = async (bills) => {
 };
 
 /** Reads carry a short-lived GET URL per bill; only `s3Path` is persisted. */
-const withBillUrls = (expense) => expense && { ...expense, bills: withResolvedUrls(expense.bills) };
+// `amount` is numeric(12,2), so Prisma hands it over as a Decimal and it would
+// serialise to a JSON string. Every expense leaving this service goes through
+// here, so this is where it becomes a number again.
+const withBillUrls = (expense) =>
+    expense && {
+        ...expense,
+        amount: toMoney(expense.amount),
+        bills: withResolvedUrls(expense.bills),
+    };
 
 export const createExpenseService = async (payload) => {
     try {
@@ -167,7 +176,7 @@ export const deleteExpenseService = async (expenseId) => {
             success: true,
             message: "Expense deleted successfully",
             statusCode: 200,
-            data: expense,
+            data: withBillUrls(expense),
         };
     } catch (error) {
         logger.error("Error in deleteExpenseService", {

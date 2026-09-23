@@ -1,4 +1,5 @@
 import createContextLogger from "../../logger/contextLogger.js";
+import { sumMoney, toMoney } from "../../helper/lxMoney.js";
 import { getAnalyticsDataDal } from "../../dals/lx/analyticsDal.js";
 
 const logger = createContextLogger("analyticsService");
@@ -27,8 +28,8 @@ export const getAnalyticsService = async () => {
         // Budget vs spending per club.
         const budgetVsSpending = clubs.map((c) => ({
             name: c.name,
-            allocated: c.budgetAllocated,
-            spent: c.budgetSpent,
+            allocated: toMoney(c.budgetAllocated),
+            spent: toMoney(c.budgetSpent),
         }));
 
         // Clan performance (points).
@@ -38,7 +39,7 @@ export const getAnalyticsService = async () => {
             points: c.points,
         }));
 
-        const totalBudgetAllocated = clubs.reduce((s, c) => s + c.budgetAllocated, 0);
+        const totalBudgetAllocated = sumMoney(clubs.map((c) => c.budgetAllocated));
 
         return {
             success: true,
@@ -52,7 +53,7 @@ export const getAnalyticsService = async () => {
                 stats: {
                     totalEvents: events.length,
                     budgetAllocated: totalBudgetAllocated,
-                    expenses: expenseAgg._sum.amount || 0,
+                    expenses: toMoney(expenseAgg._sum.amount),
                     achievements: achievementsCount,
                 },
             },

@@ -131,22 +131,20 @@ export const deleteClanService = async (clanId) => {
 // record the change in the point history attributed to the acting user.
 export const manageClanPointsService = async (clanId, { delta, reason }, actor) => {
     try {
-        const clan = await getClanByIdDal(clanId);
-        if (!clan) {
-            return { success: false, message: "Clan not found", statusCode: 404 };
-        }
-
-        const previousPoints = clan.points;
-        const newPoints = Math.max(0, previousPoints + delta);
-
-        const updated = await applyClanPointsDal({
+        // The total is read, clamped and written inside the DAL's transaction.
+        // Computing it here would reintroduce the lost update this fixed.
+        const applied = await applyClanPointsDal({
             clanId,
-            newPoints,
-            previousPoints,
+            delta,
             reason,
             createdByRef: actor?.referenceId ?? null,
             createdByName: actor?.displayName ?? null,
         });
+        if (!applied) {
+            return { success: false, message: "Clan not found", statusCode: 404 };
+        }
+
+        const updated = await getClanByIdDal(clanId);
 
         return {
             success: true,

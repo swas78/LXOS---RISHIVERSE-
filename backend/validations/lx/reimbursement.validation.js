@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isPaiseExact } from "../../helper/lxMoney.js";
 import {
     LX_REIMBURSEMENT_CATEGORIES,
     LX_REIMBURSEMENT_MAX_BILLS,
@@ -37,7 +38,13 @@ const categoryField = z.enum(LX_REIMBURSEMENT_CATEGORIES, {
 export const createReimbursementSchema = z.object({
     title: z.string().trim().min(1, "title is required").max(200),
     description: z.string().trim().max(2000).optional(),
-    amount: z.number().min(1, "amount must be at least 1"),
+    amount: z
+        .number()
+        .min(1, "amount must be at least 1")
+        .refine(
+            (v) => v === undefined || v === null || isPaiseExact(v),
+            "amount cannot be finer than paise (2 decimal places)",
+        ),
     expenseDate: z.coerce.date({ message: "expenseDate is required" }),
     category: categoryField,
     eventId: z.string().trim().optional().nullable(),
@@ -54,7 +61,14 @@ export const createReimbursementSchema = z.object({
 export const updateReimbursementSchema = z.object({
     title: z.string().trim().min(1).max(200).optional(),
     description: z.string().trim().max(2000).optional(),
-    amount: z.number().min(1).optional(),
+    amount: z
+        .number()
+        .min(1)
+        .optional()
+        .refine(
+            (v) => v === undefined || v === null || isPaiseExact(v),
+            "amount cannot be finer than paise (2 decimal places)",
+        ),
     expenseDate: z.coerce.date().optional(),
     category: categoryField.optional(),
     eventId: z.string().trim().optional().nullable(),

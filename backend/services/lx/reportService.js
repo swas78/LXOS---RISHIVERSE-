@@ -1,4 +1,5 @@
 import createContextLogger from "../../logger/contextLogger.js";
+import { toMoney } from "../../helper/lxMoney.js";
 import {
     getReportSourceDal,
     getSemestersDal,
@@ -7,7 +8,8 @@ import {
 
 const logger = createContextLogger("reportService");
 
-const money = (n) => Number(n || 0);
+// Money arrives as a Prisma Decimal; `toMoney` is the JSON boundary.
+const money = toMoney;
 const fmtDate = (d) =>
     d
         ? new Date(d).toLocaleDateString("en-IN", {
@@ -20,11 +22,11 @@ const fmtDate = (d) =>
 // Budget figure for an entity in a given semester (current or from history).
 function figureFor(entity, semester) {
     if (entity.semester === semester) {
-        return { allocated: entity.budgetAllocated || 0, spent: entity.budgetSpent || 0 };
+        return { allocated: money(entity.budgetAllocated), spent: money(entity.budgetSpent) };
     }
     const hist = Array.isArray(entity.budgetHistory) ? entity.budgetHistory : [];
     const h = hist.find((x) => x.semester === semester);
-    return h ? { allocated: h.budgetAllocated || 0, spent: h.budgetSpent || 0 } : null;
+    return h ? { allocated: money(h.budgetAllocated), spent: money(h.budgetSpent) } : null;
 }
 
 export const getSemestersService = async () => {
@@ -109,9 +111,10 @@ export const getReportService = async (requestedSemester) => {
             { metric: "Reimbursements", value: reimbursements.length },
             {
                 metric: "Reimbursements processed (₹)",
-                value: reimbursements
-                    .filter((r) => r.status === "PROCESSED")
-                    .reduce((s, r) => s + money(r.amount), 0),
+                value:
+                    reimbursements
+                        .filter((r) => r.status === "PROCESSED")
+                        .reduce((acc, r) => acc + Math.round(money(r.amount) * 100), 0) / 100,
             },
         ];
 
@@ -300,7 +303,16 @@ export const buildReportCsv = (data) => {
     );
     data.reimbursements.forEach((r) =>
         push(
-            csvRow([r.title, r.by, r.amount, r.category, r.chargedTo, r.purpose, r.status, r.date]),
+            csvRow([
+                r.title,
+                r.by,
+                money(r.amount),
+                r.category,
+                r.chargedTo,
+                r.purpose,
+                r.status,
+                r.date,
+            ]),
         ),
     );
 

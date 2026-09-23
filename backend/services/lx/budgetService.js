@@ -1,16 +1,23 @@
 import createContextLogger from "../../logger/contextLogger.js";
+import { sumMoney, toMoney } from "../../helper/lxMoney.js";
 import { getBudgetDataDal } from "../../dals/lx/budgetDal.js";
 import { budgetScope } from "../../helper/lxPermissions.js";
 
 const logger = createContextLogger("budgetService");
 
+// Budgets arrive as Prisma Decimals. Convert once, here, so everything below
+// this line is plain numbers — a Decimal in `s + c.budgetAllocated` would
+// concatenate rather than add, and the totals would come out as strings.
 const withDerived = (entity) => {
-    const remaining = entity.budgetAllocated - entity.budgetSpent;
-    const utilization =
-        entity.budgetAllocated > 0
-            ? Math.round((entity.budgetSpent / entity.budgetAllocated) * 100)
-            : 0;
-    return { ...entity, budgetRemaining: remaining, utilization };
+    const allocated = toMoney(entity.budgetAllocated);
+    const spent = toMoney(entity.budgetSpent);
+    return {
+        ...entity,
+        budgetAllocated: allocated,
+        budgetSpent: spent,
+        budgetRemaining: toMoney(allocated - spent),
+        utilization: allocated > 0 ? Math.round((spent / allocated) * 100) : 0,
+    };
 };
 
 export const getBudgetSummaryService = async (actor) => {
@@ -22,12 +29,8 @@ export const getBudgetSummaryService = async (actor) => {
         const clubRows = clubs.map(withDerived);
         const clanRows = clans.map(withDerived);
 
-        const totalAllocated =
-            clubRows.reduce((s, c) => s + c.budgetAllocated, 0) +
-            clanRows.reduce((s, c) => s + c.budgetAllocated, 0);
-        const totalSpent =
-            clubRows.reduce((s, c) => s + c.budgetSpent, 0) +
-            clanRows.reduce((s, c) => s + c.budgetSpent, 0);
+        const totalAllocated = sumMoney([...clubRows, ...clanRows].map((r) => r.budgetAllocated));
+        const totalSpent = sumMoney([...clubRows, ...clanRows].map((r) => r.budgetSpent));
 
         return {
             success: true,
@@ -37,10 +40,10 @@ export const getBudgetSummaryService = async (actor) => {
                 totals: {
                     totalAllocated,
                     totalSpent,
-                    totalRemaining: totalAllocated - totalSpent,
-                    approvedExpenses: approvedExpenseAgg._sum.amount || 0,
+                    totalRemaining: toMoney(totalAllocated - totalSpent),
+                    approvedExpenses: toMoney(approvedExpenseAgg._sum.amount),
                     approvedExpenseCount: approvedExpenseAgg._count || 0,
-                    processedReimbursements: processedReimbAgg._sum.amount || 0,
+                    processedReimbursements: toMoney(processedReimbAgg._sum.amount),
                     processedReimbursementCount: processedReimbAgg._count || 0,
                     utilization:
                         totalAllocated > 0 ? Math.round((totalSpent / totalAllocated) * 100) : 0,

@@ -17,9 +17,23 @@
 model LxCabin {
   id   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   /// Display name, e.g. "Cabin P5".
-  name String @unique
+  /// Unique among LIVE rows only. Postgres cannot express that as a column
+  /// constraint, so this is NOT `@unique`: a plain unique index would keep a
+  /// soft-deleted row's name reserved for ever, and a new row could never
+  /// reuse it. The maintainer migration must add the partial index:
+  ///   CREATE UNIQUE INDEX lx_rows_name_live_key
+  ///     ON lx_rows (name) WHERE deleted_at IS NULL;
+  /// Until then the guarantee is enforced in the DAL inside a transaction.
+  name String
   /// Short code shown on the cabin door, e.g. "P5".
-  code String @unique
+  /// Unique among LIVE rows only. Postgres cannot express that as a column
+  /// constraint, so this is NOT `@unique`: a plain unique index would keep a
+  /// soft-deleted row's name reserved for ever, and a new row could never
+  /// reuse it. The maintainer migration must add the partial index:
+  ///   CREATE UNIQUE INDEX lx_rows_name_live_key
+  ///     ON lx_rows (code) WHERE deleted_at IS NULL;
+  /// Until then the guarantee is enforced in the DAL inside a transaction.
+  code String
 
   /// Group cabins carry a floor so one student cannot hold six seats — the
   /// minimum is enforced for students and waived for faculty, whose one-to-one
@@ -47,6 +61,8 @@ model LxCabin {
 
   @@index([deletedAt])
   @@index([isActive, code])
+  @@index([name])
+  @@index([code])
   @@map("lx_cabins")
 }
 

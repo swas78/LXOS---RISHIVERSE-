@@ -1,4 +1,5 @@
 import createContextLogger from "../../logger/contextLogger.js";
+import { toMoney } from "../../helper/lxMoney.js";
 import { reimbursementScope } from "../../helper/lxPermissions.js";
 import { PAYOUT_REF_PREFIX } from "../../constants/lxReimbursementConstant.js";
 import { objectExists, withResolvedUrls } from "./uploadService.js";
@@ -17,7 +18,14 @@ const logger = createContextLogger("reimbursementService");
 // Stored bills are `s3:<bucket>:<key>` pointers; a browser needs a URL. Read
 // URLs are signed per request and never persisted, so they are attached on the
 // way out only.
-const withBillUrls = (row) => (row ? { ...row, bills: withResolvedUrls(row.bills) } : row);
+// `amount` is numeric(12,2) and arrives as a Decimal; convert here, where every
+// reimbursement leaving this service passes through.
+const withBillUrls = (reimbursement) =>
+    reimbursement && {
+        ...reimbursement,
+        amount: toMoney(reimbursement.amount),
+        bills: withResolvedUrls(reimbursement.bills),
+    };
 
 // NOTE: nothing here logs `payload`. A claim body carries amounts and a
 // payoutRef that identifies a person — log ids and errors, never the body.
@@ -169,7 +177,7 @@ export const deleteReimbursementService = async (reimbursementId) => {
             success: true,
             message: "Reimbursement deleted successfully",
             statusCode: 200,
-            data: reimbursement,
+            data: withBillUrls(reimbursement),
         };
     } catch (error) {
         logger.error("Error in deleteReimbursementService", {

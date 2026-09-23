@@ -1,4 +1,5 @@
 import createContextLogger from "../../logger/contextLogger.js";
+import { toMoney } from "../../helper/lxMoney.js";
 import {
     actOnAchievementDal,
     actOnBookingDal,
@@ -12,7 +13,8 @@ import { actOnLostFoundDal } from "../../dals/lx/lostFoundDal.js";
 
 const logger = createContextLogger("approvalService");
 
-const inr = (n) => n;
+// Decimal -> number at the JSON boundary.
+const inr = toMoney;
 
 // Normalize each pending row into a unified approval item.
 const mapEvent = (e) => ({
@@ -22,7 +24,7 @@ const mapEvent = (e) => ({
     subtitle: e.type + (e.clubName ? ` · ${e.clubName}` : e.clanName ? ` · ${e.clanName}` : ""),
     requestedBy: e.createdByName,
     date: e.createdAt,
-    amount: e.budgetAllocated,
+    amount: toMoney(e.budgetAllocated),
     status: e.status,
     raw: e,
 });

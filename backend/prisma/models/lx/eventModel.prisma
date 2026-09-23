@@ -36,8 +36,8 @@ model LxEvent {
   /// Array of { item, quantity, estimatedCost }.
   requirements Json @default("[]")
 
-  budgetAllocated Float @default(0)
-  budgetSpent     Float @default(0)
+  budgetAllocated Decimal @default(0) @db.Decimal(12, 2)
+  budgetSpent     Decimal @default(0) @db.Decimal(12, 2)
 
   status LxEventStatus @default(PENDING)
 

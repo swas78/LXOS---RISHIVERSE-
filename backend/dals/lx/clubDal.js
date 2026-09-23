@@ -1,5 +1,6 @@
 import createContextLogger from "../../logger/contextLogger.js";
 import prisma from "../../services/prismaClient.js";
+import { assertLiveUnique } from "./liveUnique.js";
 
 const logger = createContextLogger("clubDal");
 
@@ -16,19 +17,23 @@ export const createClubDal = async ({
     isActive,
 }) => {
     try {
-        return await prisma.lxClub.create({
-            data: {
-                name,
-                description,
-                logo: logo ?? null,
-                ...(category ? { category } : {}),
-                ...(budgetAllocated !== undefined ? { budgetAllocated } : {}),
-                ...(budgetSpent !== undefined ? { budgetSpent } : {}),
-                ...(semester ? { semester } : {}),
-                headName: headName ?? null,
-                headEmail: headEmail ?? null,
-                ...(isActive !== undefined ? { isActive } : {}),
-            },
+        return await prisma.$transaction(async (tx) => {
+            // Name is unique among live rows only — see dals/lx/liveUnique.js.
+            await assertLiveUnique(tx, "lxClub", "name", name);
+            return await tx.lxClub.create({
+                data: {
+                    name,
+                    description,
+                    logo: logo ?? null,
+                    ...(category ? { category } : {}),
+                    ...(budgetAllocated !== undefined ? { budgetAllocated } : {}),
+                    ...(budgetSpent !== undefined ? { budgetSpent } : {}),
+                    ...(semester ? { semester } : {}),
+                    headName: headName ?? null,
+                    headEmail: headEmail ?? null,
+                    ...(isActive !== undefined ? { isActive } : {}),
+                },
+            });
         });
     } catch (error) {
         logger.error("Error in createClubDal", {
@@ -109,9 +114,12 @@ export const getAllClubsDal = async ({
 
 export const updateClubDal = async (clubId, data) => {
     try {
-        return await prisma.lxClub.update({
-            where: { id: clubId },
-            data,
+        return await prisma.$transaction(async (tx) => {
+            await assertLiveUnique(tx, "lxClub", "name", name, id);
+            return await tx.lxClub.update({
+                where: { id: clubId },
+                data,
+            });
         });
     } catch (error) {
         logger.error("Error in updateClubDal", {

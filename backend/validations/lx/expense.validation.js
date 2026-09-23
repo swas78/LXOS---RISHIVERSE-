@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isPaiseExact } from "../../helper/lxMoney.js";
 import {
     LX_EXPENSE_CATEGORIES,
     LX_EXPENSE_STATUSES,
@@ -19,7 +20,13 @@ export const createExpenseSchema = z.object({
     eventTitle: z.string().trim().max(200).optional().nullable(),
     title: z.string().trim().min(1, "title is required").max(200),
     description: z.string().trim().max(2000).optional(),
-    amount: z.number().min(1, "amount must be at least 1"),
+    amount: z
+        .number()
+        .min(1, "amount must be at least 1")
+        .refine(
+            (v) => v === undefined || v === null || isPaiseExact(v),
+            "amount cannot be finer than paise (2 decimal places)",
+        ),
     category: categoryField,
     bills: billsField,
 });
@@ -29,7 +36,14 @@ export const updateExpenseSchema = z.object({
     eventTitle: z.string().trim().max(200).optional().nullable(),
     title: z.string().trim().min(1).max(200).optional(),
     description: z.string().trim().max(2000).optional(),
-    amount: z.number().min(1).optional(),
+    amount: z
+        .number()
+        .min(1)
+        .optional()
+        .refine(
+            (v) => v === undefined || v === null || isPaiseExact(v),
+            "amount cannot be finer than paise (2 decimal places)",
+        ),
     category: categoryField.optional(),
     bills: billsField,
 });

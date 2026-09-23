@@ -1,12 +1,27 @@
 import { z } from "zod";
+import { isPaiseExact } from "../../helper/lxMoney.js";
 import { LX_CLAN_SORT_BY } from "../../constants/lxClanConstant.js";
 
 export const createClanSchema = z.object({
     name: z.string().trim().min(1, "name is required").max(120),
     color: z.string().trim().min(1, "color is required").max(40),
     points: z.number().int().min(0).max(10000000).optional(),
-    budgetAllocated: z.number().min(0).optional(),
-    budgetSpent: z.number().min(0).optional(),
+    budgetAllocated: z
+        .number()
+        .min(0)
+        .optional()
+        .refine(
+            (v) => v === undefined || v === null || isPaiseExact(v),
+            "amount cannot be finer than paise (2 decimal places)",
+        ),
+    budgetSpent: z
+        .number()
+        .min(0)
+        .optional()
+        .refine(
+            (v) => v === undefined || v === null || isPaiseExact(v),
+            "amount cannot be finer than paise (2 decimal places)",
+        ),
     semester: z.string().trim().max(60).optional(),
     description: z.string().trim().max(2000).optional(),
 });
@@ -15,8 +30,22 @@ export const updateClanSchema = z.object({
     name: z.string().trim().min(1).max(120).optional(),
     color: z.string().trim().min(1).max(40).optional(),
     points: z.number().int().min(0).max(10000000).optional(),
-    budgetAllocated: z.number().min(0).optional(),
-    budgetSpent: z.number().min(0).optional(),
+    budgetAllocated: z
+        .number()
+        .min(0)
+        .optional()
+        .refine(
+            (v) => v === undefined || v === null || isPaiseExact(v),
+            "amount cannot be finer than paise (2 decimal places)",
+        ),
+    budgetSpent: z
+        .number()
+        .min(0)
+        .optional()
+        .refine(
+            (v) => v === undefined || v === null || isPaiseExact(v),
+            "amount cannot be finer than paise (2 decimal places)",
+        ),
     semester: z.string().trim().max(60).optional(),
     description: z.string().trim().max(2000).optional(),
 });

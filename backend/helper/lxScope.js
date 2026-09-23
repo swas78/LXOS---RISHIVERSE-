@@ -25,6 +25,7 @@
 //                          forgotten check is a visible "—" instead of undefined.
 // ---------------------------------------------------------------------------
 import { PERMISSIONS, ROLES, hasPermission, isFinanceViewer } from "./lxPermissions.js";
+import { toMoney } from "./lxMoney.js";
 
 // Budget columns on LxClub / LxClan.
 const ENTITY_BUDGET_FIELDS = ["budgetAllocated", "budgetSpent", "budgetHistory"];
@@ -59,9 +60,19 @@ export const canSeeClanBudget = (actor, clanId) => {
     return v.all || (!!clanId && v.clanIds.includes(clanId));
 };
 
+// Money columns are `numeric(12,2)`, so Prisma hands them over as Decimal.
+// This is the one place every club / clan / event budget passes through on its
+// way out, which makes it the right place to convert — otherwise the API would
+// start returning strings where it used to return numbers.
+const MONEY_FIELDS = ["budgetAllocated", "budgetSpent"];
+
 const applyRedaction = (row, fields, visible) => {
     if (!row) return row;
-    if (visible) return { ...row, budgetVisible: true };
+    if (visible) {
+        const out = { ...row, budgetVisible: true };
+        for (const f of MONEY_FIELDS) if (f in out && out[f] !== null) out[f] = toMoney(out[f]);
+        return out;
+    }
     const out = { ...row, budgetVisible: false };
     for (const f of fields) if (f in out) out[f] = null;
     return out;

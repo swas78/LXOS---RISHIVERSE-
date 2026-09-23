@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isPaiseExact } from "../../helper/lxMoney.js";
 import { LX_CLUB_CATEGORIES, LX_CLUB_SORT_BY } from "../../constants/lxClubConstant.js";
 
 const categoryField = z.enum(LX_CLUB_CATEGORIES, {
@@ -10,8 +11,22 @@ export const createClubSchema = z.object({
     description: z.string().trim().min(1, "description is required").max(2000),
     logo: z.string().trim().max(500).optional().nullable(),
     category: categoryField.optional(),
-    budgetAllocated: z.number().min(0).optional(),
-    budgetSpent: z.number().min(0).optional(),
+    budgetAllocated: z
+        .number()
+        .min(0)
+        .optional()
+        .refine(
+            (v) => v === undefined || v === null || isPaiseExact(v),
+            "amount cannot be finer than paise (2 decimal places)",
+        ),
+    budgetSpent: z
+        .number()
+        .min(0)
+        .optional()
+        .refine(
+            (v) => v === undefined || v === null || isPaiseExact(v),
+            "amount cannot be finer than paise (2 decimal places)",
+        ),
     semester: z.string().trim().max(60).optional(),
     headName: z.string().trim().max(120).optional().nullable(),
     headEmail: z.string().trim().max(160).optional().nullable(),
@@ -23,8 +38,22 @@ export const updateClubSchema = z.object({
     description: z.string().trim().min(1).max(2000).optional(),
     logo: z.string().trim().max(500).optional().nullable(),
     category: categoryField.optional(),
-    budgetAllocated: z.number().min(0).optional(),
-    budgetSpent: z.number().min(0).optional(),
+    budgetAllocated: z
+        .number()
+        .min(0)
+        .optional()
+        .refine(
+            (v) => v === undefined || v === null || isPaiseExact(v),
+            "amount cannot be finer than paise (2 decimal places)",
+        ),
+    budgetSpent: z
+        .number()
+        .min(0)
+        .optional()
+        .refine(
+            (v) => v === undefined || v === null || isPaiseExact(v),
+            "amount cannot be finer than paise (2 decimal places)",
+        ),
     semester: z.string().trim().max(60).optional(),
     headName: z.string().trim().max(120).optional().nullable(),
     headEmail: z.string().trim().max(160).optional().nullable(),
