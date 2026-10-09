@@ -10,7 +10,11 @@ import {
 
 const logger = createContextLogger("accessService");
 
-const PROTECTED = ["ADMIN", "FINANCE"];
+// Standalone staff roles. Linking one of these people to a club or clan records
+// the affiliation but must NOT overwrite the role — a librarian who also runs a
+// club is still the library desk, and silently demoting them would revoke reach
+// an admin deliberately granted.
+const PROTECTED = ["ADMIN", "FINANCE", "LIBRARIAN"];
 
 // Derive a fallback role from a user's remaining linkage (used after removals).
 function roleFromLinkage(user) {
@@ -42,6 +46,7 @@ export const getAccessOverviewService = async () => {
                 admins: users.filter((u) => u.role === "ADMIN"),
                 lxMembers: users.filter((u) => u.role === "LX_TEAM"),
                 financeMembers: users.filter((u) => u.role === "FINANCE"),
+                librarians: users.filter((u) => u.role === "LIBRARIAN"),
                 users,
             },
         };
@@ -85,11 +90,12 @@ export const assignAccessService = async ({
         } else if (email) {
             user = await findUserByEmailDal(email);
             if (!user) {
-                return {
-                    success: false,
-                    statusCode: 404,
-                    message: `No member with email ${email}. Provide a referenceId (enrollment or employee id) to add them.`,
-                };
+                const normalizedEmail = email.toLowerCase().trim();
+                user = await createUserDal({
+                    referenceId: normalizedEmail,
+                    displayName: displayName || normalizedEmail.split("@")[0],
+                    email: normalizedEmail,
+                });
             }
         }
         if (!user) return { success: false, message: "Member not found", statusCode: 404 };
@@ -104,6 +110,9 @@ export const assignAccessService = async ({
                 break;
             case "finance":
                 data.role = "FINANCE";
+                break;
+            case "librarian":
+                data.role = "LIBRARIAN";
                 break;
             case "club":
                 data.clubId = clubId;
@@ -157,6 +166,8 @@ export const removeAccessService = async ({ memberId, type }) => {
             if (user.role === "LX_TEAM") data.role = roleFromLinkage(user);
         } else if (type === "finance") {
             if (user.role === "FINANCE") data.role = roleFromLinkage(user);
+        } else if (type === "librarian") {
+            if (user.role === "LIBRARIAN") data.role = roleFromLinkage(user);
         } else if (type === "admin") {
             if (user.role === "ADMIN") data.role = roleFromLinkage(user);
         }

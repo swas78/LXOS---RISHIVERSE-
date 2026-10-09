@@ -142,6 +142,7 @@ const ADMINS = [
     { ref: "EMP0418", displayName: "Mehak M", email: "mehak.m@rishihood.edu.in" },
     { ref: "EMP0419", displayName: "Sandeep S", email: "sandeep.s@rishihood.edu.in" },
     { ref: "EMP0420", displayName: "Soumya A", email: "soumya.a@rishihood.edu.in" },
+    { ref: "EMP0423", displayName: "Sarthak J", email: "sarthak.j@rishihood.edu.in" },
     // The one student admin in the real LXOS admin list.
     { ref: "RU2024BTC001", displayName: "Neelanshu", email: "neelanshu.2024@nst.rishihood.edu.in" },
 ];

@@ -15,7 +15,7 @@ export const assignAccessSchema = z
         referenceId: z.string().trim().max(64).optional(),
         email: z.string().trim().email().optional(),
         displayName: z.string().trim().max(200).optional(),
-        type: z.enum(["admin", "lx", "finance", "club", "clan", "guest"]),
+        type: z.enum(["admin", "lx", "finance", "librarian", "club", "clan", "guest"]),
         clubId: z.string().trim().optional().nullable(),
         clanId: z.string().trim().optional().nullable(),
     })
@@ -34,5 +34,5 @@ export const assignAccessSchema = z
 
 export const removeAccessSchema = z.object({
     memberId: z.string().trim().min(1, "memberId is required"),
-    type: z.enum(["admin", "lx", "finance", "club", "clan"]),
+    type: z.enum(["admin", "lx", "finance", "librarian", "club", "clan"]),
 });
