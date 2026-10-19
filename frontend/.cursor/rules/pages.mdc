@@ -1,0 +1,16 @@
+---
+description: App Router page and hook conventions
+globs: src/app/**/*
+alwaysApply: false
+---
+
+# Pages & Routes
+
+**Strict subfolder order:** `page.tsx` → `layout.tsx` → `hooks/` → `components/` → `schemas/` → `utils/`
+
+- Kit route group: `(erp)` stub shell. Production also uses `(auth)` and `(lms)`.
+- Do **not** put production auth guards in kit unless asked — document them for handoff.
+- Data flow: `page` → `hooks` → `*Thunks` → `*Api`. Never call `*Api` from pages.
+- Page components: `export default function XxxPage()`.
+- Don't fetch in shared/ui components — fetch in pages/hooks, pass props down.
+- Kit-only mock APIs live under `src/app/api/v1/...` — do not ship those into frontend-v2.

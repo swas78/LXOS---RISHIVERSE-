@@ -1,0 +1,32 @@
+---
+description: Strict project structure — folder order and dependency direction
+alwaysApply: true
+---
+
+# Strict Structure (mandatory)
+
+## `src/` order
+
+`app` → `components` → `config` → `constants` → `contexts` → `features` → `hooks` → `lib` → `mocks` → `schemas` → `store` → `styles` → `tests` → `types` → `utility`
+
+No new top-level folders. No page logic in `features/`, no Redux store wiring inside route `components/`.
+
+## Feature module file order
+
+`types.ts` → `*Api.ts` → `*Thunks.ts` → `*Slice.ts` → `*Selectors.ts`
+
+Kit demo: `features/demo/item/`. Production handoff: nest under `features/erp/`, `features/lms/`, or `features/configuration/` as agreed with maintainers.
+
+## Route folder order
+
+`page.tsx` → `layout.tsx` → `hooks/` → `components/` → `schemas/` → `utils/`
+
+## Component layer order
+
+`ui/` → `shared/atoms/` → `shared/molecules/` → `shared/organisms/`
+
+Lower layers never import higher. `ui/` never imports `shared/`.
+
+## Data flow
+
+`app` → `hooks` → `features/*Thunks` → `*Api` → `axios`. Never `app` → `*Api` or `shared` → `features`.

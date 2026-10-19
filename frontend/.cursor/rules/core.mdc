@@ -1,0 +1,16 @@
+---
+description: Core RishiVerse frontend kit standards — always apply
+alwaysApply: true
+---
+
+# RishiVerse Frontend Kit — Core
+
+- **Strict structure** — follow [ARCHITECTURE.md](../../ARCHITECTURE.md) and [RULES.md](../../RULES.md). No new top-level `src/` folders.
+- **Golden example** — copy `demo/item` (page + `features/demo/item`); do not invent a parallel architecture.
+- **Imports** — use `@/` path alias (`@/features/...`, `@/components/...`, `@/lib/...`).
+- **State** — Redux Toolkit in `src/features/`; pages use `useAppDispatch` / `useAppSelector` via colocated hooks.
+- **API** — only in `*Api.ts` via `@/lib/axios`; paths from `@/constants/endpoints`. Pages/hooks dispatch thunks — never call `*Api` from pages or UI components.
+- **Data flow** — `page` → `hooks` → `*Thunks` → `*Api` → axios.
+- **Auth** — kit shell has no JWT; document required permissions in handoff notes.
+- **Verify** — run `npm run lint` and `npm run type-check` after substantive changes.
+- **Handoff** — PRs stay in this kit; maintainers copy folders into `rishiverse-frontend-v2`.

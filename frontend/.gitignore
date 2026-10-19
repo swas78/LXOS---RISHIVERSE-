@@ -1,0 +1,15 @@
+node_modules/
+.next/
+.env
+.env.local
+.env*.local
+dist/
+coverage/
+*.log
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+
+# Next.js auto-generated AI agent files
+AGENTS.md
+CLAUDE.md

@@ -1,0 +1,768 @@
+@import "tailwindcss";
+
+/*
+ * ===========================================================================
+ * RishiVerse — Foundation / Colors
+ * ===========================================================================
+ *
+ * Source of truth: "Color guide (light theme)" and "Color guide (dark theme)",
+ * Version 1.0, updated 24/07/2026, owner: Design team.
+ *
+ * Two rules govern this file:
+ *
+ * 1. PRIMITIVES ARE COPIED VERBATIM from the guide. Every hex in the primitive
+ *    block below appears in one of the two PDFs. Nothing is interpolated,
+ *    nudged or "corrected". If a value looks wrong, the guide is wrong and the
+ *    fix belongs there, not here.
+ *
+ * 2. SEMANTIC TOKENS USE PRODUCTION'S NAMES. The guide names the semantic
+ *    roles (Text/primary, Background/page, Border/default, …) but does not say
+ *    which primitive fills each one. Where production RishiVerse already has a
+ *    token for a role, we reuse production's exact variable name — `--card`,
+ *    `--text-heading`, `--sidebar`, `--muted-foreground` and so on — so that
+ *    the integration plan's "restamp UI onto semantic tokens" step is already
+ *    done when this module lands in rishiverse-frontend-v2.
+ *
+ * Accessibility. The guide's own principle is WCAG 2.1 AA. Every foreground /
+ * background pair defined here was measured; ratios are noted where the choice
+ * is not obvious. Two consequences worth knowing:
+ *
+ *   - Primary #E85C28 carries WHITE at only 3.50:1, which fails AA for body
+ *     text. It carries near-black #1D1C1B at 4.86:1, which passes. So the
+ *     primary action is orange with DARK text, not white. This also matches
+ *     what production actually renders on its sign-in CTA (a peach fill with
+ *     dark text) rather than a white-on-orange button.
+ *   - Primary hover LIGHTENS to primary-400 instead of darkening to
+ *     primary-600. Darkening drops dark text to 4.10:1 (fails); lightening
+ *     lifts it to 6.21:1. Saturated brand oranges behave this way.
+ */
+
+/* Make `dark:` respond to an explicit .dark class as well as the OS setting. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ===========================================================================
+ * 1. PRIMITIVES — verbatim from the guide
+ * ======================================================================== */
+:root {
+    /* Colors/primary/primary — buttons, active nav, selected state, links,
+       brand highlights, progress indicators */
+    --primary-50: #fdefea;
+    --primary-100: #f8ccbc;
+    --primary-200: #f4b49c;
+    --primary-300: #f0926f;
+    --primary-400: #ed7d53;
+    --primary-500: #e85c28; /* (d) */
+    --primary-600: #d35424;
+    --primary-700: #a5411c;
+    --primary-800: #803316;
+    --primary-900: #612711;
+
+    /* Colors/secondary/secondary — secondary branding, featured content,
+       highlights, promotional sections, visual emphasis */
+    --secondary-50: #fae6eb;
+    --secondary-100: #f0b2c1;
+    --secondary-200: #e98ca3;
+    --secondary-300: #e05878;
+    --secondary-400: #d9385e;
+    --secondary-500: #d00636; /* (d) */
+    --secondary-600: #bd0531;
+    --secondary-700: #940426;
+    --secondary-800: #72031e;
+    --secondary-900: #570317;
+
+    /* Colors/neutral/neutral — surface, cards, tables, backgrounds, borders,
+       disabled UI. Light theme ramp; note it starts at 25, not 50. */
+    --neutral-25: #f4f4f4;
+    --neutral-50: #dedddc;
+    --neutral-100: #cecccb;
+    --neutral-200: #b8b5b4;
+    --neutral-300: #aaa7a5;
+    --neutral-400: #95918f;
+    --neutral-500: #888482; /* (d) */
+    --neutral-600: #6a6766;
+    --neutral-700: #52504f;
+    --neutral-800: #3f3d3c;
+    --neutral-900: #1d1c1b;
+
+    /* Colors/accents/info */
+    --info-50: #ebf4fc;
+    --info-100: #bfdcf5;
+    --info-200: #a1cbf0;
+    --info-300: #76b3ea;
+    --info-400: #5ba4e5;
+    --info-500: #328ddf; /* (d) */
+    --info-600: #2e80cb;
+    --info-700: #24649e;
+    --info-800: #1c4e7b;
+    --info-900: #153b5e;
+
+    /* Colors/accents/success */
+    --success-50: #e9f8f0;
+    --success-100: #bbe9cf;
+    --success-200: #9adfb8;
+    --success-300: #6cd098;
+    --success-400: #50c784;
+    --success-500: #24b965; /* (d) */
+    --success-600: #21a85c;
+    --success-700: #1a8348;
+    --success-800: #146638;
+    --success-900: #0f4e2a;
+
+    /* Colors/accents/warning */
+    --warning-50: #f7f5e7;
+    --warning-100: #e7e1b5;
+    --warning-200: #dbd391;
+    --warning-300: #cbbf5f;
+    --warning-400: #c1b240;
+    --warning-500: #b19f10; /* (d) */
+    --warning-600: #a1910f;
+    --warning-700: #7e710b;
+    --warning-800: #615709;
+    --warning-900: #4a4307;
+
+    /* Colors/accents/danger */
+    --danger-50: #fcecec;
+    --danger-100: #f4c4c3;
+    --danger-200: #efa8a6;
+    --danger-300: #e8807d;
+    --danger-400: #e36864;
+    --danger-500: #dc423d; /* (d) */
+    --danger-600: #c83c38;
+    --danger-700: #9c2f2b;
+    --danger-800: #792422;
+    --danger-900: #5c1c1a;
+
+    /* Dark theme — Background ramp. Only consumed inside .dark. */
+    --bg-dark-50: #e8e8e8;
+    --bg-dark-100: #b9b9b8;
+    --bg-dark-200: #979796;
+    --bg-dark-300: #686766;
+    --bg-dark-400: #4a4949;
+    --bg-dark-500: #1d1c1b; /* (d) */
+    --bg-dark-600: #1a1919;
+    --bg-dark-700: #151413;
+    --bg-dark-800: #100f0f;
+    --bg-dark-900: #0c0c0b;
+
+    /* Dark theme — Neutral/Grey ramp (text and icons on dark). */
+    --grey-dark-50: #fbfbfa;
+    --grey-dark-100: #f3f2f1;
+    --grey-dark-200: #edebea;
+    --grey-dark-300: #e5e2e0;
+    --grey-dark-400: #e0ddda;
+    --grey-dark-500: #d8d4d1; /* (d) */
+    --grey-dark-600: #c5c1be;
+    --grey-dark-700: #999794;
+    --grey-dark-800: #777573;
+    --grey-dark-900: #5b5958;
+}
+
+/* ===========================================================================
+ * 2. SEMANTIC TOKENS — light theme
+ * ======================================================================== */
+:root {
+    color-scheme: light;
+
+    /* --- Background ------------------------------------------------------ */
+    /* Background/page — production's warm off-white, not pure #fff. */
+    --background: #fcfbfa;
+    --card: #ffffff; /* Background/surface  */
+    --subtle: var(--neutral-25); /* Background/subtle   */
+    --elevated: #ffffff; /* Background/elevated */
+    --popover: #ffffff;
+    --muted: var(--neutral-25); /* muted SURFACE (production semantics) */
+    --background-disabled: var(--neutral-50);
+
+    /* Warm brand-tinted surfaces, carried over from production so promotional
+       and summary cards match. */
+    --card-bg-100: #fefdfc;
+    --card-bg-200: #fdf8f4;
+    --card-bg-300: #fcf4ef;
+    --card-bg-400: #fbf0e8;
+    --card-bg-500: #faede3;
+    --card-bg-600: #f9e8dc;
+
+    /* --- Text ------------------------------------------------------------ */
+    /* Ratios against --background #fcfbfa. */
+    --foreground: var(--neutral-900); /* 16.46:1 */
+    --card-foreground: var(--neutral-900);
+    --popover-foreground: var(--neutral-900);
+    --text-heading: var(--neutral-900); /* Text/primary    16.46:1 */
+    --text-subheading: var(--neutral-700); /* Text/secondary   7.76:1 */
+    --text-body: var(--neutral-600); /* Text/tertiary    5.43:1 */
+    --text-placeholder: var(--neutral-400); /* 3.02:1 — placeholder only */
+    --text-disabled: var(--neutral-400); /* Text/disabled — exempt from AA */
+    --text-inverse: #ffffff; /* Text/inverse */
+    --muted-foreground: var(--neutral-600);
+
+    /*
+     * Production ships --text-body #7e7a79 (4.11:1) and --text-placeholder
+     * #afaaa6 (2.23:1). Both fail AA against the page background, which the
+     * guide's own principle 4 forbids, so we use the next step down the brand
+     * neutral ramp instead. Same role, same look, passes.
+     */
+
+    /* --- Actions --------------------------------------------------------- */
+    /*
+     * Roles follow how production RishiVerse actually uses colour, read off the
+     * signed-in app — not the guide's naming. Production puts CRIMSON on page
+     * titles and primary buttons, and reserves the ORANGE ramp for the sidebar's
+     * active state. The guide calls orange "primary" and crimson "secondary", so
+     * the ramps below keep the guide's names while the ROLES below match the
+     * product. Swapping this back is two values: --primary and --primary-text.
+     */
+    --primary: #b61d45; /* production's own --primary; + white 6.46:1 */
+    --primary-foreground: #ffffff;
+    --primary-hover: var(--secondary-700); /* + white 9.11:1 */
+    --primary-active: var(--secondary-800);
+    /* Crimson as TEXT (page titles, links). Separate from the fill because a
+       fill is measured against its label, not against the page. */
+    --primary-text: #b61d45; /* on --background 6.25:1 */
+    --primary-subtle: var(--secondary-50);
+    --primary-subtle-foreground: var(--secondary-700);
+
+    /*
+     * The soft call-to-action production uses for form submits and the sign-in
+     * button: a peach pill with dark text, 10.12:1. Not a disabled state — the
+     * class is `bg-[#F8DDCA] text-[#32302F] disabled:opacity-60`.
+     */
+    --cta: #f8ddca;
+    --cta-foreground: #32302f;
+
+    /* Orange brand accent — navigation highlight, per production. */
+    --brand: var(--primary-500);
+    --brand-subtle: #fff1eb;
+    --brand-subtle-foreground: #ca4317;
+
+    --secondary: var(--secondary-500);
+    --secondary-foreground: #ffffff; /* 5.58:1 */
+    --secondary-hover: var(--secondary-600);
+    --secondary-subtle: var(--secondary-50);
+    --secondary-subtle-foreground: var(--secondary-700);
+
+    --ghost-hover: var(--neutral-25);
+    --accent: var(--neutral-25);
+    --accent-foreground: var(--neutral-900);
+
+    /* --- Border ---------------------------------------------------------- */
+    --border: var(--neutral-50); /* Border/default  */
+    --border-subtle: #f2f0ee; /* Border/subtle — production --border-100 */
+    --border-strong: var(--neutral-200); /* Border/strong   */
+    --border-focus: var(--primary-500); /* Border/focus    */
+    --border-disabled: var(--neutral-50); /* Border/disabled */
+    --input: #e5e5e5; /* production --input */
+    --input-strong: #aba8a6; /* production --input-300; outline buttons */
+    --ring: var(--primary-500);
+
+    /* --- Icons ----------------------------------------------------------- */
+    --icon-primary: var(--neutral-700); /* Icon/primary   */
+    --icon-secondary: var(--neutral-500); /* Icon/secondary */
+    --icon-disabled: var(--neutral-300); /* Icon/disabled  */
+    --icon-inverse: #ffffff; /* Icon/inverse   */
+
+    /* --- Status ---------------------------------------------------------- */
+    /* Solid fills carry white; subtle fills carry the 800 step (6.4–8.8:1). */
+    --success: var(--success-700);
+    --success-foreground: #ffffff;
+    --success-subtle: var(--success-50);
+    --success-subtle-foreground: var(--success-800);
+    --success-dot: var(--success-500);
+
+    --warning: var(--warning-700);
+    --warning-foreground: #ffffff;
+    --warning-subtle: var(--warning-50);
+    --warning-subtle-foreground: var(--warning-800);
+    --warning-dot: var(--warning-500);
+
+    --error: var(--danger-700);
+    --error-foreground: #ffffff;
+    --error-subtle: var(--danger-50);
+    --error-subtle-foreground: var(--danger-800);
+    --error-dot: var(--danger-500);
+    --destructive: var(--danger-700);
+    --destructive-foreground: #ffffff;
+
+    --info: var(--info-700);
+    --info-foreground: #ffffff;
+    --info-subtle: var(--info-50);
+    --info-subtle-foreground: var(--info-800);
+    --info-dot: var(--info-500);
+
+    /* --- Sidebar --------------------------------------------------------- */
+    --sidebar: #fbf7f6; /* production's warm sidebar */
+    --sidebar-foreground: var(--neutral-700);
+    --sidebar-accent: #fff1eb; /* production's active nav pill */
+    --sidebar-accent-foreground: #ca4317; /* production's active nav label */
+    /* Idle / hover ink for rail icons and labels, production's own values. */
+    --sidebar-icon: #c4cad1;
+    --sidebar-icon-hover: #5a5f66;
+    --sidebar-label: #868c93;
+    --sidebar-label-hover: #2f3337;
+    --sidebar-border: var(--neutral-50);
+    --sidebar-primary: var(--primary);
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-ring: var(--primary-500);
+
+    /* --- Data visualisation ---------------------------------------------- */
+    /* Brand first, then the accents, so a 5-series chart stays on-brand and
+       stays distinguishable. */
+    --chart-1: var(--primary-500);
+    --chart-2: var(--info-500);
+    --chart-3: var(--success-500);
+    --chart-4: var(--warning-500);
+    --chart-5: var(--secondary-500);
+    --chart-grid: var(--neutral-50);
+    --chart-axis: var(--neutral-500);
+
+    /* --- Shape and elevation --------------------------------------------- */
+    /* Production: --radius .625rem, pill buttons, 8px inputs, and shadows at
+       5% alpha — barely-there elevation. */
+    --radius: 0.625rem;
+    --radius-input: 0.5rem;
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.05), 0 1px 2px -1px rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 10px -2px rgb(0 0 0 / 0.06), 0 2px 6px -2px rgb(0 0 0 / 0.04);
+    --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.12);
+}
+
+/* ===========================================================================
+ * 3. SEMANTIC TOKENS — dark theme
+ * ---------------------------------------------------------------------------
+ * Built from the dark-theme guide, NOT from production. Production's .dark
+ * block is unfinished: it leaves --text-heading at #1f1e1e over a #0a0a0a
+ * page (near-invisible), keeps the light peach --card-bg-* ramp, and drops
+ * --primary to grey #e5e5e5, losing the brand. None of that is copied.
+ * ======================================================================== */
+:root.dark,
+.dark {
+    color-scheme: dark;
+
+    /* --- Background ------------------------------------------------------ */
+    --background: var(--bg-dark-600); /* page    #1a1919 */
+    --card: var(--bg-dark-500); /* surface #1d1c1b — one step up */
+    --subtle: var(--bg-dark-700); /* recessed #151413 */
+    --elevated: var(--bg-dark-500);
+    --popover: var(--bg-dark-500);
+    --muted: var(--bg-dark-700);
+    --background-disabled: var(--bg-dark-700);
+
+    /* Warm tints re-derived for dark; the light peach ramp is unreadable here. */
+    --card-bg-100: #201e1d;
+    --card-bg-200: #241f1d;
+    --card-bg-300: #28211e;
+    --card-bg-400: #2c221e;
+    --card-bg-500: #31241f;
+    --card-bg-600: #35251f;
+
+    /* --- Text ------------------------------------------------------------ */
+    /* Ratios against --background #1a1919. */
+    --foreground: var(--grey-dark-50); /* 16.94:1 */
+    --card-foreground: var(--grey-dark-50);
+    --popover-foreground: var(--grey-dark-50);
+    --text-heading: var(--grey-dark-50); /* Text/primary    16.94:1 */
+    --text-subheading: var(--grey-dark-500); /* Text/secondary  11.91:1 */
+    --text-body: var(--grey-dark-700); /* Text/tertiary    6.02:1 */
+    --text-placeholder: var(--grey-dark-800); /* 3.82:1 */
+    --text-disabled: var(--grey-dark-800);
+    --text-inverse: var(--neutral-900);
+    --muted-foreground: var(--grey-dark-700);
+
+    /* --- Actions --------------------------------------------------------- */
+    /* The primary ramp is identical in both themes, so the brand orange holds.
+       #e85c28 reads 5.01:1 as text on the dark page and still carries dark
+       #1d1c1b text at 4.86:1 when used as a fill. */
+    /* The FILL keeps production's crimson — a filled button is measured against
+       its own label (6.46:1 with white) regardless of the page behind it. Only
+       crimson-as-TEXT has to lighten: #b61d45 on #1a1919 is 2.72:1. */
+    --primary: #b61d45;
+    --primary-foreground: #ffffff;
+    --primary-hover: var(--secondary-400);
+    --primary-active: var(--secondary-600);
+    --primary-text: var(--secondary-300); /* #e05878 on #1a1919 — 4.88:1 */
+    --primary-subtle: #2e0d15;
+    --primary-subtle-foreground: var(--secondary-200);
+
+    --cta: #f8ddca;
+    --cta-foreground: #32302f;
+
+    --brand: var(--primary-400);
+    --brand-subtle: #2e1a12;
+    --brand-subtle-foreground: var(--primary-200);
+
+    --secondary: var(--secondary-500);
+    --secondary-foreground: #ffffff;
+    --secondary-hover: var(--secondary-400);
+    --secondary-subtle: #2e0d15;
+    --secondary-subtle-foreground: var(--secondary-200);
+
+    --ghost-hover: rgb(255 255 255 / 0.06);
+    --accent: var(--bg-dark-700);
+    --accent-foreground: var(--grey-dark-50);
+
+    /* --- Border ---------------------------------------------------------- */
+    /* Alpha borders rather than ramp steps: they sit correctly on the page,
+       on cards and on elevated surfaces without a token per layer. This is
+       also what production's dark block does. */
+    --border: rgb(255 255 255 / 0.1);
+    --border-subtle: rgb(255 255 255 / 0.06);
+    --border-strong: rgb(255 255 255 / 0.22);
+    --border-focus: var(--primary-500);
+    --border-disabled: rgb(255 255 255 / 0.06);
+    --input: rgb(255 255 255 / 0.14);
+    --input-strong: rgb(255 255 255 / 0.28);
+    --ring: var(--primary-500);
+
+    /* --- Icons ----------------------------------------------------------- */
+    --icon-primary: var(--grey-dark-500);
+    --icon-secondary: var(--grey-dark-700);
+    --icon-disabled: var(--grey-dark-900);
+    --icon-inverse: var(--neutral-900);
+
+    /* --- Status ---------------------------------------------------------- */
+    /* Subtle fills use the 900 step with the 200 step on top (6.3–6.8:1). */
+    --success: var(--success-500);
+    --success-foreground: var(--neutral-900);
+    --success-subtle: var(--success-900);
+    --success-subtle-foreground: var(--success-200);
+    --success-dot: var(--success-400);
+
+    --warning: var(--warning-400);
+    --warning-foreground: var(--neutral-900);
+    --warning-subtle: var(--warning-900);
+    --warning-subtle-foreground: var(--warning-200);
+    --warning-dot: var(--warning-400);
+
+    --error: var(--danger-400);
+    --error-foreground: var(--neutral-900);
+    --error-subtle: var(--danger-900);
+    --error-subtle-foreground: var(--danger-200);
+    --error-dot: var(--danger-400);
+    --destructive: var(--danger-400);
+    --destructive-foreground: var(--neutral-900);
+
+    --info: var(--info-400);
+    --info-foreground: var(--neutral-900);
+    --info-subtle: var(--info-900);
+    --info-subtle-foreground: var(--info-200);
+    --info-dot: var(--info-400);
+
+    /* --- Sidebar --------------------------------------------------------- */
+    --sidebar: var(--bg-dark-700);
+    --sidebar-foreground: var(--grey-dark-600);
+    --sidebar-accent: #2e1a12;
+    --sidebar-accent-foreground: var(--primary-200);
+    --sidebar-icon: var(--grey-dark-900);
+    --sidebar-icon-hover: var(--grey-dark-500);
+    --sidebar-label: var(--grey-dark-800);
+    --sidebar-label-hover: var(--grey-dark-300);
+    --sidebar-border: rgb(255 255 255 / 0.08);
+    --sidebar-primary: var(--primary-500);
+    --sidebar-primary-foreground: var(--neutral-900);
+    --sidebar-ring: var(--primary-500);
+
+    /* --- Data visualisation ---------------------------------------------- */
+    /* One step lighter than light theme so series stay legible on #1a1919. */
+    --chart-1: var(--primary-400);
+    --chart-2: var(--info-400);
+    --chart-3: var(--success-400);
+    --chart-4: var(--warning-400);
+    --chart-5: var(--secondary-400);
+    --chart-grid: rgb(255 255 255 / 0.08);
+    --chart-axis: var(--grey-dark-800);
+
+    /* --- Elevation ------------------------------------------------------- */
+    /* Light shadows vanish on dark; deepen them instead. */
+    --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.45), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+    --shadow-md: 0 4px 10px -2px rgb(0 0 0 / 0.5), 0 2px 6px -2px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.6);
+}
+
+/* Follow the OS when the app has not made an explicit choice. */
+@media (prefers-color-scheme: dark) {
+    :root:not(.light):not(.dark) {
+        color-scheme: dark;
+
+        --background: var(--bg-dark-600);
+        --card: var(--bg-dark-500);
+        --subtle: var(--bg-dark-700);
+        --elevated: var(--bg-dark-500);
+        --popover: var(--bg-dark-500);
+        --muted: var(--bg-dark-700);
+        --background-disabled: var(--bg-dark-700);
+
+        --card-bg-100: #201e1d;
+        --card-bg-200: #241f1d;
+        --card-bg-300: #28211e;
+        --card-bg-400: #2c221e;
+        --card-bg-500: #31241f;
+        --card-bg-600: #35251f;
+
+        --foreground: var(--grey-dark-50);
+        --card-foreground: var(--grey-dark-50);
+        --popover-foreground: var(--grey-dark-50);
+        --text-heading: var(--grey-dark-50);
+        --text-subheading: var(--grey-dark-500);
+        --text-body: var(--grey-dark-700);
+        --text-placeholder: var(--grey-dark-800);
+        --text-disabled: var(--grey-dark-800);
+        --text-inverse: var(--neutral-900);
+        --muted-foreground: var(--grey-dark-700);
+
+        --primary: #b61d45;
+        --primary-foreground: #ffffff;
+        --primary-hover: var(--secondary-400);
+        --primary-active: var(--secondary-600);
+        --primary-text: var(--secondary-300);
+        --primary-subtle: #2e0d15;
+        --primary-subtle-foreground: var(--secondary-200);
+        --brand: var(--primary-400);
+        --brand-subtle: #2e1a12;
+        --brand-subtle-foreground: var(--primary-200);
+        --input-strong: rgb(255 255 255 / 0.28);
+        --secondary-hover: var(--secondary-400);
+        --secondary-subtle: #2e0d15;
+        --secondary-subtle-foreground: var(--secondary-200);
+
+        --ghost-hover: rgb(255 255 255 / 0.06);
+        --accent: var(--bg-dark-700);
+        --accent-foreground: var(--grey-dark-50);
+
+        --border: rgb(255 255 255 / 0.1);
+        --border-subtle: rgb(255 255 255 / 0.06);
+        --border-strong: rgb(255 255 255 / 0.22);
+        --border-disabled: rgb(255 255 255 / 0.06);
+        --input: rgb(255 255 255 / 0.14);
+
+        --icon-primary: var(--grey-dark-500);
+        --icon-secondary: var(--grey-dark-700);
+        --icon-disabled: var(--grey-dark-900);
+        --icon-inverse: var(--neutral-900);
+
+        --success: var(--success-500);
+        --success-foreground: var(--neutral-900);
+        --success-subtle: var(--success-900);
+        --success-subtle-foreground: var(--success-200);
+        --success-dot: var(--success-400);
+        --warning: var(--warning-400);
+        --warning-foreground: var(--neutral-900);
+        --warning-subtle: var(--warning-900);
+        --warning-subtle-foreground: var(--warning-200);
+        --warning-dot: var(--warning-400);
+        --error: var(--danger-400);
+        --error-foreground: var(--neutral-900);
+        --error-subtle: var(--danger-900);
+        --error-subtle-foreground: var(--danger-200);
+        --error-dot: var(--danger-400);
+        --destructive: var(--danger-400);
+        --destructive-foreground: var(--neutral-900);
+        --info: var(--info-400);
+        --info-foreground: var(--neutral-900);
+        --info-subtle: var(--info-900);
+        --info-subtle-foreground: var(--info-200);
+        --info-dot: var(--info-400);
+
+        --sidebar: var(--bg-dark-700);
+        --sidebar-foreground: var(--grey-dark-600);
+        --sidebar-accent: #2e1a12;
+        --sidebar-accent-foreground: var(--primary-200);
+        --sidebar-icon: var(--grey-dark-900);
+        --sidebar-icon-hover: var(--grey-dark-500);
+        --sidebar-label: var(--grey-dark-800);
+        --sidebar-label-hover: var(--grey-dark-300);
+        --sidebar-primary-foreground: #ffffff;
+        --sidebar-border: rgb(255 255 255 / 0.08);
+        --sidebar-primary-foreground: var(--neutral-900);
+
+        --chart-1: var(--primary-400);
+        --chart-2: var(--info-400);
+        --chart-3: var(--success-400);
+        --chart-4: var(--warning-400);
+        --chart-5: var(--secondary-400);
+        --chart-grid: rgb(255 255 255 / 0.08);
+        --chart-axis: var(--grey-dark-800);
+
+        --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+        --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.45), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+        --shadow-md: 0 4px 10px -2px rgb(0 0 0 / 0.5), 0 2px 6px -2px rgb(0 0 0 / 0.4);
+        --shadow-lg: 0 12px 32px -8px rgb(0 0 0 / 0.6);
+    }
+}
+
+/* ===========================================================================
+ * 4. TAILWIND SURFACE
+ * ---------------------------------------------------------------------------
+ * Expose the semantic tokens as utilities so components never reach for a hex
+ * or a stock Tailwind palette colour. `bg-card`, `text-text-body`,
+ * `border-border`, `bg-success-subtle`, `text-primary` and friends all resolve
+ * through the tokens above and therefore theme automatically.
+ * ======================================================================== */
+@theme inline {
+    /* Surfaces */
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-subtle: var(--subtle);
+    --color-elevated: var(--elevated);
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-background-disabled: var(--background-disabled);
+
+    --color-card-bg-100: var(--card-bg-100);
+    --color-card-bg-200: var(--card-bg-200);
+    --color-card-bg-300: var(--card-bg-300);
+    --color-card-bg-400: var(--card-bg-400);
+    --color-card-bg-500: var(--card-bg-500);
+    --color-card-bg-600: var(--card-bg-600);
+
+    /* Text */
+    --color-text-heading: var(--text-heading);
+    --color-text-subheading: var(--text-subheading);
+    --color-text-body: var(--text-body);
+    --color-text-placeholder: var(--text-placeholder);
+    --color-text-disabled: var(--text-disabled);
+    --color-text-inverse: var(--text-inverse);
+
+    /* Actions */
+    --color-primary: var(--primary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary-hover: var(--primary-hover);
+    --color-primary-active: var(--primary-active);
+    --color-primary-subtle: var(--primary-subtle);
+    --color-primary-subtle-foreground: var(--primary-subtle-foreground);
+    --color-primary-text: var(--primary-text);
+    --color-cta: var(--cta);
+    --color-cta-foreground: var(--cta-foreground);
+    --color-brand: var(--brand);
+    --color-brand-subtle: var(--brand-subtle);
+    --color-brand-subtle-foreground: var(--brand-subtle-foreground);
+    --color-input-strong: var(--input-strong);
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary-hover: var(--secondary-hover);
+    --color-secondary-subtle: var(--secondary-subtle);
+    --color-secondary-subtle-foreground: var(--secondary-subtle-foreground);
+    --color-ghost-hover: var(--ghost-hover);
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    /* Primary ramp, for the rare case a specific step is the right answer */
+    --color-primary-50: var(--primary-50);
+    --color-primary-100: var(--primary-100);
+    --color-primary-200: var(--primary-200);
+    --color-primary-300: var(--primary-300);
+    --color-primary-400: var(--primary-400);
+    --color-primary-500: var(--primary-500);
+    --color-primary-600: var(--primary-600);
+    --color-primary-700: var(--primary-700);
+    --color-primary-800: var(--primary-800);
+    --color-primary-900: var(--primary-900);
+
+    /* Borders, rings, icons */
+    --color-border: var(--border);
+    --color-border-subtle: var(--border-subtle);
+    --color-border-strong: var(--border-strong);
+    --color-border-focus: var(--border-focus);
+    --color-border-disabled: var(--border-disabled);
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+    --color-icon-primary: var(--icon-primary);
+    --color-icon-secondary: var(--icon-secondary);
+    --color-icon-disabled: var(--icon-disabled);
+    --color-icon-inverse: var(--icon-inverse);
+
+    /* Status */
+    --color-success: var(--success);
+    --color-success-foreground: var(--success-foreground);
+    --color-success-subtle: var(--success-subtle);
+    --color-success-subtle-foreground: var(--success-subtle-foreground);
+    --color-success-dot: var(--success-dot);
+    --color-warning: var(--warning);
+    --color-warning-foreground: var(--warning-foreground);
+    --color-warning-subtle: var(--warning-subtle);
+    --color-warning-subtle-foreground: var(--warning-subtle-foreground);
+    --color-warning-dot: var(--warning-dot);
+    --color-error: var(--error);
+    --color-error-foreground: var(--error-foreground);
+    --color-error-subtle: var(--error-subtle);
+    --color-error-subtle-foreground: var(--error-subtle-foreground);
+    --color-error-dot: var(--error-dot);
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+    --color-info: var(--info);
+    --color-info-foreground: var(--info-foreground);
+    --color-info-subtle: var(--info-subtle);
+    --color-info-subtle-foreground: var(--info-subtle-foreground);
+    --color-info-dot: var(--info-dot);
+
+    /* Sidebar */
+    --color-sidebar: var(--sidebar);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-icon: var(--sidebar-icon);
+    --color-sidebar-icon-hover: var(--sidebar-icon-hover);
+    --color-sidebar-label: var(--sidebar-label);
+    --color-sidebar-label-hover: var(--sidebar-label-hover);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+
+    /* Charts */
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+    --color-chart-grid: var(--chart-grid);
+    --color-chart-axis: var(--chart-axis);
+
+    /* Shape and elevation */
+    --radius-card: var(--radius);
+    --radius-input: var(--radius-input);
+    --shadow-xs: var(--shadow-xs);
+    --shadow-sm: var(--shadow-sm);
+    --shadow-md: var(--shadow-md);
+    --shadow-lg: var(--shadow-lg);
+}
+
+/* ===========================================================================
+ * 5. BASE
+ * ======================================================================== */
+body {
+    background: var(--background);
+    color: var(--foreground);
+    /* Production serves no webfont; it renders on the system stack. Matching
+       it means the module looks identical once mounted inside v2's shell. */
+    font-family:
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        Segoe UI,
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Themed selection and focus, so neither falls back to a browser blue. */
+::selection {
+    background: var(--primary-100);
+    color: var(--neutral-900);
+}
+
+:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+}
+
+/* Inputs inherit the token colours by default rather than each form
+   re-specifying them. */
+input::placeholder,
+textarea::placeholder {
+    color: var(--text-placeholder);
+}

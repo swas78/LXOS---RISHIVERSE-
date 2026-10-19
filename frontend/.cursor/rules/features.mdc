@@ -1,0 +1,19 @@
+---
+description: Redux feature module conventions
+globs: src/features/**/*
+alwaysApply: false
+---
+
+# Feature Modules
+
+**Strict file order:** `types.ts` → `*Api.ts` → `*Thunks.ts` → `*Slice.ts` → `*Selectors.ts`
+
+**Dependency:** types ← Api ← Thunks ← Slice ← Selectors. Never import upward.
+
+```ts
+// Thunks: always rejectWithValue(extractApiErrorMessage(err, "…"))
+// Slice: handle pending/fulfilled/rejected; toast on successful mutations when UX needs it
+// Register new reducer in src/store/index.ts (kit) / rootReducer.ts (production)
+```
+
+Canonical kit example: `src/features/demo/item/`.
