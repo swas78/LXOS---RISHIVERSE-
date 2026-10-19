@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { FileQuestion, Home } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
     return (
@@ -13,11 +12,12 @@ export default function NotFound() {
                 We couldn&apos;t find the page you were looking for. It might have been moved or
                 doesn&apos;t exist.
             </p>
-            <Button asChild className="gap-2">
-                <Link href="/">
-                    <Home className="h-4 w-4" /> Return Home
-                </Link>
-            </Button>
+            <Link
+                href="/"
+                className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-full border border-border bg-card px-4 text-sm font-medium text-brand-subtle-foreground transition-colors hover:bg-brand-subtle"
+            >
+                <Home className="h-4 w-4" /> Return Home
+            </Link>
         </div>
     );
 }
