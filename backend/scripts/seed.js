@@ -169,6 +169,7 @@ async function clearAll() {
     await prisma.lxCabinBlock.deleteMany();
     await prisma.lxCabinBooking.deleteMany();
     await prisma.lxCabin.deleteMany();
+    await prisma.demoItem.deleteMany();
     await Promise.all([
         prisma.lxEvent.deleteMany(),
         prisma.lxAchievement.deleteMany(),
@@ -437,6 +438,151 @@ async function main() {
     for (const e of eventsData) await prisma.lxEvent.create({ data: e });
     const events = await prisma.lxEvent.findMany();
     console.info(`[seed] events: ${events.length}`);
+
+    // ---- Room Bookings (linked to events + ad-hoc bookings) ------------------
+    const devfestEv = events.find((e) => e.title.includes("DevFest"));
+    const roboEv = events.find((e) => e.title.includes("Robotics"));
+    const theatreEv = events.find((e) => e.title.includes("Theatre"));
+    const orientEv = events.find((e) => e.title.includes("Orientation"));
+    const c104 = roomByName["C-104"];
+    const a403 = roomByName["A-403"];
+    const mainAudi = roomByName["Main Audi"];
+
+    await prisma.lxRoomBooking.createMany({
+        data: [
+            {
+                roomId: audi.id,
+                roomName: audi.name,
+                eventId: devfestEv?.id,
+                eventTitle: devfestEv?.title,
+                title: "GDG DevFest 2026",
+                purpose: "Keynote presentation, technical talks, and AI workshops",
+                startTime: daysFromNow(5, 10),
+                endTime: daysFromNow(5, 17),
+                status: "APPROVED",
+                requestedByRef: gdgHead.referenceId,
+                requestedByName: gdgHead.displayName,
+                approvedByRef: admin.referenceId,
+                approvedByName: admin.displayName,
+                approvedAt: daysFromNow(-2),
+            },
+            {
+                roomId: a401.id,
+                roomName: a401.name,
+                eventId: roboEv?.id,
+                eventTitle: roboEv?.title,
+                title: "Robotics Build Night — Arena Setup",
+                purpose: "Hardware assembly and test arena zone A",
+                startTime: daysFromNow(9, 18),
+                endTime: daysFromNow(10, 6),
+                status: "PENDING",
+                requestedByRef: roboHead.referenceId,
+                requestedByName: roboHead.displayName,
+            },
+            {
+                roomId: a402.id,
+                roomName: a402.name,
+                eventId: roboEv?.id,
+                eventTitle: roboEv?.title,
+                title: "Robotics Build Night — Circuit Lab",
+                purpose: "Soldering, microcontrollers, and firmware bench",
+                startTime: daysFromNow(9, 18),
+                endTime: daysFromNow(10, 6),
+                status: "PENDING",
+                requestedByRef: roboHead.referenceId,
+                requestedByName: roboHead.displayName,
+            },
+            {
+                roomId: audi.id,
+                roomName: audi.name,
+                eventId: theatreEv?.id,
+                eventTitle: theatreEv?.title,
+                title: "Theatre Club Annual Play",
+                purpose: "Stage lighting, dress rehearsal, and main performance",
+                startTime: daysFromNow(14, 18),
+                endTime: daysFromNow(14, 21),
+                status: "APPROVED",
+                requestedByRef: theatreHead.referenceId,
+                requestedByName: theatreHead.displayName,
+                approvedByRef: admin.referenceId,
+                approvedByName: admin.displayName,
+                approvedAt: daysFromNow(-1),
+            },
+            {
+                roomId: c103.id,
+                roomName: c103.name,
+                eventId: orientEv?.id,
+                eventTitle: orientEv?.title,
+                title: "LX Orientation Session",
+                purpose: "Student leadership onboarding and workflow demo",
+                startTime: daysFromNow(1, 11),
+                endTime: daysFromNow(1, 13),
+                status: "APPROVED",
+                requestedByRef: admin.referenceId,
+                requestedByName: admin.displayName,
+                approvedByRef: admin.referenceId,
+                approvedByName: admin.displayName,
+                approvedAt: daysFromNow(-4),
+            },
+            {
+                roomId: c104.id,
+                roomName: c104.name,
+                title: "SAST Core Team Sprint Planning",
+                purpose: "Weekly core team sync and hackathon agenda",
+                startTime: daysFromNow(2, 16),
+                endTime: daysFromNow(2, 18),
+                status: "APPROVED",
+                requestedByRef: headOf("SAST").referenceId,
+                requestedByName: headOf("SAST").displayName,
+                approvedByRef: admin.referenceId,
+                approvedByName: admin.displayName,
+                approvedAt: daysFromNow(-1),
+            },
+            {
+                roomId: a403.id,
+                roomName: a403.name,
+                title: "AI Club Paper Reading Group",
+                purpose: "Discussion on foundation models and multimodal systems",
+                startTime: daysFromNow(3, 15),
+                endTime: daysFromNow(3, 17),
+                status: "APPROVED",
+                requestedByRef: headOf("AI Club").referenceId,
+                requestedByName: headOf("AI Club").displayName,
+                approvedByRef: admin.referenceId,
+                approvedByName: admin.displayName,
+                approvedAt: daysFromNow(-2),
+            },
+            {
+                roomId: mainAudi.id,
+                roomName: mainAudi.name,
+                title: "Informal Gaming Meetup",
+                purpose: "LAN gaming afternoon",
+                startTime: daysFromNow(4, 14),
+                endTime: daysFromNow(4, 18),
+                status: "REJECTED",
+                requestedByRef: student.referenceId,
+                requestedByName: student.displayName,
+                approvedByRef: admin.referenceId,
+                approvedByName: admin.displayName,
+                approvedAt: daysFromNow(-1),
+                rejectionReason:
+                    "Main Auditorium is reserved for institutional convocations. Please book an A-Block classroom instead.",
+            },
+            {
+                roomId: c103.id,
+                roomName: c103.name,
+                title: "Design Critique Circle",
+                purpose: "Portfolio peer review",
+                startTime: daysFromNow(-2, 16),
+                endTime: daysFromNow(-2, 18),
+                status: "CANCELLED",
+                requestedByRef: student.referenceId,
+                requestedByName: student.displayName,
+            },
+        ],
+    });
+    const roomBookings = await prisma.lxRoomBooking.findMany();
+    console.info(`[seed] room bookings: ${roomBookings.length}`);
 
     // ---- Achievements ----
     await prisma.lxAchievement.createMany({
@@ -891,6 +1037,181 @@ async function main() {
             role: "LIBRARIAN",
         },
     });
+
+    // ---- Library Cabin Bookings & Suspensions --------------------------------
+    const cabins = await prisma.lxCabin.findMany();
+    const cabinByCode = Object.fromEntries(cabins.map((c) => [c.code, c]));
+
+    const p1 = cabinByCode["P1"];
+    const p2 = cabinByCode["P2"];
+    const p3 = cabinByCode["P3"];
+    const p4 = cabinByCode["P4"];
+    const p5 = cabinByCode["P5"];
+
+    // 1. Checked-in live session in P1
+    await prisma.lxCabinBooking.create({
+        data: {
+            cabinId: p1.id,
+            cabinName: p1.name,
+            date: "2026-09-01",
+            slotStart: "10:00",
+            slotEnd: "11:00",
+            startAt: daysFromNow(0, 10),
+            endAt: daysFromNow(0, 11),
+            bookedByRef: gdgHead.referenceId,
+            bookedByName: gdgHead.displayName,
+            bookerType: "STUDENT",
+            contactPhone: "9876500112",
+            peopleCount: 4,
+            status: "CHECKED_IN",
+            checkedInAt: daysFromNow(0, 10),
+            groupMembers: [
+                { referenceId: student.referenceId, name: student.displayName },
+                { referenceId: headOf("SAST").referenceId, name: headOf("SAST").displayName },
+                { referenceId: roboHead.referenceId, name: roboHead.displayName },
+            ],
+            slotKey: `${p1.id}_2026-09-01_10:00`,
+        },
+    });
+
+    // 2. Upcoming booked session in P2 (Faculty reservation)
+    await prisma.lxCabinBooking.create({
+        data: {
+            cabinId: p2.id,
+            cabinName: p2.name,
+            date: "2026-09-01",
+            slotStart: "14:00",
+            slotEnd: "15:00",
+            startAt: daysFromNow(0, 14),
+            endAt: daysFromNow(0, 15),
+            bookedByRef: admin.referenceId,
+            bookedByName: admin.displayName,
+            bookerType: "FACULTY",
+            contactPhone: "9876500115",
+            peopleCount: 3,
+            status: "BOOKED",
+            groupMembers: [
+                { referenceId: theatreHead.referenceId, name: theatreHead.displayName },
+                { referenceId: headOf("Finanza").referenceId, name: headOf("Finanza").displayName },
+            ],
+            slotKey: `${p2.id}_2026-09-01_14:00`,
+        },
+    });
+
+    // 3. Completed past session in P3
+    await prisma.lxCabinBooking.create({
+        data: {
+            cabinId: p3.id,
+            cabinName: p3.name,
+            date: "2026-08-31",
+            slotStart: "15:00",
+            slotEnd: "16:00",
+            startAt: daysFromNow(-1, 15),
+            endAt: daysFromNow(-1, 16),
+            bookedByRef: headOf("SAST").referenceId,
+            bookedByName: headOf("SAST").displayName,
+            bookerType: "STUDENT",
+            contactPhone: "9876500116",
+            peopleCount: 4,
+            status: "COMPLETED",
+            checkedInAt: daysFromNow(-1, 15),
+            checkedOutAt: daysFromNow(-1, 16),
+            groupMembers: [
+                { referenceId: student.referenceId, name: student.displayName },
+                { referenceId: roboHead.referenceId, name: roboHead.displayName },
+            ],
+            slotKey: null,
+        },
+    });
+
+    // 4. No-show session in P4 that incurred an automatic suspension
+    const noShowBooking = await prisma.lxCabinBooking.create({
+        data: {
+            cabinId: p4.id,
+            cabinName: p4.name,
+            date: "2026-08-31",
+            slotStart: "11:00",
+            slotEnd: "12:00",
+            startAt: daysFromNow(-1, 11),
+            endAt: daysFromNow(-1, 12),
+            bookedByRef: student.referenceId,
+            bookedByName: student.displayName,
+            bookerType: "STUDENT",
+            contactPhone: "9876500117",
+            peopleCount: 2,
+            status: "NO_SHOW",
+            markedNoShowAt: daysFromNow(-1, 11),
+            handledByRef: "EMP0430",
+            handledByName: "Library Desk",
+            groupMembers: [
+                { referenceId: headOf("AI Club").referenceId, name: headOf("AI Club").displayName },
+            ],
+            slotKey: null,
+        },
+    });
+
+    // 5. Cancelled session in P5
+    await prisma.lxCabinBooking.create({
+        data: {
+            cabinId: p5.id,
+            cabinName: p5.name,
+            date: "2026-09-02",
+            slotStart: "16:00",
+            slotEnd: "17:00",
+            startAt: daysFromNow(1, 16),
+            endAt: daysFromNow(1, 17),
+            bookedByRef: headOf("GD Club").referenceId,
+            bookedByName: headOf("GD Club").displayName,
+            bookerType: "STUDENT",
+            contactPhone: "9876500118",
+            peopleCount: 2,
+            status: "CANCELLED",
+            cancelledAt: daysFromNow(0, 9),
+            slotKey: null,
+        },
+    });
+
+    const cabinBookings = await prisma.lxCabinBooking.findMany();
+    console.info(`[seed] cabin bookings: ${cabinBookings.length}`);
+
+    // ---- Library Cabin Blocks (Suspension for No-Show) -----------------------
+    await prisma.lxCabinBlock.create({
+        data: {
+            memberRef: student.referenceId,
+            memberName: student.displayName,
+            reason: "NO_SHOW",
+            note: "Automatic 7-day restriction: missed check-in window for Cabin P4 on 2026-08-31.",
+            startsAt: daysFromNow(-1, 11),
+            expiresAt: daysFromNow(6, 11),
+            bookingId: noShowBooking.id,
+            createdByRef: null, // automatic system block
+        },
+    });
+    const cabinBlocks = await prisma.lxCabinBlock.findMany();
+    console.info(`[seed] cabin blocks: ${cabinBlocks.length}`);
+
+    // ---- Demo Scaffold Items ------------------------------------------------
+    await prisma.demoItem.createMany({
+        data: [
+            {
+                title: "Welcome to RishiVerse Modules",
+                description: "Standard template item for testing CRUD operations and pagination contracts.",
+                status: "ACTIVE",
+            },
+            {
+                title: "Sample Draft Specification",
+                description: "Proposal draft under review by module maintainers.",
+                status: "DRAFT",
+            },
+            {
+                title: "Archived Milestone Report",
+                description: "Completed scaffold demonstration artifact from previous iteration.",
+                status: "ARCHIVED",
+            },
+        ],
+    });
+    const demoItems = await prisma.demoItem.findMany();
+    console.info(`[seed] demo items: ${demoItems.length}`);
 
     console.info(
         "[seed] ✅ done — real LXOS dataset (clubs/clans/rooms/admins) + demo layer seeded.",

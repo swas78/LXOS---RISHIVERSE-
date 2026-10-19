@@ -19,9 +19,16 @@ import {
     reviewReimbursementSchema,
     updateReimbursementSchema,
 } from "../../validations/lx/reimbursement.validation.js";
+import rateLimit from "express-rate-limit";
 
 const router = express.Router();
 const logger = createContextLogger("reimbursementRoutes");
+
+const submitLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // Limit each IP to 5 requests per windowMs
+    message: { success: false, message: "Too many reimbursement requests created from this IP, please try again after 15 minutes", statusCode: 429 }
+});
 
 router.use((req, res, next) => {
     logger.debug("LX reimbursement route accessed", { method: req.method, path: req.path });
@@ -31,6 +38,7 @@ router.use((req, res, next) => {
 router.post(
     "/new",
     requirePermission(PERMISSIONS.SUBMIT_REIMBURSEMENT),
+    submitLimiter,
     validateBody(createReimbursementSchema),
     createReimbursementController,
 );
